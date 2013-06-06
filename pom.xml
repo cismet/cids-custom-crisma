@@ -121,6 +121,14 @@
     </repositories>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/crismaDist</directory>
+            </resource>
+        </resources>
         <plugins>
             <!-- disabled because sudplan makes use of automatic generation -->
             <plugin>
