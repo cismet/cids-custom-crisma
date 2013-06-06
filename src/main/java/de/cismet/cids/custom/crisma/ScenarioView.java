@@ -93,7 +93,7 @@ public class ScenarioView extends javax.swing.JPanel {
 
                 @Override
                 public void valueChanged(final ListSelectionEvent e) {
-                    if (treeSelectionUpdate) {
+                    if (treeSelectionUpdate || e.getValueIsAdjusting()) {
                         return;
                     }
 
@@ -127,6 +127,7 @@ public class ScenarioView extends javax.swing.JPanel {
                             for (final Object mo : selection) {
                                 mos.add(new ObjectTreeNode(new MetaObjectNode(((MetaObject)mo).getBean())));
                             }
+
                             ComponentRegistry.getRegistry().getDescriptionPane().setNodesDescriptions(mos);
                         } else {
                             ComponentRegistry.getRegistry().getCatalogueTree().setSelectedNodes(nodes, true);
