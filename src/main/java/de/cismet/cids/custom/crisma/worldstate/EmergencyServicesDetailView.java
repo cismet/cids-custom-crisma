@@ -8,7 +8,6 @@
 package de.cismet.cids.custom.crisma.worldstate;
 
 import org.openide.util.NbBundle;
-import org.openide.util.lookup.ServiceProvider;
 
 import javax.swing.JComponent;
 
@@ -18,8 +17,7 @@ import javax.swing.JComponent;
  * @author   mscholl
  * @version  $Revision$, $Date$
  */
-@ServiceProvider(service = DetailView.class)
-public class EmergencyServicesDetailView extends javax.swing.JPanel implements DetailView {
+public class EmergencyServicesDetailView extends AbstractDetailView {
 
     //~ Instance fields --------------------------------------------------------
 

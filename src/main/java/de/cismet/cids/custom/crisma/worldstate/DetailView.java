@@ -9,6 +9,8 @@ package de.cismet.cids.custom.crisma.worldstate;
 
 import javax.swing.JComponent;
 
+import de.cismet.cids.dynamics.CidsBean;
+
 /**
  * DOCUMENT ME!
  *
@@ -45,4 +47,17 @@ public interface DetailView {
      * @return  DOCUMENT ME!
      */
     String getDisplayName();
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    CidsBean getWorldstate();
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  worldstateBean  DOCUMENT ME!
+     */
+    void setWorldstate(final CidsBean worldstateBean);
 }

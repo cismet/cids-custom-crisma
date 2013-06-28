@@ -7,15 +7,19 @@
 ****************************************************/
 package de.cismet.cids.custom.crisma.objecteditors;
 
+import Sirius.navigator.connection.SessionManager;
 import Sirius.navigator.ui.ComponentRegistry;
 import Sirius.navigator.ui.RequestsFullSizeComponent;
 
+import Sirius.server.middleware.types.MetaClass;
 import Sirius.server.middleware.types.MetaObject;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.jdesktop.jxlayer.JXLayer;
 import org.jdesktop.jxlayer.plaf.ext.LockableUI;
-
-import org.openide.util.Lookup;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
@@ -28,8 +32,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Map;
 
 import javax.swing.Box.Filler;
 import javax.swing.JButton;
@@ -44,13 +50,15 @@ import de.cismet.cids.custom.crisma.worldstate.DetailView;
 
 import de.cismet.cids.dynamics.CidsBean;
 
+import de.cismet.cids.navigator.utils.ClassCacheMultiple;
+
 /**
  * DOCUMENT ME!
  *
  * @author   mscholl
  * @version  $Revision$, $Date$
  */
-public class WorldstateEditor extends AbstractCidsBeanRenderer implements RequestsFullSizeComponent {
+public class WorldstatesEditor extends AbstractCidsBeanRenderer implements RequestsFullSizeComponent {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
@@ -66,16 +74,16 @@ public class WorldstateEditor extends AbstractCidsBeanRenderer implements Reques
     /**
      * Creates new form WorldstateRenderer.
      */
-    public WorldstateEditor() {
+    public WorldstatesEditor() {
         this(true);
     }
 
     /**
-     * Creates a new WorldstateEditor object.
+     * Creates a new WorldstatesEditor object.
      *
      * @param  editable  DOCUMENT ME!
      */
-    public WorldstateEditor(final boolean editable) {
+    public WorldstatesEditor(final boolean editable) {
         initComponents();
     }
 
@@ -125,7 +133,7 @@ public class WorldstateEditor extends AbstractCidsBeanRenderer implements Reques
         jPanel1.setLayout(new java.awt.BorderLayout());
 
         pnlSwapper.setOpaque(false);
-        pnlSwapper.setLayout(new java.awt.GridLayout());
+        pnlSwapper.setLayout(new java.awt.GridLayout(1, 0));
         scrSwapper.setViewportView(pnlSwapper);
 
         jPanel1.add(scrSwapper, java.awt.BorderLayout.CENTER);
@@ -172,7 +180,7 @@ public class WorldstateEditor extends AbstractCidsBeanRenderer implements Reques
 
         while (current != null) {
             beans.addFirst(current);
-            current = (CidsBean)current.getProperty("parent");
+            current = (CidsBean)current.getProperty("parentWorldstate");
         }
 
         for (int i = 0; i < beans.size(); ++i) {
@@ -182,7 +190,7 @@ public class WorldstateEditor extends AbstractCidsBeanRenderer implements Reques
 
                     @Override
                     public void actionPerformed(final ActionEvent e) {
-                        if (!mo.equals(WorldstateEditor.this.cidsBean.getMetaObject())) {
+                        if (!mo.equals(WorldstatesEditor.this.cidsBean.getMetaObject())) {
                             ComponentRegistry.getRegistry().getDescriptionPane().gotoMetaObject(mo, null);
                         }
                     }
@@ -234,11 +242,35 @@ public class WorldstateEditor extends AbstractCidsBeanRenderer implements Reques
 
     /**
      * DOCUMENT ME!
+     *
+     * @throws  IllegalStateException  DOCUMENT ME!
      */
     private void initViewer() {
         assert EventQueue.isDispatchThread() : "EDT only";
 
-        final Collection<? extends DetailView> views = Lookup.getDefault().lookupAll(DetailView.class);
+        final Collection<DetailView> views = new ArrayList<DetailView>();
+        try {
+            final MetaClass mc = ClassCacheMultiple.getMetaClass("CRISMA", "RENDERINGDESCRIPTORS");
+            final String sql = "SELECT " + mc.getID() + ", r." + mc.getPrimaryKey()
+                        + " FROM RENDERINGDESCRIPTORS r, categories ca, classifications cl where r.categories = ca.id and ca.classification = cl.id and cl.key like 'worldstate_detail_view'";
+            final MetaObject[] mos = SessionManager.getProxy()
+                        .getMetaObjectByQuery(SessionManager.getSession().getUser(), sql);
+            final ObjectMapper m = new ObjectMapper(new JsonFactory());
+            final TypeReference<Map<String, String>> ref = new TypeReference<Map<String, String>>() {
+                };
+
+            for (final MetaObject mo : mos) {
+                final String jsonString = (String)mo.getBean().getProperty("uiintegrationinfo");
+                final Map<String, String> json = m.readValue(jsonString, ref);
+                final String viewName = json.get("canonicalName");
+
+                final DetailView view = (DetailView)Class.forName(viewName).newInstance();
+                views.add(view);
+            }
+        } catch (final Exception e) {
+            throw new IllegalStateException("illegal renderingdescriptors configuration", e);
+        }
+
         pnlSwapper.setLayout(new GridLayout(1, views.size() - 1, 10, 0));
 
         int i = 0;

@@ -18,7 +18,6 @@ import org.openide.util.lookup.ServiceProvider;
 
 import java.awt.EventQueue;
 
-
 import javax.swing.ImageIcon;
 
 import de.cismet.tools.configuration.StartupHook;
@@ -52,15 +51,15 @@ public final class CrismaStartupHook implements StartupHook {
                     final ScenarioView view = ScenarioView.getInstance();
                     final FloatingFrameConfigurator configurator = new FloatingFrameConfigurator(
                             "ScenarioViewer",
-                            "Scenario Viewer"); 
+                            "Scenario Viewer");
                     configurator.setTitleBarEnabled(false);
 
                     final MutableConstraints attributePanelConstraints = new MutableConstraints(true);
                     attributePanelConstraints.addAsFloatingFrame(
                         "ScenarioViewer",
                         view,
-                        "Scenario Viewer",            
-                        "Worldstate scenario viewer", 
+                        "Scenario Viewer",
+                        "Worldstate scenario viewer",
                         wsIcon,
                         MutableConstraints.P2,
                         0,
