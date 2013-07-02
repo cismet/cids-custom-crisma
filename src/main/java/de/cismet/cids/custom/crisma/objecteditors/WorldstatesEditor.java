@@ -22,6 +22,7 @@ import org.jdesktop.jxlayer.JXLayer;
 import org.jdesktop.jxlayer.plaf.ext.LockableUI;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -33,8 +34,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.Box.Filler;
@@ -46,7 +48,9 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 
 import de.cismet.cids.custom.crisma.AbstractCidsBeanRenderer;
-import de.cismet.cids.custom.crisma.worldstate.DetailView;
+import de.cismet.cids.custom.crisma.JFlipPane;
+import de.cismet.cids.custom.crisma.worldstate.editor.DetailEditor;
+import de.cismet.cids.custom.crisma.worldstate.viewer.DetailView;
 
 import de.cismet.cids.dynamics.CidsBean;
 
@@ -59,6 +63,12 @@ import de.cismet.cids.navigator.utils.ClassCacheMultiple;
  * @version  $Revision$, $Date$
  */
 public class WorldstatesEditor extends AbstractCidsBeanRenderer implements RequestsFullSizeComponent {
+
+    //~ Instance fields --------------------------------------------------------
+
+    private transient boolean editing;
+
+    private final transient List<JFlipPane> flippanes = new ArrayList<JFlipPane>();
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
@@ -81,9 +91,11 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
     /**
      * Creates a new WorldstatesEditor object.
      *
-     * @param  editable  DOCUMENT ME!
+     * @param  editing  DOCUMENT ME!
      */
-    public WorldstatesEditor(final boolean editable) {
+    public WorldstatesEditor(final boolean editing) {
+        this.editing = editing;
+
         initComponents();
     }
 
@@ -247,25 +259,46 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
      */
     private void initViewer() {
         assert EventQueue.isDispatchThread() : "EDT only";
+        assert !editing : "init while not editing only";
 
-        final Collection<DetailView> views = new ArrayList<DetailView>();
+        final Map<DetailView, DetailEditor> views = new HashMap<DetailView, DetailEditor>();
         try {
-            final MetaClass mc = ClassCacheMultiple.getMetaClass("CRISMA", "RENDERINGDESCRIPTORS");
-            final String sql = "SELECT " + mc.getID() + ", r." + mc.getPrimaryKey()
-                        + " FROM RENDERINGDESCRIPTORS r, categories ca, classifications cl where r.categories = ca.id and ca.classification = cl.id and cl.key like 'worldstate_detail_view'";
-            final MetaObject[] mos = SessionManager.getProxy()
-                        .getMetaObjectByQuery(SessionManager.getSession().getUser(), sql);
+            final MetaClass mcr = ClassCacheMultiple.getMetaClass("CRISMA", "renderingdescriptors");
+            final MetaClass mce = ClassCacheMultiple.getMetaClass("CRISMA", "MANIPULATIONDESCRIPTORS");
+            final String sqlr = "SELECT " + mcr.getID() + ", r."
+                        + mcr.getPrimaryKey()
+                        + " FROM renderingdescriptors r, renderingdescriptorscategories rc, categories ca, classifications cl where r.categories = rc.renderingdescriptors_reference and rc.categories = ca.id and ca.classification = cl.id and cl.key like 'worldstate_detail_component'";
+            final String sqle = "SELECT " + mce.getID() + ", m." + mce.getPrimaryKey()
+                        + " FROM MANIPULATIONDESCRIPTORS m, manipulationdescriptorscategories mc, categories ca, classifications cl where m.categories = mc.manipulationdescriptors_reference and mc.category = ca.id and ca.classification = cl.id and cl.key like 'worldstate_detail_component'";
+            final MetaObject[] mosr = SessionManager.getProxy()
+                        .getMetaObjectByQuery(SessionManager.getSession().getUser(), sqlr);
+            final MetaObject[] mose = SessionManager.getProxy()
+                        .getMetaObjectByQuery(SessionManager.getSession().getUser(), sqle);
             final ObjectMapper m = new ObjectMapper(new JsonFactory());
             final TypeReference<Map<String, String>> ref = new TypeReference<Map<String, String>>() {
                 };
 
-            for (final MetaObject mo : mos) {
+            for (final MetaObject mo : mosr) {
                 final String jsonString = (String)mo.getBean().getProperty("uiintegrationinfo");
                 final Map<String, String> json = m.readValue(jsonString, ref);
                 final String viewName = json.get("canonicalName");
 
                 final DetailView view = (DetailView)Class.forName(viewName).newInstance();
-                views.add(view);
+
+                DetailEditor editor = null;
+                for (final MetaObject moe : mose) {
+                    final Object o = moe.getBean().getProperty("categories");
+                    if (mo.getBean().getProperty("categories").equals(o)) {
+                        final String jsonStringM = (String)moe.getBean().getProperty("uiintegrationinfo");
+                        final Map<String, String> jsonM = m.readValue(jsonStringM, ref);
+                        final String editorName = jsonM.get("canonicalName");
+
+                        editor = (DetailEditor)Class.forName(editorName).newInstance();
+
+                        break;
+                    }
+                }
+                views.put(view, editor);
             }
         } catch (final Exception e) {
             throw new IllegalStateException("illegal renderingdescriptors configuration", e);
@@ -274,13 +307,17 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         pnlSwapper.setLayout(new GridLayout(1, views.size() - 1, 10, 0));
 
         int i = 0;
-        for (final DetailView view : views) {
+        for (final DetailView view : views.keySet()) {
             final JPanel contentPane = new JPanel(new BorderLayout());
+            final JFlipPane fp = new JFlipPane();
             contentPane.putClientProperty("detailView", view);
+            contentPane.putClientProperty("detailEditor", views.get(view));
             contentPane.setBorder(new TitledBorder(new BevelBorder(BevelBorder.RAISED), view.getDisplayName()));
 
             if (++i == views.size()) {
-                contentPane.add(view.getView(), BorderLayout.CENTER);
+                fp.setFrontPanel(view.getView());
+                fp.setBackPanel(views.get(view).getEditor());
+                contentPane.add(fp, BorderLayout.CENTER);
                 pnlDetails.add(contentPane);
             } else {
                 final LockableUI lockableUI = new LockableUI() {
@@ -293,14 +330,29 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                                 final JComponent oldContentPane = (JComponent)pnlDetails.getComponent(0);
                                 final JComponent newContentPane = l.getView();
 
-                                final DetailView oldDetail = (DetailView)oldContentPane.getClientProperty("detailView");
-                                final DetailView newDetail = (DetailView)newContentPane.getClientProperty("detailView");
+                                final DetailView oldDetailV = (DetailView)oldContentPane.getClientProperty(
+                                        "detailView");
+                                final DetailEditor oldDetailE = (DetailEditor)oldContentPane.getClientProperty(
+                                        "detailEditor");
+                                final DetailView newDetailV = (DetailView)newContentPane.getClientProperty(
+                                        "detailView");
+                                final DetailEditor newDetailE = (DetailEditor)newContentPane.getClientProperty(
+                                        "detailEditor");
 
                                 oldContentPane.removeAll();
-                                oldContentPane.add(oldDetail.getMiniatureView(), BorderLayout.CENTER);
+                                final JFlipPane oldFp = new JFlipPane();
+                                oldFp.setFrontPanel(oldDetailV.getMiniatureView());
+                                oldFp.setBackPanel(oldDetailE.getMiniatureEditor());
+                                oldContentPane.add(oldFp, BorderLayout.CENTER);
 
                                 newContentPane.removeAll();
-                                newContentPane.add(newDetail.getView(), BorderLayout.CENTER);
+                                final JFlipPane newFp = new JFlipPane();
+                                newFp.setFrontPanel(newDetailV.getView());
+                                newFp.setBackPanel(newDetailE.getEditor());
+                                newContentPane.add(newFp, BorderLayout.CENTER);
+                                if (editing) {
+                                    newFp.flip();
+                                }
 
                                 l.setView(oldContentPane);
 
@@ -316,9 +368,41 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                 lockableUI.setLockedCursor(Cursor.getDefaultCursor());
                 lockableUI.setLocked(true);
                 final JXLayer<JComponent> jxlayer = new JXLayer<JComponent>(contentPane, lockableUI);
-                contentPane.add(view.getMiniatureView(), BorderLayout.CENTER);
+                contentPane.add(fp, BorderLayout.CENTER);
+                fp.setFrontPanel(view.getMiniatureView());
+                fp.setBackPanel(views.get(view).getMiniatureEditor());
                 pnlSwapper.add(jxlayer);
+                flippanes.add(fp);
             }
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public boolean isEditing() {
+        return editing;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  editing  DOCUMENT ME!
+     */
+    public void setEditing(final boolean editing) {
+        for (final Component c : pnlTreepath.getComponents()) {
+            if (c instanceof JButton) {
+                ((JButton)c).setEnabled(!editing);
+            }
+        }
+
+        final JFlipPane flip = (JFlipPane)((JPanel)pnlDetails.getComponent(0)).getComponent(0);
+        if ((editing && flip.isFrontShowing()) || !(editing || flip.isFrontShowing())) {
+            flip.flip();
+        }
+
+        this.editing = editing;
     }
 }

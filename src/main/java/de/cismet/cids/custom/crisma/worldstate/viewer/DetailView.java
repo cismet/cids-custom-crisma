@@ -5,7 +5,7 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.cids.custom.crisma.worldstate;
+package de.cismet.cids.custom.crisma.worldstate.viewer;
 
 import javax.swing.JComponent;
 

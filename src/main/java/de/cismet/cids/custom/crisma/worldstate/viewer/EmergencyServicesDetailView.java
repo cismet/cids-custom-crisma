@@ -5,7 +5,7 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.cids.custom.crisma.worldstate;
+package de.cismet.cids.custom.crisma.worldstate.viewer;
 
 import org.openide.util.NbBundle;
 
@@ -17,7 +17,7 @@ import javax.swing.JComponent;
  * @author   mscholl
  * @version  $Revision$, $Date$
  */
-public class PopulationAndBuildingsDetailView extends AbstractDetailView {
+public class EmergencyServicesDetailView extends AbstractDetailView {
 
     //~ Instance fields --------------------------------------------------------
 
@@ -28,9 +28,9 @@ public class PopulationAndBuildingsDetailView extends AbstractDetailView {
     //~ Constructors -----------------------------------------------------------
 
     /**
-     * Creates new form PopulationAndBuildingsDetailView.
+     * Creates new form ShakeMapDetailView.
      */
-    public PopulationAndBuildingsDetailView() {
+    public EmergencyServicesDetailView() {
         initComponents();
     }
 
@@ -49,10 +49,10 @@ public class PopulationAndBuildingsDetailView extends AbstractDetailView {
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText(NbBundle.getMessage(
-                PopulationAndBuildingsDetailView.class,
-                "PopulationAndBuildingsDetailView.jLabel1.text")); // NOI18N
+                EmergencyServicesDetailView.class,
+                "EmergencyServicesDetailView.jLabel1.text")); // NOI18N
         add(jLabel1, java.awt.BorderLayout.CENTER);
-    }                                                              // </editor-fold>//GEN-END:initComponents
+    }                                                         // </editor-fold>//GEN-END:initComponents
 
     @Override
     public JComponent getView() {
@@ -71,6 +71,6 @@ public class PopulationAndBuildingsDetailView extends AbstractDetailView {
 
     @Override
     public String getDisplayName() {
-        return "Population and buildings";
+        return "Emergency services";
     }
 }
