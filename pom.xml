@@ -15,7 +15,7 @@
     <packaging>jar</packaging>
 
     <name>cids Custom CRISMA</name>
-    <description>cids Navigator customisation for the CRISMA FP7 project</description>
+    <description>cids Navigator customisation for the CRISMA FP7 project [!!! only prototypical code, no productional use intended !!!]</description>
     <licenses>
         <license>
             <name>GNU Lesser General Public License</name>

@@ -14,6 +14,7 @@ import org.openide.util.lookup.ServiceProvider;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 
 import de.cismet.cids.custom.crisma.objectrenderer.WorldstatesRenderer;
 
@@ -36,7 +37,7 @@ public final class EditAction extends AbstractAction implements CidsClientToolba
      * Creates a new EditAction object.
      */
     public EditAction() {
-        super("Toggle Edit");
+        super(" Edit Worldstate ");
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -47,6 +48,7 @@ public final class EditAction extends AbstractAction implements CidsClientToolba
         if (r instanceof WorldstatesRenderer) {
             final WorldstatesRenderer wr = (WorldstatesRenderer)r;
             wr.setEditing(!wr.isEditing());
+            putValue(Action.NAME, wr.isEditing() ? " Save Worldstate " : " Edit Worldstate ");
         }
     }
 
