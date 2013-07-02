@@ -18,6 +18,8 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.apache.log4j.Logger;
+
 import org.jdesktop.jxlayer.JXLayer;
 import org.jdesktop.jxlayer.plaf.ext.LockableUI;
 
@@ -33,28 +35,28 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.Box.Filler;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 
 import de.cismet.cids.custom.crisma.AbstractCidsBeanRenderer;
-import de.cismet.cids.custom.crisma.JFlipPane;
 import de.cismet.cids.custom.crisma.worldstate.editor.DetailEditor;
 import de.cismet.cids.custom.crisma.worldstate.viewer.DetailView;
 
 import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cids.navigator.utils.ClassCacheMultiple;
+
+import de.cismet.tools.gui.StaticSwingTools;
 
 /**
  * DOCUMENT ME!
@@ -64,11 +66,14 @@ import de.cismet.cids.navigator.utils.ClassCacheMultiple;
  */
 public class WorldstatesEditor extends AbstractCidsBeanRenderer implements RequestsFullSizeComponent {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    /** LOGGER. */
+    private static final transient Logger LOG = Logger.getLogger(WorldstatesEditor.class);
+
     //~ Instance fields --------------------------------------------------------
 
     private transient boolean editing;
-
-    private final transient List<JFlipPane> flippanes = new ArrayList<JFlipPane>();
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
@@ -309,15 +314,13 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         int i = 0;
         for (final DetailView view : views.keySet()) {
             final JPanel contentPane = new JPanel(new BorderLayout());
-            final JFlipPane fp = new JFlipPane();
+            view.setWorldstate(cidsBean);
             contentPane.putClientProperty("detailView", view);
             contentPane.putClientProperty("detailEditor", views.get(view));
             contentPane.setBorder(new TitledBorder(new BevelBorder(BevelBorder.RAISED), view.getDisplayName()));
 
             if (++i == views.size()) {
-                fp.setFrontPanel(view.getView());
-                fp.setBackPanel(views.get(view).getEditor());
-                contentPane.add(fp, BorderLayout.CENTER);
+                contentPane.add(view.getView(), BorderLayout.CENTER);
                 pnlDetails.add(contentPane);
             } else {
                 final LockableUI lockableUI = new LockableUI() {
@@ -340,19 +343,13 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                                         "detailEditor");
 
                                 oldContentPane.removeAll();
-                                final JFlipPane oldFp = new JFlipPane();
-                                oldFp.setFrontPanel(oldDetailV.getMiniatureView());
-                                oldFp.setBackPanel(oldDetailE.getMiniatureEditor());
-                                oldContentPane.add(oldFp, BorderLayout.CENTER);
+                                oldContentPane.add(editing ? oldDetailE.getMiniatureEditor()
+                                                           : oldDetailV.getMiniatureView(),
+                                    BorderLayout.CENTER);
 
                                 newContentPane.removeAll();
-                                final JFlipPane newFp = new JFlipPane();
-                                newFp.setFrontPanel(newDetailV.getView());
-                                newFp.setBackPanel(newDetailE.getEditor());
-                                newContentPane.add(newFp, BorderLayout.CENTER);
-                                if (editing) {
-                                    newFp.flip();
-                                }
+                                newContentPane.add(editing ? newDetailE.getEditor() : newDetailV.getView(),
+                                    BorderLayout.CENTER);
 
                                 l.setView(oldContentPane);
 
@@ -368,11 +365,8 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                 lockableUI.setLockedCursor(Cursor.getDefaultCursor());
                 lockableUI.setLocked(true);
                 final JXLayer<JComponent> jxlayer = new JXLayer<JComponent>(contentPane, lockableUI);
-                contentPane.add(fp, BorderLayout.CENTER);
-                fp.setFrontPanel(view.getMiniatureView());
-                fp.setBackPanel(views.get(view).getMiniatureEditor());
+                contentPane.add(view.getMiniatureView(), BorderLayout.CENTER);
                 pnlSwapper.add(jxlayer);
-                flippanes.add(fp);
             }
         }
     }
@@ -392,17 +386,68 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
      * @param  editing  DOCUMENT ME!
      */
     public void setEditing(final boolean editing) {
-        for (final Component c : pnlTreepath.getComponents()) {
-            if (c instanceof JButton) {
-                ((JButton)c).setEnabled(!editing);
+        if ((this.editing && editing) || !(this.editing || editing)) {
+            return;
+        }
+
+        try {
+            if (!editing) {
+                final int answer = JOptionPane.showConfirmDialog(
+                        this,
+                        "Do you want to save the changes",
+                        "Save changes",
+                        JOptionPane.YES_NO_CANCEL_OPTION,
+                        JOptionPane.QUESTION_MESSAGE);
+                if (JOptionPane.CANCEL_OPTION == answer) {
+                    return;
+                } else if (JOptionPane.YES_OPTION == answer) {
+                    cidsBean = ((DetailEditor)((JPanel)pnlDetails.getComponent(0)).getClientProperty("detailEditor"))
+                                .getWorldstate().persist();
+                }
             }
-        }
+            final CidsBean copy = SessionManager.getProxy()
+                        .getMetaObject(cidsBean.getMetaObject().getID() + "@" + cidsBean.getMetaObject().getClassKey())
+                        .getBean();
 
-        final JFlipPane flip = (JFlipPane)((JPanel)pnlDetails.getComponent(0)).getComponent(0);
-        if ((editing && flip.isFrontShowing()) || !(editing || flip.isFrontShowing())) {
-            flip.flip();
-        }
+            for (final Component c : pnlSwapper.getComponents()) {
+                final JPanel miniature = (JPanel)((JXLayer)c).getView();
+                miniature.removeAll();
+                final DetailView v = (DetailView)miniature.getClientProperty("detailView");
+                final DetailEditor e = (DetailEditor)miniature.getClientProperty("detailEditor");
+                if (editing) {
+                    e.setWorldstate(copy);
+                    miniature.add(e.getMiniatureEditor(), BorderLayout.CENTER);
+                } else {
+                    v.setWorldstate(cidsBean);
+                    miniature.add(v.getMiniatureView(), BorderLayout.CENTER);
+                }
+            }
 
-        this.editing = editing;
+            final JPanel miniature = (JPanel)pnlDetails.getComponent(0);
+            miniature.removeAll();
+            final DetailEditor e = (DetailEditor)miniature.getClientProperty("detailEditor");
+            final DetailView v = (DetailView)miniature.getClientProperty("detailView");
+            if (editing) {
+                e.setWorldstate(copy);
+                miniature.add(e.getEditor(), BorderLayout.CENTER);
+            } else {
+                v.setWorldstate(cidsBean);
+                miniature.add(v.getView(), BorderLayout.CENTER);
+            }
+
+            for (final Component c : pnlTreepath.getComponents()) {
+                if (c instanceof JButton) {
+                    ((JButton)c).setEnabled(!editing);
+                }
+            }
+
+            StaticSwingTools.getParentFrame(this).invalidate();
+            StaticSwingTools.getParentFrame(this).validate();
+            StaticSwingTools.getParentFrame(this).repaint();
+
+            this.editing = editing;
+        } catch (Exception exception) {
+            LOG.error("cannot change edit status", exception);
+        }
     }
 }
