@@ -6,7 +6,7 @@ BEGIN
 RETURN 'SELECT
         -1 AS id, 
         w.name AS name, 
-        (SELECT id FROM cs_class WHERE table_name LIKE ''WORLDSTATES'') AS class_id, 
+        (SELECT id FROM cs_class WHERE table_name ILIKE ''WORLDSTATES'') AS class_id, 
         w.id AS object_id, 
         ''O'' AS node_type, 
         null AS url, 
@@ -15,7 +15,7 @@ RETURN 'SELECT
         true AS derive_permissions_from_class,
         null AS artificial_id
 
-        FROM WORLDSTATES w WHERE w.parent = ' || parent_id;
+        FROM WORLDSTATES w WHERE w.parentWorldstate = ' || parent_id;
 
 END;        
 
