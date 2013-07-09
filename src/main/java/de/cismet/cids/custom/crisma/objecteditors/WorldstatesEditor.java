@@ -20,12 +20,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.log4j.Logger;
 
-import org.jdesktop.jxlayer.JXLayer;
-import org.jdesktop.jxlayer.plaf.ext.LockableUI;
-
+import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
@@ -43,10 +40,12 @@ import javax.swing.Box.Filler;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JLayer;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.plaf.LayerUI;
 
 import de.cismet.cids.custom.crisma.AbstractCidsBeanRenderer;
 import de.cismet.cids.custom.crisma.worldstate.editor.DetailEditor;
@@ -192,6 +191,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
     private void initTreepath() {
         assert EventQueue.isDispatchThread() : "EDT only";
 
+//        final LinkedList<CidsBean> beans = new LinkedList<>();
         final LinkedList<CidsBean> beans = new LinkedList<CidsBean>();
         CidsBean current = cidsBean;
 
@@ -266,6 +266,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         assert EventQueue.isDispatchThread() : "EDT only";
         assert !editing : "init while not editing only";
 
+//        final Map<DetailView, DetailEditor> views = new HashMap<>();
         final Map<DetailView, DetailEditor> views = new HashMap<DetailView, DetailEditor>();
         try {
             final MetaClass mcr = ClassCacheMultiple.getMetaClass("CRISMA", "renderingdescriptors");
@@ -306,6 +307,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                 views.put(view, editor);
             }
         } catch (final Exception e) {
+//        } catch (ConnectionException | ClassNotFoundException | IOException | InstantiationException | IllegalAccessException e) {
             throw new IllegalStateException("illegal renderingdescriptors configuration", e);
         }
 
@@ -323,15 +325,15 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                 contentPane.add(view.getView(), BorderLayout.CENTER);
                 pnlDetails.add(contentPane);
             } else {
-                final LockableUI lockableUI = new LockableUI() {
+                final LayerUI<JComponent> layerUI = new LayerUI<JComponent>() {
 
                         @Override
-                        protected void processMouseEvent(final MouseEvent e, final JXLayer<JComponent> l) {
+                        public void eventDispatched(final AWTEvent awte, final JLayer jlayer) {
                             assert EventQueue.isDispatchThread() : "EDT only";
 
-                            if (MouseEvent.MOUSE_CLICKED == e.getID()) {
+                            if (MouseEvent.MOUSE_CLICKED == awte.getID()) {
                                 final JComponent oldContentPane = (JComponent)pnlDetails.getComponent(0);
-                                final JComponent newContentPane = l.getView();
+                                final JComponent newContentPane = (JComponent)jlayer.getView();
 
                                 final DetailView oldDetailV = (DetailView)oldContentPane.getClientProperty(
                                         "detailView");
@@ -351,7 +353,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                                 newContentPane.add(editing ? newDetailE.getEditor() : newDetailV.getView(),
                                     BorderLayout.CENTER);
 
-                                l.setView(oldContentPane);
+                                jlayer.setView(oldContentPane);
 
                                 newContentPane.setVisible(true);
                                 pnlDetails.removeAll();
@@ -362,11 +364,11 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                             }
                         }
                     };
-                lockableUI.setLockedCursor(Cursor.getDefaultCursor());
-                lockableUI.setLocked(true);
-                final JXLayer<JComponent> jxlayer = new JXLayer<JComponent>(contentPane, lockableUI);
+
+                final JLayer<JComponent> layer = new JLayer<JComponent>(contentPane, layerUI);
+                layer.setLayerEventMask(Long.MAX_VALUE);
                 contentPane.add(view.getMiniatureView(), BorderLayout.CENTER);
-                pnlSwapper.add(jxlayer);
+                pnlSwapper.add(layer);
             }
         }
     }
@@ -410,7 +412,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                         .getBean();
 
             for (final Component c : pnlSwapper.getComponents()) {
-                final JPanel miniature = (JPanel)((JXLayer)c).getView();
+                final JPanel miniature = (JPanel)((JLayer)c).getView();
                 miniature.removeAll();
                 final DetailView v = (DetailView)miniature.getClientProperty("detailView");
                 final DetailEditor e = (DetailEditor)miniature.getClientProperty("detailEditor");
@@ -446,7 +448,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
             StaticSwingTools.getParentFrame(this).repaint();
 
             this.editing = editing;
-        } catch (Exception exception) {
+        } catch (final Exception exception) {
             LOG.error("cannot change edit status", exception);
         }
     }
