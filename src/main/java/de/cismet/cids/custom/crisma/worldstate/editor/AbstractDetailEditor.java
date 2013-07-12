@@ -22,6 +22,7 @@ public abstract class AbstractDetailEditor extends JPanel implements DetailEdito
     //~ Instance fields --------------------------------------------------------
 
     private transient CidsBean worldstate;
+    private transient CidsBean descriptor;
 
     //~ Methods ----------------------------------------------------------------
 
@@ -33,5 +34,15 @@ public abstract class AbstractDetailEditor extends JPanel implements DetailEdito
     @Override
     public void setWorldstate(final CidsBean worldstate) {
         this.worldstate = worldstate;
+    }
+
+    @Override
+    public CidsBean getDescriptor() {
+        return descriptor;
+    }
+
+    @Override
+    public void setDescriptor(final CidsBean descriptor) {
+        this.descriptor = descriptor;
     }
 }

@@ -13,7 +13,7 @@ RETURN 'SELECT
         (SELECT ws_tree_children(w.id)) AS dynamic_children, 
         false AS sql_sort,
         true AS derive_permissions_from_class,
-        null AS artificial_id
+        (SELECT id FROM cs_class WHERE table_name ILIKE ''WORLDSTATES'') || ''@'' || w.id AS artificial_id
 
         FROM WORLDSTATES w WHERE w.parentWorldstate = ' || parent_id;
 

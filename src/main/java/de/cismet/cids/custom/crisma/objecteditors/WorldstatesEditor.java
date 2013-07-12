@@ -8,11 +8,13 @@
 package de.cismet.cids.custom.crisma.objecteditors;
 
 import Sirius.navigator.connection.SessionManager;
+import Sirius.navigator.types.treenode.ObjectTreeNode;
 import Sirius.navigator.ui.ComponentRegistry;
 import Sirius.navigator.ui.RequestsFullSizeComponent;
 
 import Sirius.server.middleware.types.MetaClass;
 import Sirius.server.middleware.types.MetaObject;
+import Sirius.server.middleware.types.MetaObjectNode;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -32,9 +34,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.swing.Box.Filler;
 import javax.swing.JButton;
@@ -48,6 +54,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.plaf.LayerUI;
 
 import de.cismet.cids.custom.crisma.AbstractCidsBeanRenderer;
+import de.cismet.cids.custom.crisma.ScenarioView;
+import de.cismet.cids.custom.crisma.Tools;
 import de.cismet.cids.custom.crisma.worldstate.editor.DetailEditor;
 import de.cismet.cids.custom.crisma.worldstate.viewer.DetailView;
 
@@ -197,7 +205,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
 
         while (current != null) {
             beans.addFirst(current);
-            current = (CidsBean)current.getProperty("parentWorldstate");
+            current = (CidsBean)current.getProperty("parentworldstate");
         }
 
         for (int i = 0; i < beans.size(); ++i) {
@@ -267,7 +275,13 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         assert !editing : "init while not editing only";
 
 //        final Map<DetailView, DetailEditor> views = new HashMap<>();
-        final Map<DetailView, DetailEditor> views = new HashMap<DetailView, DetailEditor>();
+        final Map<DetailView, DetailEditor> views = new TreeMap<DetailView, DetailEditor>(new Comparator<DetailView>() {
+
+                    @Override
+                    public int compare(final DetailView o1, final DetailView o2) {
+                        return o1.getDisplayName().compareTo(o2.getDisplayName());
+                    }
+                });
         try {
             final MetaClass mcr = ClassCacheMultiple.getMetaClass("CRISMA", "renderingdescriptors");
             final MetaClass mce = ClassCacheMultiple.getMetaClass("CRISMA", "MANIPULATIONDESCRIPTORS");
@@ -290,6 +304,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                 final String viewName = json.get("canonicalName");
 
                 final DetailView view = (DetailView)Class.forName(viewName).newInstance();
+                view.setDescriptor(mo.getBean());
 
                 DetailEditor editor = null;
                 for (final MetaObject moe : mose) {
@@ -300,6 +315,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                         final String editorName = jsonM.get("canonicalName");
 
                         editor = (DetailEditor)Class.forName(editorName).newInstance();
+                        editor.setDescriptor(moe.getBean());
 
                         break;
                     }
@@ -403,8 +419,24 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                 if (JOptionPane.CANCEL_OPTION == answer) {
                     return;
                 } else if (JOptionPane.YES_OPTION == answer) {
-                    cidsBean = ((DetailEditor)((JPanel)pnlDetails.getComponent(0)).getClientProperty("detailEditor"))
-                                .getWorldstate().persist();
+                    cidsBean = Tools.saveWorldstate(
+                            ((DetailEditor)((JPanel)pnlDetails.getComponent(0)).getClientProperty("detailEditor"))
+                                        .getWorldstate());
+
+                    StaticSwingTools.getParentFrame(this).invalidate();
+                    StaticSwingTools.getParentFrame(this).validate();
+                    StaticSwingTools.getParentFrame(this).repaint();
+
+                    this.editing = editing;
+
+                    Tools.reloadCatalogTree();
+                    ScenarioView.getInstance().updateLeafs();
+                    final List mos = new ArrayList(1);
+                    mos.add(new ObjectTreeNode(new MetaObjectNode(cidsBean)));
+
+                    ComponentRegistry.getRegistry().getDescriptionPane().setNodesDescriptions(mos);
+
+                    return;
                 }
             }
             final CidsBean copy = SessionManager.getProxy()

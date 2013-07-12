@@ -9,15 +9,16 @@ package de.cismet.cids.custom.crisma.worldstate.viewer;
 
 import javax.swing.JComponent;
 
-import de.cismet.cids.dynamics.CidsBean;
+import de.cismet.cids.custom.crisma.DescriptorContainer;
+import de.cismet.cids.custom.crisma.WorldstateContainer;
 
 /**
  * DOCUMENT ME!
  *
  * @author   martin.scholl@cismet.de
- * @version  $Revision$, $Date$
+ * @version  1.0
  */
-public interface DetailView {
+public interface DetailView extends WorldstateContainer, DescriptorContainer {
 
     //~ Methods ----------------------------------------------------------------
 
@@ -47,17 +48,4 @@ public interface DetailView {
      * @return  DOCUMENT ME!
      */
     String getDisplayName();
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    CidsBean getWorldstate();
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  worldstateBean  DOCUMENT ME!
-     */
-    void setWorldstate(final CidsBean worldstateBean);
 }
