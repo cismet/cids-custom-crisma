@@ -7,9 +7,8 @@
 ****************************************************/
 package de.cismet.cids.custom.crisma.worldstate.editor;
 
-import Sirius.navigator.connection.SessionManager;
-
 import org.openide.util.NbBundle;
+import org.openide.util.WeakListeners;
 
 import java.awt.Component;
 
@@ -39,6 +38,27 @@ public class WorldstateCoreDetailEditor extends AbstractDetailEditor {
     //~ Instance fields --------------------------------------------------------
 
     private transient WorldstateCoreDetailMiniatureEditor miniatureEditor = new WorldstateCoreDetailMiniatureEditor();
+
+    private final PropertyChangeListener setDescriptorListener = new PropertyChangeListener() {
+
+            boolean set = false;
+
+            @Override
+            public void propertyChange(final PropertyChangeEvent evt) {
+                if (!set
+                            && ("name".equals(evt.getPropertyName())
+                                || "description".equals(evt.getPropertyName())
+                                || "categories".equals(evt.getPropertyName())
+                                || "creator".equals(evt.getPropertyName())
+                                || "origintransition".equals(evt.getPropertyName()))) {
+                    final CidsBean transition = (CidsBean)getWorldstate().getProperty("origintransition");
+                    final Collection<CidsBean> c = transition.getBeanCollectionProperty("performedmanipulations");
+                    c.remove(getDescriptor());
+                    c.add(getDescriptor());
+                    set = true;
+                }
+            }
+        };
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
@@ -402,25 +422,6 @@ public class WorldstateCoreDetailEditor extends AbstractDetailEditor {
         bindingGroup.unbind();
         bindingGroup.bind();
         miniatureEditor.setWorldstate(worldstate);
-        worldstate.addPropertyChangeListener(new PropertyChangeListener() {
-
-                boolean set = false;
-
-                @Override
-                public void propertyChange(final PropertyChangeEvent evt) {
-                    if (!set
-                                && ("name".equals(evt.getPropertyName())
-                                    || "description".equals(evt.getPropertyName())
-                                    || "categories".equals(evt.getPropertyName())
-                                    || "creator".equals(evt.getPropertyName())
-                                    || "origintransition".equals(evt.getPropertyName()))) {
-                        final CidsBean transition = (CidsBean)worldstate.getProperty("origintransition");
-                        final Collection<CidsBean> c = transition.getBeanCollectionProperty("performedmanipulations");
-                        c.remove(getDescriptor());
-                        c.add(getDescriptor());
-                        set = true;
-                    }
-                }
-            });
+        worldstate.addPropertyChangeListener(WeakListeners.propertyChange(setDescriptorListener, worldstate));
     }
 }

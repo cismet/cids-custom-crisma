@@ -24,6 +24,8 @@ import javax.swing.tree.TreePath;
 
 import de.cismet.cids.dynamics.CidsBean;
 
+import de.cismet.cids.navigator.utils.ClassCacheMultiple;
+
 /**
  * DOCUMENT ME!
  *
@@ -61,8 +63,26 @@ public final class Tools {
         worldstate.setProperty("id", -1);
         worldstate.getMetaObject().setStatus(MetaObject.NEW);
         final CidsBean transition = (CidsBean)worldstate.getProperty("origintransition");
-        transition.setProperty("id", -1);
-        transition.getMetaObject().setStatus(MetaObject.NEW);
+        final CidsBean newT = ClassCacheMultiple.getMetaClass("CRISMA", "transitions").getEmptyInstance().getBean();
+        newT.setProperty("name", transition.getProperty("name"));
+        newT.setProperty("description", transition.getProperty("description"));
+        newT.setProperty("performedsimulation", transition.getProperty("simulationcontrolparameter"));
+        newT.setProperty("transitionstatuscontenttype", transition.getProperty("transitionstatuscontenttype"));
+        newT.setProperty("transitionstatus", transition.getProperty("transitionstatus"));
+        final List nt = newT.getBeanCollectionProperty("performedmanipulations");
+        final List ot = transition.getBeanCollectionProperty("performedmanipulations");
+        nt.addAll(ot);
+        worldstate.setProperty("origintransition", newT);
+//        transition.setProperty("id", -1);
+//        transition.getMetaObject().setStatus(MetaObject.NEW);
+//        final MetaObject dummy = (MetaObject)transition.getMetaObject()
+//                    .getAttributeByFieldName("performedmanipulations")
+//                    .getValue();
+//        dummy.setStatus(MetaObject.NEW);
+//        for (final ObjectAttribute o : dummy.getAttribs()) {
+//            final MetaObject mo = (MetaObject)o.getValue();
+//            mo.setStatus(MetaObject.NEW);
+//        }
 
         return worldstate.persist();
     }

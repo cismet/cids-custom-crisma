@@ -205,6 +205,11 @@ public class WorldstateCoreDetailView extends AbstractDetailView {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
         add(jSeparator1, gridBagConstraints);
 
         jLabel7.setText(NbBundle.getMessage(WorldstateCoreDetailView.class, "WorldstateCoreDetailView.jLabel7.text")); // NOI18N
