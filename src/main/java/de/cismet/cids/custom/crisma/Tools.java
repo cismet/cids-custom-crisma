@@ -12,7 +12,7 @@ import Sirius.navigator.types.treenode.RootTreeNode;
 import Sirius.navigator.ui.ComponentRegistry;
 import Sirius.navigator.ui.tree.MetaCatalogueTree;
 
-import Sirius.server.middleware.types.MetaObject;
+import java.sql.Timestamp;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,14 +54,6 @@ public final class Tools {
      * @throws  Exception  DOCUMENT ME!
      */
     public static CidsBean saveWorldstate(final CidsBean worldstate) throws Exception {
-        worldstate.setProperty(
-            "parentworldstate",
-            SessionManager.getProxy().getMetaObject(
-                worldstate.getMetaObject().getID(),
-                worldstate.getMetaObject().getClassID(),
-                worldstate.getMetaObject().getDomain()).getBean());
-        worldstate.setProperty("id", -1);
-        worldstate.getMetaObject().setStatus(MetaObject.NEW);
         final CidsBean transition = (CidsBean)worldstate.getProperty("origintransition");
         final CidsBean newT = ClassCacheMultiple.getMetaClass("CRISMA", "transitions").getEmptyInstance().getBean();
         newT.setProperty("name", transition.getProperty("name"));
@@ -69,22 +61,47 @@ public final class Tools {
         newT.setProperty("performedsimulation", transition.getProperty("simulationcontrolparameter"));
         newT.setProperty("transitionstatuscontenttype", transition.getProperty("transitionstatuscontenttype"));
         newT.setProperty("transitionstatus", transition.getProperty("transitionstatus"));
-        final List nt = newT.getBeanCollectionProperty("performedmanipulations");
-        final List ot = transition.getBeanCollectionProperty("performedmanipulations");
-        nt.addAll(ot);
-        worldstate.setProperty("origintransition", newT);
-//        transition.setProperty("id", -1);
-//        transition.getMetaObject().setStatus(MetaObject.NEW);
-//        final MetaObject dummy = (MetaObject)transition.getMetaObject()
-//                    .getAttributeByFieldName("performedmanipulations")
-//                    .getValue();
-//        dummy.setStatus(MetaObject.NEW);
-//        for (final ObjectAttribute o : dummy.getAttribs()) {
-//            final MetaObject mo = (MetaObject)o.getValue();
-//            mo.setStatus(MetaObject.NEW);
-//        }
+        newT.getBeanCollectionProperty("performedmanipulations")
+                .addAll(transition.getBeanCollectionProperty("performedmanipulations"));
 
-        return worldstate.persist();
+        final CidsBean newW = ClassCacheMultiple.getMetaClass("CRISMA", "worldstates").getEmptyInstance().getBean();
+        newW.setProperty("name", worldstate.getProperty("name"));
+        newW.setProperty("description", worldstate.getProperty("description"));
+        newW.getBeanCollectionProperty("categories").addAll(worldstate.getBeanCollectionProperty("categories"));
+        newW.setProperty("creator", worldstate.getProperty("creator"));
+        newW.setProperty("created", new Timestamp(System.currentTimeMillis()));
+        newW.setProperty("origintransition", newT);
+        newW.setProperty(
+            "parentworldstate",
+            SessionManager.getProxy().getMetaObject(
+                worldstate.getMetaObject().getID(),
+                worldstate.getMetaObject().getClassID(),
+                worldstate.getMetaObject().getDomain()).getBean());
+        newW.getBeanCollectionProperty("worldstatedata").addAll(worldstate.getBeanCollectionProperty("worldstatedata"));
+        newW.setProperty("iccdata", calculateICCData(newW));
+
+        return newW.persist();
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   worldstate  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  Exception  DOCUMENT ME!
+     */
+    private static CidsBean calculateICCData(final CidsBean worldstate) throws Exception {
+        final CidsBean icc = ClassCacheMultiple.getMetaClass("CRISMA", "dataitems").getEmptyInstance().getBean();
+        icc.setProperty("name", "icc dummy");
+        icc.setProperty("actualaccessinfocontenttype", "application/json");
+        icc.setProperty(
+            "actualaccessinfo",
+            "{\"noOfDead\" : \"300\", \"damagedBuildings\":\"100\", \"noOfInjured\":\"100\"}");
+        icc.setProperty("worldstate", null);
+
+        return icc;
     }
 
     /**

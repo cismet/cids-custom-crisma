@@ -7,7 +7,13 @@
 ****************************************************/
 package de.cismet.cids.custom.crisma.worldstate.viewer;
 
+import org.jdesktop.beansbinding.Converter;
+
 import org.openide.util.NbBundle;
+
+import java.sql.Timestamp;
+
+import java.text.SimpleDateFormat;
 
 import javax.swing.JComponent;
 
@@ -26,13 +32,17 @@ public class WorldstateCoreDetailView extends AbstractDetailView {
     private final WorldstateCoreDetailMinitureView miniatureView = new WorldstateCoreDetailMinitureView();
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.Box.Filler filler1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JList jList1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel lblCreatedBy;
@@ -68,8 +78,6 @@ public class WorldstateCoreDetailView extends AbstractDetailView {
         lblWstNameValue = new javax.swing.JLabel();
         lblWstDesc = new javax.swing.JLabel();
         lblWstDescValue = new javax.swing.JLabel();
-        lblCreatedBy = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList();
@@ -78,6 +86,14 @@ public class WorldstateCoreDetailView extends AbstractDetailView {
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        lblCreatedBy = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(32767, 0));
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -132,31 +148,6 @@ public class WorldstateCoreDetailView extends AbstractDetailView {
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         add(lblWstDescValue, gridBagConstraints);
-
-        lblCreatedBy.setText(NbBundle.getMessage(
-                WorldstateCoreDetailView.class,
-                "WorldstateCoreDetailView.lblCreatedBy.text")); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
-        add(lblCreatedBy, gridBagConstraints);
-
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(
-                org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE,
-                this,
-                org.jdesktop.beansbinding.ELProperty.create("${worldstate.creator}"),
-                jLabel6,
-                org.jdesktop.beansbinding.BeanProperty.create("text"));
-        bindingGroup.addBinding(binding);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
-        add(jLabel6, gridBagConstraints);
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(
                 NbBundle.getMessage(WorldstateCoreDetailView.class, "WorldstateCoreDetailView.jPanel1.border.title"))); // NOI18N
@@ -264,6 +255,67 @@ public class WorldstateCoreDetailView extends AbstractDetailView {
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         add(jLabel1, gridBagConstraints);
 
+        jPanel2.setLayout(new java.awt.GridBagLayout());
+
+        lblCreatedBy.setText(NbBundle.getMessage(
+                WorldstateCoreDetailView.class,
+                "WorldstateCoreDetailView.lblCreatedBy.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+        jPanel2.add(lblCreatedBy, gridBagConstraints);
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(
+                org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE,
+                this,
+                org.jdesktop.beansbinding.ELProperty.create("${worldstate.creator}"),
+                jLabel6,
+                org.jdesktop.beansbinding.BeanProperty.create("text"));
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+        jPanel2.add(jLabel6, gridBagConstraints);
+
+        jLabel2.setText(NbBundle.getMessage(WorldstateCoreDetailView.class, "WorldstateCoreDetailView.jLabel2.text_1")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+        jPanel2.add(jLabel2, gridBagConstraints);
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(
+                org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE,
+                this,
+                org.jdesktop.beansbinding.ELProperty.create("${worldstate.created}"),
+                jLabel3,
+                org.jdesktop.beansbinding.BeanProperty.create("text"),
+                "");
+        binding.setConverter(new SQLTimestampToStringConverter());
+        bindingGroup.addBinding(binding);
+
+        jPanel2.add(jLabel3, new java.awt.GridBagConstraints());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        jPanel2.add(filler1, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        add(jPanel2, gridBagConstraints);
+
         bindingGroup.bind();
     } // </editor-fold>//GEN-END:initComponents
 
@@ -295,5 +347,31 @@ public class WorldstateCoreDetailView extends AbstractDetailView {
     @Override
     public String getDisplayName() {
         return "Worldstate Data";
+    }
+
+    //~ Inner Classes ----------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    private static final class SQLTimestampToStringConverter extends Converter<Timestamp, String> {
+
+        //~ Instance fields ----------------------------------------------------
+
+        private final transient SimpleDateFormat format = new SimpleDateFormat("EEEE, dd MMMM yyyy, HH:mm:ss");
+
+        //~ Methods ------------------------------------------------------------
+
+        @Override
+        public String convertForward(final Timestamp s) {
+            return format.format(s);
+        }
+
+        @Override
+        public Timestamp convertReverse(final String t) {
+            return null;
+        }
     }
 }
