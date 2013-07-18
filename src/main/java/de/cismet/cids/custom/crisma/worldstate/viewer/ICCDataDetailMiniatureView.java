@@ -9,6 +9,8 @@ package de.cismet.cids.custom.crisma.worldstate.viewer;
 
 import org.openide.util.NbBundle;
 
+import javax.swing.JPanel;
+
 import de.cismet.cids.custom.crisma.WorldstateContainer;
 
 import de.cismet.cids.dynamics.CidsBean;
@@ -19,26 +21,26 @@ import de.cismet.cids.dynamics.CidsBean;
  * @author   mscholl
  * @version  $Revision$, $Date$
  */
-public class WorldstateCoreDetailMinitureView extends javax.swing.JPanel implements WorldstateContainer {
+public class ICCDataDetailMiniatureView extends JPanel implements WorldstateContainer {
 
     //~ Instance fields --------------------------------------------------------
 
     private transient CidsBean worldstate;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel lblWstDesc;
-    private javax.swing.JLabel lblWstDescValue;
-    private javax.swing.JLabel lblWstName;
-    private javax.swing.JLabel lblWstNameValue;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 
     //~ Constructors -----------------------------------------------------------
 
     /**
-     * Creates new form WorldstateCoreDetailMinitureView.
+     * Creates new form ICCDataDetailMiniatureView.
      */
-    public WorldstateCoreDetailMinitureView() {
+    public ICCDataDetailMiniatureView() {
         initComponents();
     }
 
@@ -54,57 +56,59 @@ public class WorldstateCoreDetailMinitureView extends javax.swing.JPanel impleme
         java.awt.GridBagConstraints gridBagConstraints;
         bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
-        lblWstName = new javax.swing.JLabel();
-        lblWstNameValue = new javax.swing.JLabel();
-        lblWstDesc = new javax.swing.JLabel();
-        lblWstDescValue = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridBagLayout());
 
-        lblWstName.setText(NbBundle.getMessage(
-                WorldstateCoreDetailMinitureView.class,
-                "WorldstateCoreDetailMinitureView.lblWstName.text")); // NOI18N
+        jLabel1.setText(NbBundle.getMessage(
+                ICCDataDetailMiniatureView.class,
+                "ICCDataDetailMiniatureView.jLabel1.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
-        add(lblWstName, gridBagConstraints);
+        add(jLabel1, gridBagConstraints);
 
         org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(
                 org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE,
                 this,
-                org.jdesktop.beansbinding.ELProperty.create("${worldstate.name}"),
-                lblWstNameValue,
+                org.jdesktop.beansbinding.ELProperty.create("${worldstate.iccdata.name}"),
+                jLabel2,
                 org.jdesktop.beansbinding.BeanProperty.create("text"));
         bindingGroup.addBinding(binding);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
-        add(lblWstNameValue, gridBagConstraints);
+        add(jLabel2, gridBagConstraints);
 
-        lblWstDesc.setText(NbBundle.getMessage(
-                WorldstateCoreDetailMinitureView.class,
-                "WorldstateCoreDetailMinitureView.lblWstDesc.text")); // NOI18N
+        jLabel3.setText(NbBundle.getMessage(
+                ICCDataDetailMiniatureView.class,
+                "ICCDataDetailMiniatureView.jLabel3.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
-        add(lblWstDesc, gridBagConstraints);
+        add(jLabel3, gridBagConstraints);
 
-        lblWstDescValue.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        jLabel4.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(
                 org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE,
                 this,
-                org.jdesktop.beansbinding.ELProperty.create("${worldstate.description}"),
-                lblWstDescValue,
+                org.jdesktop.beansbinding.ELProperty.create("${worldstate.iccdata.description}"),
+                jLabel4,
                 org.jdesktop.beansbinding.BeanProperty.create("text"));
         bindingGroup.addBinding(binding);
 
@@ -113,11 +117,11 @@ public class WorldstateCoreDetailMinitureView extends javax.swing.JPanel impleme
         gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
-        add(lblWstDescValue, gridBagConstraints);
+        add(jLabel4, gridBagConstraints);
 
         bindingGroup.bind();
     } // </editor-fold>//GEN-END:initComponents

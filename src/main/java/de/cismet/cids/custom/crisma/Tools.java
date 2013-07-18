@@ -78,7 +78,7 @@ public final class Tools {
                 worldstate.getMetaObject().getClassID(),
                 worldstate.getMetaObject().getDomain()).getBean());
         newW.getBeanCollectionProperty("worldstatedata").addAll(worldstate.getBeanCollectionProperty("worldstatedata"));
-        newW.setProperty("iccdata", calculateICCData(newW));
+        newW.setProperty("iccdata", calculateICCData(worldstate));
 
         return newW.persist();
     }
@@ -98,10 +98,30 @@ public final class Tools {
         icc.setProperty("actualaccessinfocontenttype", "application/json");
         icc.setProperty(
             "actualaccessinfo",
-            "{\"noOfDead\" : \"300\", \"damagedBuildings\":\"100\", \"noOfInjured\":\"100\"}");
+            "{\"noOfDead\" : { 	\"displayName\":\"Number of dead\", 	\"value\":\""
+                    + getRandom()
+                    + "\"}, \"damagedBuildings\":{ 	\"displayName\":\"Damaged buildings\", 	\"value\":\""
+                    + getRandom()
+                    + "\"}, \"noOfInjured\":{ 	\"displayName\":\"Number of injured\", 	\"value\":\""
+                    + getRandom()
+                    + "\"}, \"cost\":{ 	\"displayName\":\"Total cost\", 	\"value\":\""
+                    + getRandom()
+                    + "\"}, \"Infrastucture\":{ 	\"displayName\":\"Infrastructure damage\", 	\"value\":\""
+                    + getRandom()
+                    + "\"} }");
         icc.setProperty("worldstate", null);
+        icc.setProperty("datadescriptor", worldstate.getProperty("iccdata.datadescriptor"));
 
         return icc;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private static int getRandom() {
+        return Double.valueOf(Math.floor(Math.random() * 500)).intValue();
     }
 
     /**

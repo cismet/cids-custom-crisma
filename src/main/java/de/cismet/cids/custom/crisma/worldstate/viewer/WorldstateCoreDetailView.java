@@ -29,7 +29,7 @@ public class WorldstateCoreDetailView extends AbstractDetailView {
 
     //~ Instance fields --------------------------------------------------------
 
-    private final WorldstateCoreDetailMinitureView miniatureView = new WorldstateCoreDetailMinitureView();
+    private final WorldstateCoreDetailMiniatureView miniatureView = new WorldstateCoreDetailMiniatureView();
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.Box.Filler filler1;

@@ -19,7 +19,7 @@
     <Component class="javax.swing.JLabel" name="lblWstName">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="de/cismet/cids/custom/crisma/worldstate/viewer/Bundle.properties" key="WorldstateCoreDetailMinitureView.lblWstName.text" replaceFormat="NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="de/cismet/cids/custom/crisma/worldstate/viewer/Bundle.properties" key="WorldstateCoreDetailMiniatureView.lblWstName.text" replaceFormat="NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -41,7 +41,7 @@
     <Component class="javax.swing.JLabel" name="lblWstDesc">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="de/cismet/cids/custom/crisma/worldstate/viewer/Bundle.properties" key="WorldstateCoreDetailMinitureView.lblWstDesc.text" replaceFormat="NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="de/cismet/cids/custom/crisma/worldstate/viewer/Bundle.properties" key="WorldstateCoreDetailMiniatureView.lblWstDesc.text" replaceFormat="NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
