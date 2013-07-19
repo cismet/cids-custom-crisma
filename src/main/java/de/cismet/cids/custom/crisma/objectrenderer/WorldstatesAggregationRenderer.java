@@ -745,6 +745,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                         ((XYPlot)chart.getPlot()).setDomainCrosshairVisible(true);
 
                         final ChartPanel p = new ChartPanel(chart, true, true, true, true, true);
+                        jPanel2.removeAll();
                         jPanel2.add(p, BorderLayout.CENTER);
                         WorldstatesAggregationRenderer.this.revalidate();
                     }
