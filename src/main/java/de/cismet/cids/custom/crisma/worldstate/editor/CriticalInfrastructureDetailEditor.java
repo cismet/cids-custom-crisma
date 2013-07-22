@@ -5,10 +5,9 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.cids.custom.crisma.worldstate;
+package de.cismet.cids.custom.crisma.worldstate.editor;
 
 import org.openide.util.NbBundle;
-import org.openide.util.lookup.ServiceProvider;
 
 import javax.swing.JComponent;
 
@@ -18,21 +17,20 @@ import javax.swing.JComponent;
  * @author   mscholl
  * @version  $Revision$, $Date$
  */
-@ServiceProvider(service = DetailView.class)
-public class EmergencyServicesDetailView extends javax.swing.JPanel implements DetailView {
+public class CriticalInfrastructureDetailEditor extends AbstractDetailEditor {
 
     //~ Instance fields --------------------------------------------------------
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 
     //~ Constructors -----------------------------------------------------------
 
     /**
-     * Creates new form ShakeMapDetailView.
+     * Creates new form CriticalInfrastructureDetailEditor.
      */
-    public EmergencyServicesDetailView() {
+    public CriticalInfrastructureDetailEditor() {
         initComponents();
     }
 
@@ -45,24 +43,23 @@ public class EmergencyServicesDetailView extends javax.swing.JPanel implements D
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        jLabel1 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
 
         setLayout(new java.awt.BorderLayout());
 
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText(NbBundle.getMessage(
-                EmergencyServicesDetailView.class,
-                "EmergencyServicesDetailView.jLabel1.text")); // NOI18N
-        add(jLabel1, java.awt.BorderLayout.CENTER);
-    }                                                         // </editor-fold>//GEN-END:initComponents
+        jTextField1.setText(NbBundle.getMessage(
+                CriticalInfrastructureDetailEditor.class,
+                "CriticalInfrastructureDetailEditor.jTextField1.text")); // NOI18N
+        add(jTextField1, java.awt.BorderLayout.CENTER);
+    }                                                                    // </editor-fold>//GEN-END:initComponents
 
     @Override
-    public JComponent getView() {
+    public JComponent getEditor() {
         return this;
     }
 
     @Override
-    public JComponent getMiniatureView() {
+    public JComponent getMiniatureEditor() {
         return this;
     }
 
@@ -73,6 +70,6 @@ public class EmergencyServicesDetailView extends javax.swing.JPanel implements D
 
     @Override
     public String getDisplayName() {
-        return "Emergency services";
+        return "Critical infrastructure";
     }
 }

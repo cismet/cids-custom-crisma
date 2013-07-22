@@ -7,9 +7,7 @@
 ****************************************************/
 package de.cismet.cids.custom.crisma;
 
-import Sirius.navigator.Navigator;
 import Sirius.navigator.ui.ComponentRegistry;
-import Sirius.navigator.ui.LayoutedContainer;
 import Sirius.navigator.ui.MutableConstraints;
 import Sirius.navigator.ui.widget.FloatingFrameConfigurator;
 
@@ -19,8 +17,6 @@ import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
 
 import java.awt.EventQueue;
-
-import java.lang.reflect.Field;
 
 import javax.swing.ImageIcon;
 
@@ -55,15 +51,15 @@ public final class CrismaStartupHook implements StartupHook {
                     final ScenarioView view = ScenarioView.getInstance();
                     final FloatingFrameConfigurator configurator = new FloatingFrameConfigurator(
                             "ScenarioViewer",
-                            "Scenario Viewer"); // NOI18N
+                            "Scenario Viewer");
                     configurator.setTitleBarEnabled(false);
 
                     final MutableConstraints attributePanelConstraints = new MutableConstraints(true);
                     attributePanelConstraints.addAsFloatingFrame(
                         "ScenarioViewer",
                         view,
-                        "Scenario Viewer",            // NOI18N
-                        "Worldstate scenario viewer", // NOI18N
+                        "Scenario Viewer",
+                        "Worldstate scenario viewer",
                         wsIcon,
                         MutableConstraints.P2,
                         0,
@@ -71,12 +67,8 @@ public final class CrismaStartupHook implements StartupHook {
                         configurator,
                         false);
 
-                    final Navigator nav = ComponentRegistry.getRegistry().getNavigator();
                     try {
-                        final Field field = nav.getClass().getDeclaredField("container");
-                        field.setAccessible(true);
-                        final LayoutedContainer container = (LayoutedContainer)field.get(nav);
-                        container.add(attributePanelConstraints);
+                        ComponentRegistry.getRegistry().getGUIContainer().add(attributePanelConstraints);
                     } catch (final Exception ex) {
                         LOG.fatal("cannot add scenario viewer", ex);
                     }

@@ -7,7 +7,7 @@
 ****************************************************/
 package de.cismet.cids.custom.crisma.objectrenderer;
 
-import de.cismet.cids.custom.crisma.objecteditors.WorldstateEditor;
+import de.cismet.cids.custom.crisma.objecteditors.WorldstatesEditor;
 
 /**
  * DOCUMENT ME!
@@ -15,14 +15,14 @@ import de.cismet.cids.custom.crisma.objecteditors.WorldstateEditor;
  * @author   martin.scholl@cismet.de
  * @version  $Revision$, $Date$
  */
-public final class WorldstateRenderer extends WorldstateEditor {
+public final class WorldstatesRenderer extends WorldstatesEditor {
 
     //~ Constructors -----------------------------------------------------------
 
     /**
-     * Creates a new WorldstateRenderer object.
+     * Creates a new WorldstatesRenderer object.
      */
-    public WorldstateRenderer() {
+    public WorldstatesRenderer() {
         super(false);
     }
 }

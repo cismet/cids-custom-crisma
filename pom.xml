@@ -6,7 +6,7 @@
     <parent>
         <groupId>de.cismet.cids</groupId>
         <artifactId>cids-parent</artifactId>
-        <version>2.0</version>
+        <version>3.0-SNAPSHOT</version>
     </parent>
 
     <groupId>de.cismet.cids.custom.crisma</groupId>
@@ -15,7 +15,7 @@
     <packaging>jar</packaging>
 
     <name>cids Custom CRISMA</name>
-    <description>cids Navigator customisation for the CRISMA FP7 project</description>
+    <description>cids Navigator customisation for the CRISMA FP7 project [!!! only prototypical code, no productional use intended !!!]</description>
     <licenses>
         <license>
             <name>GNU Lesser General Public License</name>
@@ -72,6 +72,21 @@
             <version>2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
+            <groupId>de.cismet.commons</groupId>
+            <artifactId>cismet-gui-commons</artifactId>
+            <version>2.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.2.2</version>
+        </dependency>
+        <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util</artifactId>
             <version>${netbeans.version}</version>
@@ -82,24 +97,24 @@
             <version>${netbeans.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-dialogs</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-dialogs-i18n-de</artifactId>
-            <version>RELEASE69</version>
-        </dependency>
-        <dependency>
-            <groupId>org.swinglabs</groupId>
-            <artifactId>jxlayer</artifactId>
-            <version>3.0.3</version>
-        </dependency>
-        <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.17</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jdesktop</groupId>
+            <artifactId>beansbinding</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.0.15</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jcommon</artifactId>
+            <version>1.0.17</version>
         </dependency>
     </dependencies>
 
@@ -133,6 +148,7 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- START: direct classpath configuration -->
             <plugin>
                 <groupId>de.cismet.cids</groupId>
                 <artifactId>cids-maven-plugin</artifactId>
@@ -170,6 +186,7 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- END: direct classpath configuration -->
         </plugins>
     </build>
     

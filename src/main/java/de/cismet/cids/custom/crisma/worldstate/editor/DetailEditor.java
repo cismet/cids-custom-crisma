@@ -5,17 +5,20 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.cids.custom.crisma.worldstate;
+package de.cismet.cids.custom.crisma.worldstate.editor;
 
 import javax.swing.JComponent;
+
+import de.cismet.cids.custom.crisma.DescriptorContainer;
+import de.cismet.cids.custom.crisma.WorldstateContainer;
 
 /**
  * DOCUMENT ME!
  *
  * @author   martin.scholl@cismet.de
- * @version  $Revision$, $Date$
+ * @version  1.0
  */
-public interface DetailView {
+public interface DetailEditor extends WorldstateContainer, DescriptorContainer {
 
     //~ Methods ----------------------------------------------------------------
 
@@ -24,14 +27,14 @@ public interface DetailView {
      *
      * @return  DOCUMENT ME!
      */
-    JComponent getView();
+    JComponent getEditor();
 
     /**
      * DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    JComponent getMiniatureView();
+    JComponent getMiniatureEditor();
 
     /**
      * DOCUMENT ME!

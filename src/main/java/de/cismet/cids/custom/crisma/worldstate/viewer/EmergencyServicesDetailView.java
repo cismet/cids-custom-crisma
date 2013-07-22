@@ -5,10 +5,9 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.cids.custom.crisma.worldstate;
+package de.cismet.cids.custom.crisma.worldstate.viewer;
 
 import org.openide.util.NbBundle;
-import org.openide.util.lookup.ServiceProvider;
 
 import javax.swing.JComponent;
 
@@ -18,8 +17,7 @@ import javax.swing.JComponent;
  * @author   mscholl
  * @version  $Revision$, $Date$
  */
-@ServiceProvider(service = DetailView.class)
-public class CriticalInfrastructureDetailView extends javax.swing.JPanel implements DetailView {
+public class EmergencyServicesDetailView extends AbstractDetailView {
 
     //~ Instance fields --------------------------------------------------------
 
@@ -30,9 +28,9 @@ public class CriticalInfrastructureDetailView extends javax.swing.JPanel impleme
     //~ Constructors -----------------------------------------------------------
 
     /**
-     * Creates new form CriticalInfrastructureDetailView.
+     * Creates new form ShakeMapDetailView.
      */
-    public CriticalInfrastructureDetailView() {
+    public EmergencyServicesDetailView() {
         initComponents();
     }
 
@@ -51,10 +49,10 @@ public class CriticalInfrastructureDetailView extends javax.swing.JPanel impleme
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText(NbBundle.getMessage(
-                CriticalInfrastructureDetailView.class,
-                "CriticalInfrastructureDetailView.jLabel1.text")); // NOI18N
+                EmergencyServicesDetailView.class,
+                "EmergencyServicesDetailView.jLabel1.text")); // NOI18N
         add(jLabel1, java.awt.BorderLayout.CENTER);
-    }                                                              // </editor-fold>//GEN-END:initComponents
+    }                                                         // </editor-fold>//GEN-END:initComponents
 
     @Override
     public JComponent getView() {
@@ -73,6 +71,6 @@ public class CriticalInfrastructureDetailView extends javax.swing.JPanel impleme
 
     @Override
     public String getDisplayName() {
-        return "Critical infrastructure";
+        return "Emergency services";
     }
 }

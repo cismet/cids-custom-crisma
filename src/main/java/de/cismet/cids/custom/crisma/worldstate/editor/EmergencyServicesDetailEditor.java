@@ -5,10 +5,9 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.cids.custom.crisma.worldstate;
+package de.cismet.cids.custom.crisma.worldstate.editor;
 
 import org.openide.util.NbBundle;
-import org.openide.util.lookup.ServiceProvider;
 
 import javax.swing.JComponent;
 
@@ -18,13 +17,12 @@ import javax.swing.JComponent;
  * @author   mscholl
  * @version  $Revision$, $Date$
  */
-@ServiceProvider(service = DetailView.class)
-public class ShakeMapDetailView extends javax.swing.JPanel implements DetailView {
+public class EmergencyServicesDetailEditor extends AbstractDetailEditor {
 
     //~ Instance fields --------------------------------------------------------
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 
     //~ Constructors -----------------------------------------------------------
@@ -32,7 +30,7 @@ public class ShakeMapDetailView extends javax.swing.JPanel implements DetailView
     /**
      * Creates new form ShakeMapDetailView.
      */
-    public ShakeMapDetailView() {
+    public EmergencyServicesDetailEditor() {
         initComponents();
     }
 
@@ -45,22 +43,23 @@ public class ShakeMapDetailView extends javax.swing.JPanel implements DetailView
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        jLabel1 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
 
         setLayout(new java.awt.BorderLayout());
 
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText(NbBundle.getMessage(ShakeMapDetailView.class, "ShakeMapDetailView.jLabel1.text")); // NOI18N
-        add(jLabel1, java.awt.BorderLayout.CENTER);
-    }                                                                                                      // </editor-fold>//GEN-END:initComponents
+        jTextField1.setText(NbBundle.getMessage(
+                EmergencyServicesDetailEditor.class,
+                "EmergencyServicesDetailEditor.jTextField1.text")); // NOI18N
+        add(jTextField1, java.awt.BorderLayout.CENTER);
+    }                                                               // </editor-fold>//GEN-END:initComponents
 
     @Override
-    public JComponent getView() {
+    public JComponent getEditor() {
         return this;
     }
 
     @Override
-    public JComponent getMiniatureView() {
+    public JComponent getMiniatureEditor() {
         return this;
     }
 
@@ -71,6 +70,6 @@ public class ShakeMapDetailView extends javax.swing.JPanel implements DetailView
 
     @Override
     public String getDisplayName() {
-        return "Shakemap";
+        return "Emergency services";
     }
 }
