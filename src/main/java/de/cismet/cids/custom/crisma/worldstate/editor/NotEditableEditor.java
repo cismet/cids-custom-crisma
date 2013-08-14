@@ -98,7 +98,7 @@ public abstract class NotEditableEditor extends AbstractDetailEditor {
      *
      * @return  DOCUMENT ME!
      */
-    public BufferedImage getScaledInstance(final BufferedImage img,
+    public static BufferedImage getScaledInstance(final BufferedImage img,
             final int targetWidth,
             final int targetHeight,
             final Object hint,
