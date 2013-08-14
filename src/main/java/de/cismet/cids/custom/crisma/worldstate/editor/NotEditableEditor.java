@@ -88,7 +88,7 @@ public abstract class NotEditableEditor extends AbstractDetailEditor {
     }
 
     /**
-     * https://today.java.net/pub/a/today/2007/04/03/perils-of-image-getscaledinstance.html
+     * https://today.java.net/pub/a/today/2007/04/03/perils-of-image-getscaledinstance.html.
      *
      * @param   img            DOCUMENT ME!
      * @param   targetWidth    DOCUMENT ME!
