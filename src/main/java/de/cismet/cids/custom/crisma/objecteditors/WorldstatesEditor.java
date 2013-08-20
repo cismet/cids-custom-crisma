@@ -22,6 +22,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.log4j.Logger;
 
+import org.openide.util.ImageUtilities;
+import org.openide.util.NbBundle;
+
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -39,21 +42,20 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.swing.Box.Filler;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JLayer;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.TitledBorder;
 import javax.swing.plaf.LayerUI;
 
 import de.cismet.cids.custom.crisma.AbstractCidsBeanRenderer;
+import de.cismet.cids.custom.crisma.BorderPanel;
 import de.cismet.cids.custom.crisma.ScenarioView;
 import de.cismet.cids.custom.crisma.Tools;
 import de.cismet.cids.custom.crisma.worldstate.editor.DetailEditor;
@@ -64,6 +66,7 @@ import de.cismet.cids.dynamics.CidsBean;
 import de.cismet.cids.navigator.utils.ClassCacheMultiple;
 
 import de.cismet.tools.gui.StaticSwingTools;
+import de.cismet.tools.gui.TitleComponentProvider;
 
 /**
  * DOCUMENT ME!
@@ -71,7 +74,8 @@ import de.cismet.tools.gui.StaticSwingTools;
  * @author   mscholl
  * @version  $Revision$, $Date$
  */
-public class WorldstatesEditor extends AbstractCidsBeanRenderer implements RequestsFullSizeComponent {
+public class WorldstatesEditor extends AbstractCidsBeanRenderer implements RequestsFullSizeComponent,
+    TitleComponentProvider {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -80,10 +84,16 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
 
     //~ Instance fields --------------------------------------------------------
 
+    private final transient ImageIcon saveIcon32;
+    private final transient ImageIcon leafIcon32;
+    private final transient ImageIcon worldIcon32;
+
     private transient boolean editing;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel pnlDetails;
     private javax.swing.JPanel pnlSwapper;
     private javax.swing.JPanel pnlTreepath;
@@ -109,6 +119,18 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         this.editing = editing;
 
         initComponents();
+
+        saveIcon32 = ImageUtilities.loadImageIcon(WorldstatesEditor.class.getPackage().getName().replaceAll("\\.", "/")
+                        + "/world_save_32.png",
+                false);
+        worldIcon32 = ImageUtilities.loadImageIcon(WorldstatesEditor.class.getPackage().getName().replaceAll("\\.", "/")
+                        + "/world_32.png",
+                false);
+        leafIcon32 = ImageUtilities.loadImageIcon(WorldstatesEditor.class.getPackage().getName().replaceAll("\\.", "/")
+                        + "/world_leaf_32.png",
+                false);
+        jLabel1.setIconTextGap(8);
+        scrSwapper.getViewport().setOpaque(false);
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -122,6 +144,8 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
+        jPanel2 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
         pnlTreepath = new javax.swing.JPanel();
         pnlWorldstate = new javax.swing.JPanel();
         pnlDetails = new javax.swing.JPanel();
@@ -129,10 +153,19 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         scrSwapper = new javax.swing.JScrollPane();
         pnlSwapper = new javax.swing.JPanel();
 
+        jPanel2.setOpaque(false);
+        jPanel2.setLayout(new java.awt.BorderLayout());
+
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18));                                             // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText(NbBundle.getMessage(WorldstatesEditor.class, "WorldstatesEditor.jLabel1.text")); // NOI18N
+        jPanel2.add(jLabel1, java.awt.BorderLayout.WEST);
+
         setOpaque(false);
         setLayout(new java.awt.GridBagLayout());
 
         pnlTreepath.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        pnlTreepath.setOpaque(false);
         pnlTreepath.setLayout(new java.awt.GridBagLayout());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -141,6 +174,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         add(pnlTreepath, gridBagConstraints);
 
+        pnlWorldstate.setOpaque(false);
         pnlWorldstate.setLayout(new java.awt.GridBagLayout());
 
         pnlDetails.setOpaque(false);
@@ -154,7 +188,11 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 10, 0);
         pnlWorldstate.add(pnlDetails, gridBagConstraints);
 
+        jPanel1.setOpaque(false);
         jPanel1.setLayout(new java.awt.BorderLayout());
+
+        scrSwapper.setBorder(null);
+        scrSwapper.setOpaque(false);
 
         pnlSwapper.setOpaque(false);
         pnlSwapper.setLayout(new java.awt.GridLayout(1, 0));
@@ -191,6 +229,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
             });
 
         setTitle((String)cidsBean.getProperty("name"));
+        jLabel1.setIcon(cidsBean.getBeanCollectionProperty("childworldstates").isEmpty() ? leafIcon32 : worldIcon32);
     }
 
     /**
@@ -331,15 +370,18 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
 
         int i = 0;
         for (final DetailView view : views.keySet()) {
+            final BorderPanel p = new BorderPanel();
             final JPanel contentPane = new JPanel(new BorderLayout());
+            contentPane.setOpaque(false);
             view.setWorldstate(cidsBean);
             contentPane.putClientProperty("detailView", view);
             contentPane.putClientProperty("detailEditor", views.get(view));
-            contentPane.setBorder(new TitledBorder(new BevelBorder(BevelBorder.RAISED), view.getDisplayName()));
+            p.setTitle(view.getDisplayName());
+            p.setContentPane(contentPane);
 
             if (++i == views.size()) {
                 contentPane.add(view.getView(), BorderLayout.CENTER);
-                pnlDetails.add(contentPane);
+                pnlDetails.add(p);
             } else {
                 final LayerUI<JComponent> layerUI = new LayerUI<JComponent>() {
 
@@ -348,25 +390,26 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                             assert EventQueue.isDispatchThread() : "EDT only";
 
                             if (MouseEvent.MOUSE_CLICKED == awte.getID()) {
-                                final JComponent oldContentPane = (JComponent)pnlDetails.getComponent(0);
-                                final JComponent newContentPane = (JComponent)jlayer.getView();
+                                final BorderPanel oldContentPane = (BorderPanel)pnlDetails.getComponent(0);
+                                final JComponent oc = oldContentPane.getContentPane();
+                                final BorderPanel newContentPane = (BorderPanel)jlayer.getView();
+                                final JComponent nc = newContentPane.getContentPane();
 
-                                final DetailView oldDetailV = (DetailView)oldContentPane.getClientProperty(
+                                final DetailView oldDetailV = (DetailView)oc.getClientProperty(
                                         "detailView");
-                                final DetailEditor oldDetailE = (DetailEditor)oldContentPane.getClientProperty(
+                                final DetailEditor oldDetailE = (DetailEditor)oc.getClientProperty(
                                         "detailEditor");
-                                final DetailView newDetailV = (DetailView)newContentPane.getClientProperty(
+                                final DetailView newDetailV = (DetailView)nc.getClientProperty(
                                         "detailView");
-                                final DetailEditor newDetailE = (DetailEditor)newContentPane.getClientProperty(
+                                final DetailEditor newDetailE = (DetailEditor)nc.getClientProperty(
                                         "detailEditor");
 
-                                oldContentPane.removeAll();
-                                oldContentPane.add(editing ? oldDetailE.getMiniatureEditor()
-                                                           : oldDetailV.getMiniatureView(),
+                                oc.removeAll();
+                                oc.add(editing ? oldDetailE.getMiniatureEditor() : oldDetailV.getMiniatureView(),
                                     BorderLayout.CENTER);
 
-                                newContentPane.removeAll();
-                                newContentPane.add(editing ? newDetailE.getEditor() : newDetailV.getView(),
+                                nc.removeAll();
+                                nc.add(editing ? newDetailE.getEditor() : newDetailV.getView(),
                                     BorderLayout.CENTER);
 
                                 jlayer.setView(oldContentPane);
@@ -381,8 +424,9 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                         }
                     };
 
-                final JLayer<JComponent> layer = new JLayer<JComponent>(contentPane, layerUI);
+                final JLayer<JComponent> layer = new JLayer<JComponent>(p, layerUI);
                 layer.setLayerEventMask(Long.MAX_VALUE);
+                layer.setOpaque(false);
                 contentPane.add(view.getMiniatureView(), BorderLayout.CENTER);
                 pnlSwapper.add(layer);
             }
@@ -415,7 +459,8 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                         "Do you want to save the changes",
                         "Save changes",
                         JOptionPane.YES_NO_CANCEL_OPTION,
-                        JOptionPane.QUESTION_MESSAGE);
+                        JOptionPane.QUESTION_MESSAGE,
+                        saveIcon32);
                 if (JOptionPane.CANCEL_OPTION == answer) {
                     return;
                 } else if (JOptionPane.YES_OPTION == answer) {
@@ -483,5 +528,20 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         } catch (final Exception exception) {
             LOG.error("cannot change edit status", exception);
         }
+    }
+
+    @Override
+    public JComponent getTitleComponent() {
+        return jPanel2;
+    }
+
+    @Override
+    public void setTitle(final String title) {
+        jLabel1.setText(title);
+    }
+
+    @Override
+    public String getTitle() {
+        return jLabel1.getText();
     }
 }

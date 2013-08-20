@@ -5,7 +5,9 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.cids.custom.crisma.worldstate.editor;
+package de.cismet.cids.custom.crisma;
+
+import de.cismet.cismap.commons.gui.MappingComponent;
 
 /**
  * DOCUMENT ME!
@@ -13,17 +15,14 @@ package de.cismet.cids.custom.crisma.worldstate.editor;
  * @author   martin.scholl@cismet.de
  * @version  $Revision$, $Date$
  */
-public final class ICCDataDetailEditor extends NotEditableEditor {
+public interface MapSync {
 
     //~ Methods ----------------------------------------------------------------
 
-    @Override
-    public String getId() {
-        return "icc_data_editor";
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "ICC Data (autoupdate on save)";
-    }
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    MappingComponent getMap();
 }

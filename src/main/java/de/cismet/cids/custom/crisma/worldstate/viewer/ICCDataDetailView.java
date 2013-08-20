@@ -8,7 +8,6 @@
 package de.cismet.cids.custom.crisma.worldstate.viewer;
 
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.log4j.Logger;
@@ -24,9 +23,14 @@ import org.openide.util.NbBundle;
 import java.awt.Color;
 import java.awt.GridLayout;
 
-import java.util.Map;
+import java.lang.reflect.Field;
 
 import javax.swing.JComponent;
+import javax.swing.JPanel;
+
+import de.cismet.cids.custom.crisma.icc.DisplayName;
+import de.cismet.cids.custom.crisma.icc.ICCData;
+import de.cismet.cids.custom.crisma.icc.Value;
 
 import de.cismet.cids.dynamics.CidsBean;
 
@@ -53,6 +57,7 @@ public class ICCDataDetailView extends AbstractDetailView {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JTabbedPane jTabbedPane1;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 
@@ -82,6 +87,7 @@ public class ICCDataDetailView extends AbstractDetailView {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -133,7 +139,9 @@ public class ICCDataDetailView extends AbstractDetailView {
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(
                 NbBundle.getMessage(ICCDataDetailView.class, "ICCDataDetailView.jPanel1.border.title"))); // NOI18N
-        jPanel1.setLayout(new java.awt.GridLayout());
+        jPanel1.setLayout(new java.awt.BorderLayout());
+        jPanel1.add(jTabbedPane1, java.awt.BorderLayout.CENTER);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
@@ -181,37 +189,80 @@ public class ICCDataDetailView extends AbstractDetailView {
     private void init() {
         final String json = (String)getWorldstate().getProperty("iccdata.actualaccessinfo");
         final ObjectMapper m = new ObjectMapper(new JsonFactory());
-        final TypeReference<Map<String, Map<String, String>>> ref =
-            new TypeReference<Map<String, Map<String, String>>>() {
-            };
         try {
-            final Map<String, Map<String, String>> props = m.readValue(json, ref);
-            final GridLayout grid = new GridLayout(1, props.size(), 5, 5);
-            jPanel1.setLayout(grid);
+            final ICCData icc = m.readValue(json, ICCData.class);
 
-            for (final String s : props.keySet()) {
-                final Map<String, String> kv = props.get(s);
-                final String catName = kv.get("displayName");
-                final Integer value = Integer.parseInt(kv.get("value"));
+            final Field[] fields = icc.getClass().getDeclaredFields();
+            for (final Field field : fields) {
+                final JPanel p = new JPanel();
+                field.setAccessible(true);
+                final Object o = field.get(icc);
+                final Field[] fields2 = o.getClass().getDeclaredFields();
+                final GridLayout g = new GridLayout(1, fields2.length, 5, 5);
+                p.setLayout(g);
+                final String displayName = ((DisplayName)o).getDisplayName();
+                jTabbedPane1.add(displayName, p);
+                Double bound = 0d;
+                for (final Field f1 : fields2) {
+                    f1.setAccessible(true);
+                    final Double value = Double.parseDouble(((Value)f1.get(o)).getValue());
+                    bound = Math.max(value, bound);
+                }
+                bound = bound * 1.2;
+                for (final Field f1 : fields2) {
+                    f1.setAccessible(true);
+                    final Value val = (Value)f1.get(o);
+                    final String catName = val.getDisplayName();
+                    final Double value = Double.parseDouble(val.getValue());
 
-                final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-                dataset.addValue(value, catName, catName);
+                    final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+                    dataset.addValue(value, catName, catName);
 
-                final JFreeChart chart = ChartFactory.createBarChart3D(
-                        catName,
-                        catName,
-                        "Value",
-                        dataset,
-                        PlotOrientation.VERTICAL,
-                        false,
-                        false,
-                        false);
-
-                chart.getCategoryPlot().getRenderer().setSeriesPaint(0, Color.CYAN);
-                chart.getCategoryPlot().getRangeAxis().setAutoRange(false);
-                chart.getCategoryPlot().getRangeAxis().setUpperBound(500);
-                jPanel1.add(new ChartPanel(chart, true, false, false, false, true));
+                    final JFreeChart chart = ChartFactory.createBarChart3D(
+                            catName,
+                            catName,
+                            "Value",
+                            dataset,
+                            PlotOrientation.VERTICAL,
+                            false,
+                            false,
+                            false);
+                    chart.getCategoryPlot().getRenderer().setSeriesPaint(0, Color.CYAN);
+                    chart.getCategoryPlot().getRangeAxis().setAutoRange(false);
+                    chart.getCategoryPlot().getRangeAxis().setUpperBound(bound);
+                    p.add(new ChartPanel(chart, true, false, false, false, true));
+                }
             }
+
+//            for (final String s : props.keySet()) {
+//                final JPanel p = new JPanel();
+//
+//                final GridLayout grid = new GridLayout(1, props.size(), 5, 5);
+//                jPanel1.setLayout(grid);
+//                final Map<String, Map<String, String>> kv = props.get(s);
+//                final String catName = kv.get("displayName");
+//                final Integer value = Integer.parseInt(kv.get("value"));
+//
+//                final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+//                dataset.addValue(value, catName, catName);
+//
+//                final JFreeChart chart = ChartFactory.createBarChart3D(
+//                        catName,
+//                        catName,
+//                        "Value",
+//                        dataset,
+//                        PlotOrientation.VERTICAL,
+//                        false,
+//                        false,
+//                        false);
+//
+//                chart.getCategoryPlot().getRenderer().setSeriesPaint(0, Color.CYAN);
+//                chart.getCategoryPlot().getRangeAxis().setAutoRange(true);
+////                chart.getCategoryPlot().getRangeAxis().setUpperBound(500);
+//                jPanel1.add(new ChartPanel(chart, true, false, false, false, true));
+//
+//                jTabbedPane1.add(s, p);
+//            }
         } catch (Exception ex) {
             LOG.error("cannot init icc data view", ex);
         }

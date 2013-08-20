@@ -39,7 +39,7 @@
     </issueManagement>
     <ciManagement>
         <system>jenkins</system>
-        <url>https://ci.cismet.de/job/cids-custom-crisma%20%28git-hub%29/</url>
+        <url>https://ci.cismet.de/job/cids-custom-crisma/</url>
     </ciManagement>
     <developers>
         <developer>
@@ -49,6 +49,23 @@
             <organization>cismet GmbH</organization>
         </developer>
     </developers>
+    
+    <distributionManagement>
+        <site>
+            <id>crisma-site</id>
+            <url>scp://demo@crisma.cismet.de/var/www_crisma/</url>
+        </site>
+        <repository>
+            <id>cismet-repo</id>
+            <name>cismet-libs-releases-local</name>
+            <url>https://repo.cismet.de/cismet-libs-releases-local</url>
+        </repository>
+        <snapshotRepository>
+            <id>cismet-repo</id>
+            <name>cismet-libs-snapshots-local</name>
+            <url>https://repo.cismet.de/cismet-libs-snapshots-local</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <properties>
         <de.cismet.libDir>lib/localCrisma</de.cismet.libDir>
@@ -75,6 +92,16 @@
             <groupId>de.cismet.commons</groupId>
             <artifactId>cismet-gui-commons</artifactId>
             <version>2.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.cismet.commons</groupId>
+            <artifactId>cismap-commons</artifactId>
+            <version>2.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.umd</groupId>
+            <artifactId>piccolo</artifactId>
+            <version>1.2</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -116,6 +143,11 @@
             <artifactId>jcommon</artifactId>
             <version>1.0.17</version>
         </dependency>
+        <dependency>
+            <groupId>net.infonode.docking</groupId>
+            <artifactId>docking</artifactId>
+            <version>1.5.0</version>
+        </dependency>
     </dependencies>
 
     <repositories>
@@ -147,6 +179,17 @@
                         <phase>none</phase>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.3</version>
+                <dependencies>
+                    <dependency><!-- add support for ssh/scp -->
+                        <groupId>org.apache.maven.wagon</groupId>
+                        <artifactId>wagon-ssh</artifactId>
+                        <version>2.4</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <!-- START: direct classpath configuration -->
             <plugin>

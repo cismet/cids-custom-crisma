@@ -48,24 +48,35 @@ import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 
+import java.lang.reflect.Field;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import de.cismet.cids.custom.crisma.AbstractCidsBeanAggregationRenderer;
+import de.cismet.cids.custom.crisma.MapSync;
+import de.cismet.cids.custom.crisma.MapSyncUtil;
+import de.cismet.cids.custom.crisma.icc.ICCData;
+import de.cismet.cids.custom.crisma.icc.Value;
+import de.cismet.cids.custom.crisma.worldstate.viewer.DetailView;
 
 import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cids.navigator.utils.ClassCacheMultiple;
+
+import de.cismet.cismap.commons.gui.MappingComponent;
 
 /**
  * DOCUMENT ME!
@@ -84,6 +95,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     //~ Instance fields --------------------------------------------------------
 
     private int next = 0;
+
+    private final ObjectMapper m = new ObjectMapper(new JsonFactory());
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList jList1;
@@ -269,12 +282,107 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
 
     @Override
     protected void init() {
-        initMultipleBarCharts(0);
-        initSingleBarChart(1);
-        initSpiderWebChart(2);
-        initMultipleSpiderWebChart(3);
-        initLineChart(4);
-        initAnalysisGraph(5);
+        int tab = 0;
+        try {
+            tab = initComp(tab);
+        } catch (final Exception e) {
+            LOG.warn("cannot init", e);
+        }
+//        try {
+//            initMultipleBarCharts(tab++);
+//        } catch (final Exception e) {
+//            LOG.warn("cannot init", e);
+//        }
+//        try {
+//            initSingleBarChart(tab++);
+//        } catch (final Exception e) {
+//            LOG.warn("cannot init", e);
+//        }
+//        try {
+//            initSpiderWebChart(tab++);
+//        } catch (final Exception e) {
+//            LOG.warn("cannot init", e);
+//        }
+//        try {
+//            initMultipleSpiderWebChart(tab++);
+//        } catch (final Exception e) {
+//            LOG.warn("cannot init", e);
+//        }
+//        try {
+//            initLineChart(tab++);
+//        } catch (final Exception e) {
+//            LOG.warn("cannot init", e);
+//        }
+        try {
+            initAnalysisGraph(tab++);
+        } catch (final Exception e) {
+            LOG.warn("cannot init", e);
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   tab  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private int initComp(final int tab) {
+        int i = tab;
+        final Collection<CidsBean> worldstates = getCidsBeans();
+        final Map<String, List<DetailView>> views = new HashMap();
+        try {
+            final MetaClass mcr = ClassCacheMultiple.getMetaClass("CRISMA", "renderingdescriptors");
+            final String sqlr = "SELECT " + mcr.getID() + ", r."
+                        + mcr.getPrimaryKey()
+                        + " FROM renderingdescriptors r, renderingdescriptorscategories rc, categories ca, classifications cl where r.categories = rc.renderingdescriptors_reference and rc.categories = ca.id and ca.classification = cl.id and cl.key like 'worldstate_detail_component'";
+            final MetaObject[] mosr = SessionManager.getProxy()
+                        .getMetaObjectByQuery(SessionManager.getSession().getUser(), sqlr);
+            final ObjectMapper m = new ObjectMapper(new JsonFactory());
+            final TypeReference<Map<String, String>> ref = new TypeReference<Map<String, String>>() {
+                };
+
+            for (final MetaObject mo : mosr) {
+                final String jsonString = (String)mo.getBean().getProperty("uiintegrationinfo");
+                final Map<String, String> json = m.readValue(jsonString, ref);
+                final String viewName = json.get("canonicalName");
+                final List<DetailView> l = new ArrayList();
+                for (final CidsBean worldstate : worldstates) {
+                    final DetailView view = (DetailView)Class.forName(viewName).newInstance();
+                    view.setDescriptor(mo.getBean());
+                    view.setWorldstate(worldstate);
+                    l.add(view);
+                }
+
+                if (l.get(0) instanceof MapSync) {
+                    final List<MappingComponent> mcs = new ArrayList<MappingComponent>(l.size());
+                    for (final DetailView v : l) {
+                        mcs.add(((MapSync)v).getMap());
+                    }
+                    MapSyncUtil.sync(mcs);
+                }
+
+                views.put(l.get(0).getDisplayName(), l);
+            }
+
+            for (final String s : views.keySet()) {
+                final JPanel p = new JPanel();
+                final List<DetailView> v = views.get(s);
+                final GridLayout g = new GridLayout(2, v.size(), 15, 15);
+                p.setLayout(g);
+                for (final DetailView dv : v) {
+                    final JPanel j = new JPanel(new BorderLayout());
+                    j.setBorder(new TitledBorder(dv.getWorldstate().getProperty("name").toString()));
+                    j.add(dv.getView(), BorderLayout.CENTER);
+                    p.add(j);
+                }
+                jTabbedPane1.insertTab(s, null, p, null, i++);
+            }
+        } catch (final Exception e) {
+            LOG.error("cannot init aggregation renderer", e);
+        }
+
+        return i;
     }
 
     /**
@@ -633,17 +741,24 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         final Collection<CidsBean> wsts = getCidsBeans();
         final CidsBean wst = wsts.iterator().next();
         final String json = (String)wst.getProperty("iccdata.actualaccessinfo");
-        final ObjectMapper m = new ObjectMapper(new JsonFactory());
-        final TypeReference<Map<String, Map<String, String>>> ref =
-            new TypeReference<Map<String, Map<String, String>>>() {
-            };
         try {
-            final Map<String, Map<String, String>> props = m.readValue(json, ref);
+            final ICCData icc = m.readValue(json, ICCData.class);
+            final Field[] fields = icc.getClass().getDeclaredFields();
+            final List<Value> values = new ArrayList<Value>();
+            for (final Field field : fields) {
+                field.setAccessible(true);
+                final Object o = field.get(icc);
+                for (final Field x : o.getClass().getDeclaredFields()) {
+                    x.setAccessible(true);
+                    values.add((Value)x.get(o));
+                }
+            }
+
             final DefaultListModel xdlm = new DefaultListModel();
             final DefaultListModel ydlm = new DefaultListModel();
-            for (final Entry e : props.entrySet()) {
-                xdlm.addElement(e);
-                ydlm.addElement(e);
+            for (final Value v : values) {
+                xdlm.addElement(v);
+                ydlm.addElement(v);
             }
 
             jList1.setModel(xdlm);
@@ -657,7 +772,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                             final boolean arg3,
                             final boolean arg4) {
                         final JLabel l = (JLabel)super.getListCellRendererComponent(arg0, arg1, arg2, arg3, arg4);
-                        l.setText((String)((Map)((Entry)arg1).getValue()).get("displayName"));
+                        l.setText(((Value)arg1).getDisplayName());
                         return l;
                     }
                 });
@@ -670,7 +785,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                             final boolean arg3,
                             final boolean arg4) {
                         final JLabel l = (JLabel)super.getListCellRendererComponent(arg0, arg1, arg2, arg3, arg4);
-                        l.setText((String)((Map)((Entry)arg1).getValue()).get("displayName"));
+                        l.setText(((Value)arg1).getDisplayName());
                         return l;
                     }
                 });
@@ -692,23 +807,15 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                         return;
                     }
 
-                    final Object x = jList1.getSelectedValue();
-                    final Object y = jList2.getSelectedValue();
+                    final Value x = (Value)jList1.getSelectedValue();
+                    final Value y = (Value)jList2.getSelectedValue();
 
                     if ((x != null) && (y != null)) {
-                        final String xKey = (String)((Entry)x).getKey();
-                        final String yKey = (String)((Entry)y).getKey();
                         final XYSeriesCollection dataset = new XYSeriesCollection();
-                        final ObjectMapper m = new ObjectMapper(new JsonFactory());
                         for (final CidsBean wst : getCidsBeans()) {
-                            final String json = (String)wst.getProperty("iccdata.actualaccessinfo");
-                            final TypeReference<Map<String, Map<String, String>>> ref =
-                                new TypeReference<Map<String, Map<String, String>>>() {
-                                };
                             try {
-                                final Map<String, Map<String, String>> props = m.readValue(json, ref);
-                                final Integer xValue = Integer.parseInt(props.get(xKey).get("value"));
-                                final Integer yValue = Integer.parseInt(props.get(yKey).get("value"));
+                                final Double xValue = getValue(x.getDisplayName(), wst);
+                                final Double yValue = getValue(y.getDisplayName(), wst);
                                 final XYSeries series = new XYSeries((String)wst.getProperty("name"), false, false);
                                 series.add(xValue, yValue);
                                 dataset.addSeries(series);
@@ -717,8 +824,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                             }
                         }
 
-                        final String xName = (String)((Map)((Entry)x).getValue()).get("displayName");
-                        final String yName = (String)((Map)((Entry)y).getValue()).get("displayName");
+                        final String xName = x.getDisplayName();
+                        final String yName = y.getDisplayName();
                         final JFreeChart chart = ChartFactory.createScatterPlot("Relation " + xName + " to " + yName,
                                 xName,
                                 yName,
@@ -764,6 +871,36 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         } catch (final Exception e) {
             LOG.error("cannot init analysis graph", e);
         }
+    }
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   displayName  DOCUMENT ME!
+     * @param   worldstate   DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private double getValue(final String displayName, final CidsBean worldstate) {
+        try {
+            final String json = (String)worldstate.getProperty("iccdata.actualaccessinfo");
+            final ICCData icc = m.readValue(json, ICCData.class);
+            final Field[] fields = icc.getClass().getDeclaredFields();
+            for (final Field field : fields) {
+                field.setAccessible(true);
+                final Object o = field.get(icc);
+                for (final Field x : o.getClass().getDeclaredFields()) {
+                    x.setAccessible(true);
+                    final Value v = (Value)x.get(o);
+                    if (displayName.equals(v.getDisplayName())) {
+                        return Double.parseDouble(v.getValue());
+                    }
+                }
+            }
+        } catch (final Exception e) {
+            LOG.warn("cannot getvalue: " + displayName + " | " + worldstate, e);
+        }
+
+        return 0d;
     }
 
     /**

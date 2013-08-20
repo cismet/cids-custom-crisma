@@ -142,7 +142,7 @@ public class ScenarioView extends javax.swing.JPanel {
 
                 private final transient ImageIcon wsIcon = ImageUtilities.loadImageIcon(
                         ScenarioView.this.getClass().getPackage().getName().replaceAll("\\.", "/")
-                                + "/earth.gif",
+                                + "/world_leaf_16.png",
                         false);
 
                 @Override
