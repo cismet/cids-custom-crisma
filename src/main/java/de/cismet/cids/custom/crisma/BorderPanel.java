@@ -84,7 +84,8 @@ public class BorderPanel extends javax.swing.JPanel {
      */
     public void setContentPane(final JPanel contentPane) {
         roundedPanel1.remove(this.contentPane);
-        roundedPanel1.add(contentPane, BorderLayout.CENTER);
+        this.contentPane = contentPane;
+        roundedPanel1.add(this.contentPane, BorderLayout.CENTER);
     }
 
     /**
@@ -129,14 +130,11 @@ public class BorderPanel extends javax.swing.JPanel {
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 14));                                 // NOI18N
         jLabel2.setForeground(new java.awt.Color(68, 68, 68));
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText(NbBundle.getMessage(BorderPanel.class, "BorderPanel.jLabel2.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         semiRoundedPanel2.add(jLabel2, gridBagConstraints);
 
         roundedPanel1.add(semiRoundedPanel2, java.awt.BorderLayout.SOUTH);
