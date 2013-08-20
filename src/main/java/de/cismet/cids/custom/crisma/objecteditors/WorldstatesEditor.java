@@ -22,6 +22,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.log4j.Logger;
 
+import org.openide.util.ImageUtilities;
+import org.openide.util.NbBundle;
+
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -39,10 +42,10 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.swing.Box.Filler;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -64,6 +67,7 @@ import de.cismet.cids.dynamics.CidsBean;
 import de.cismet.cids.navigator.utils.ClassCacheMultiple;
 
 import de.cismet.tools.gui.StaticSwingTools;
+import de.cismet.tools.gui.TitleComponentProvider;
 
 /**
  * DOCUMENT ME!
@@ -71,7 +75,8 @@ import de.cismet.tools.gui.StaticSwingTools;
  * @author   mscholl
  * @version  $Revision$, $Date$
  */
-public class WorldstatesEditor extends AbstractCidsBeanRenderer implements RequestsFullSizeComponent {
+public class WorldstatesEditor extends AbstractCidsBeanRenderer implements RequestsFullSizeComponent,
+    TitleComponentProvider {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -80,10 +85,16 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
 
     //~ Instance fields --------------------------------------------------------
 
+    private final transient ImageIcon saveIcon32;
+    private final transient ImageIcon leafIcon32;
+    private final transient ImageIcon worldIcon32;
+
     private transient boolean editing;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel pnlDetails;
     private javax.swing.JPanel pnlSwapper;
     private javax.swing.JPanel pnlTreepath;
@@ -109,6 +120,17 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         this.editing = editing;
 
         initComponents();
+
+        saveIcon32 = ImageUtilities.loadImageIcon(WorldstatesEditor.class.getPackage().getName().replaceAll("\\.", "/")
+                        + "/world_save_32.png",
+                false);
+        worldIcon32 = ImageUtilities.loadImageIcon(WorldstatesEditor.class.getPackage().getName().replaceAll("\\.", "/")
+                        + "/world_32.png",
+                false);
+        leafIcon32 = ImageUtilities.loadImageIcon(WorldstatesEditor.class.getPackage().getName().replaceAll("\\.", "/")
+                        + "/world_leaf_32.png",
+                false);
+        jLabel1.setIconTextGap(8);
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -122,12 +144,22 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
+        jPanel2 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
         pnlTreepath = new javax.swing.JPanel();
         pnlWorldstate = new javax.swing.JPanel();
         pnlDetails = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         scrSwapper = new javax.swing.JScrollPane();
         pnlSwapper = new javax.swing.JPanel();
+
+        jPanel2.setOpaque(false);
+        jPanel2.setLayout(new java.awt.BorderLayout());
+
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18));                                             // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText(NbBundle.getMessage(WorldstatesEditor.class, "WorldstatesEditor.jLabel1.text")); // NOI18N
+        jPanel2.add(jLabel1, java.awt.BorderLayout.WEST);
 
         setOpaque(false);
         setLayout(new java.awt.GridBagLayout());
@@ -191,6 +223,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
             });
 
         setTitle((String)cidsBean.getProperty("name"));
+        jLabel1.setIcon(cidsBean.getBeanCollectionProperty("childworldstates").isEmpty() ? leafIcon32 : worldIcon32);
     }
 
     /**
@@ -415,7 +448,8 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                         "Do you want to save the changes",
                         "Save changes",
                         JOptionPane.YES_NO_CANCEL_OPTION,
-                        JOptionPane.QUESTION_MESSAGE);
+                        JOptionPane.QUESTION_MESSAGE,
+                        saveIcon32);
                 if (JOptionPane.CANCEL_OPTION == answer) {
                     return;
                 } else if (JOptionPane.YES_OPTION == answer) {
@@ -483,5 +517,20 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         } catch (final Exception exception) {
             LOG.error("cannot change edit status", exception);
         }
+    }
+
+    @Override
+    public JComponent getTitleComponent() {
+        return jPanel2;
+    }
+
+    @Override
+    public void setTitle(final String title) {
+        jLabel1.setText(title);
+    }
+
+    @Override
+    public String getTitle() {
+        return jLabel1.getText();
     }
 }

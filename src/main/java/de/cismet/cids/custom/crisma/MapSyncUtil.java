@@ -63,13 +63,13 @@ public final class MapSyncUtil {
 
         //~ Methods ------------------------------------------------------------
 
-//        @Override
-//        public void processEvent(final PInputEvent event, final int type) {
-//            for (final MappingComponent mc : mcs) {
-//                final PBasicInputEventHandler p = (PBasicInputEventHandler)mc.getInputListener("wfsclick");
-//                p.processEvent(event, type);
-//            }
-//        }
+// @Override
+// public void processEvent(final PInputEvent event, final int type) {
+// for (final MappingComponent mc : mcs) {
+// final PBasicInputEventHandler p = (PBasicInputEventHandler)mc.getInputListener("wfsclick");
+// p.processEvent(event, type);
+// }
+// }
 //
         @Override
         public void mouseClicked(final PInputEvent event) {

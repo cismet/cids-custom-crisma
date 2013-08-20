@@ -9,12 +9,14 @@ package de.cismet.cids.custom.crisma;
 
 import Sirius.navigator.ui.ComponentRegistry;
 
+import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ImageIcon;
 
 import de.cismet.cids.custom.crisma.objectrenderer.WorldstatesRenderer;
 
@@ -31,6 +33,11 @@ import de.cismet.cids.tools.metaobjectrenderer.CidsBeanRenderer;
 @ServiceProvider(service = CidsClientToolbarItem.class)
 public final class EditAction extends AbstractAction implements CidsClientToolbarItem {
 
+    //~ Instance fields --------------------------------------------------------
+
+    private final transient ImageIcon saveIcon16;
+    private final transient ImageIcon editIcon16;
+
     //~ Constructors -----------------------------------------------------------
 
     /**
@@ -38,6 +45,15 @@ public final class EditAction extends AbstractAction implements CidsClientToolba
      */
     public EditAction() {
         super(" Edit Worldstate ");
+
+        editIcon16 = ImageUtilities.loadImageIcon(DeleteAction.class.getPackage().getName().replaceAll("\\.", "/")
+                        + "/world_edit_16.png",
+                false);
+        saveIcon16 = ImageUtilities.loadImageIcon(DeleteAction.class.getPackage().getName().replaceAll("\\.", "/")
+                        + "/world_save_16.png",
+                false);
+
+        putValue(Action.SMALL_ICON, editIcon16);
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -49,6 +65,7 @@ public final class EditAction extends AbstractAction implements CidsClientToolba
             final WorldstatesRenderer wr = (WorldstatesRenderer)r;
             wr.setEditing(!wr.isEditing());
             putValue(Action.NAME, wr.isEditing() ? " Save Worldstate " : " Edit Worldstate ");
+            putValue(Action.SMALL_ICON, wr.isEditing() ? saveIcon16 : editIcon16);
         }
     }
 

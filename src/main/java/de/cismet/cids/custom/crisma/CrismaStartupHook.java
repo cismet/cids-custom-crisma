@@ -8,6 +8,7 @@
 package de.cismet.cids.custom.crisma;
 
 import Sirius.navigator.ui.ComponentRegistry;
+import Sirius.navigator.ui.LayoutedContainer;
 import Sirius.navigator.ui.MutableConstraints;
 import Sirius.navigator.ui.widget.FloatingFrameConfigurator;
 
@@ -46,7 +47,7 @@ public final class CrismaStartupHook implements StartupHook {
                 public void run() {
                     final ImageIcon wsIcon = ImageUtilities.loadImageIcon(
                             CrismaStartupHook.this.getClass().getPackage().getName().replaceAll("\\.", "/")
-                                    + "/earth.gif",
+                                    + "/world_leaf_16.png",
                             false);
                     final ScenarioView view = ScenarioView.getInstance();
                     final FloatingFrameConfigurator configurator = new FloatingFrameConfigurator(
@@ -69,6 +70,10 @@ public final class CrismaStartupHook implements StartupHook {
 
                     try {
                         ComponentRegistry.getRegistry().getGUIContainer().add(attributePanelConstraints);
+                        ((LayoutedContainer)ComponentRegistry.getRegistry().getGUIContainer()).loadLayout(
+                            "/Users/mscholl/.navigator/martin.layout",
+                            false,
+                            null);
                     } catch (final Exception ex) {
                         LOG.fatal("cannot add scenario viewer", ex);
                     }
