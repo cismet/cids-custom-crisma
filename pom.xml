@@ -143,11 +143,6 @@
             <artifactId>jcommon</artifactId>
             <version>1.0.17</version>
         </dependency>
-        <dependency>
-            <groupId>net.infonode.docking</groupId>
-            <artifactId>docking</artifactId>
-            <version>1.5.0</version>
-        </dependency>
     </dependencies>
 
     <repositories>
@@ -169,17 +164,6 @@
 
     <build>
         <plugins>
-            <!-- disabled because sudplan makes use of automatic generation -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-installed</id>
-                        <phase>none</phase>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <artifactId>maven-site-plugin</artifactId>
                 <version>3.3</version>
@@ -191,45 +175,6 @@
                     </dependency>
                 </dependencies>
             </plugin>
-            <!-- START: direct classpath configuration -->
-            <plugin>
-                <groupId>de.cismet.cids</groupId>
-                <artifactId>cids-maven-plugin</artifactId>
-                <version>2.0-SNAPSHOT</version>
-                <executions>
-                    <execution>
-                       <id>create-compile-classpath</id>
-                       <goals>
-                           <goal>create-direct-cp-property</goal>
-                       </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.0</version>
-                <executions>
-                    <execution>
-                        <id>default-compile</id>
-                        <phase>none</phase>
-                    </execution>
-                    <execution>
-                        <id>direct-compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <configuration>
-                            <compilerArguments>
-                                <sourcepath>${basedir}/src/main/java</sourcepath>
-                                <classpath>${classpath.directDependencies}</classpath>
-                            </compilerArguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- END: direct classpath configuration -->
         </plugins>
     </build>
     
