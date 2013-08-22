@@ -97,6 +97,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JPanel pnlDetails;
     private javax.swing.JPanel pnlSwapper;
     private javax.swing.JPanel pnlTreepath;
@@ -151,6 +152,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         jLabel1 = new javax.swing.JLabel();
         pnlTreepath = new javax.swing.JPanel();
         pnlWorldstate = new javax.swing.JPanel();
+        jSplitPane1 = new javax.swing.JSplitPane();
         pnlDetails = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         scrSwapper = new javax.swing.JScrollPane();
@@ -186,16 +188,17 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         pnlWorldstate.setOpaque(false);
         pnlWorldstate.setLayout(new java.awt.GridBagLayout());
 
+        jSplitPane1.setBorder(null);
+        jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        jSplitPane1.setResizeWeight(0.7);
+        jSplitPane1.setToolTipText(NbBundle.getMessage(
+                WorldstatesEditor.class,
+                "WorldstatesEditor.jSplitPane1.toolTipText")); // NOI18N
+        jSplitPane1.setOpaque(false);
+
         pnlDetails.setOpaque(false);
         pnlDetails.setLayout(new java.awt.BorderLayout());
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 0.7;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 10, 0);
-        pnlWorldstate.add(pnlDetails, gridBagConstraints);
+        jSplitPane1.setLeftComponent(pnlDetails);
 
         jPanel1.setOpaque(false);
         jPanel1.setLayout(new java.awt.BorderLayout());
@@ -210,12 +213,15 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
 
         jPanel1.add(scrSwapper, java.awt.BorderLayout.CENTER);
 
+        jSplitPane1.setRightComponent(jPanel1);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weighty = 0.3;
-        pnlWorldstate.add(jPanel1, gridBagConstraints);
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        pnlWorldstate.add(jSplitPane1, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -240,6 +246,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
 
         setTitle((String)cidsBean.getProperty("name"));
         jLabel1.setIcon(cidsBean.getBeanCollectionProperty("childworldstates").isEmpty() ? leafIcon32 : worldIcon32);
+        jSplitPane1.setDividerLocation(0.7);
     }
 
     /**
