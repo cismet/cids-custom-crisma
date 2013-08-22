@@ -9,6 +9,9 @@ package de.cismet.cids.custom.crisma.worldstate.editor;
 
 import org.openide.util.ImageUtilities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -25,6 +28,11 @@ import javax.swing.JComponent;
  * @version  $Revision$, $Date$
  */
 public abstract class NotEditableEditor extends AbstractDetailEditor {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    /** LOGGER. */
+    private static final transient Logger LOG = LoggerFactory.getLogger(NotEditableEditor.class);
 
     //~ Instance fields --------------------------------------------------------
 
@@ -121,10 +129,17 @@ public abstract class NotEditableEditor extends AbstractDetailEditor {
             h = targetHeight;
         }
 
+        int pass = 1;
+
         do {
             if (higherQuality && (w > targetWidth)) {
                 w /= 2;
                 if (w < targetWidth) {
+                    w = targetWidth;
+                }
+            } else if (higherQuality && (w < targetWidth)) {
+                w *= 2;
+                if (w > targetWidth) {
                     w = targetWidth;
                 }
             }
@@ -134,6 +149,16 @@ public abstract class NotEditableEditor extends AbstractDetailEditor {
                 if (h < targetHeight) {
                     h = targetHeight;
                 }
+            } else if (higherQuality && (h < targetHeight)) {
+                h *= 2;
+                if (h > targetHeight) {
+                    h = targetHeight;
+                }
+            }
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("getScaledInstance: [pass=" + pass++ + "|imgw=" + img.getWidth() + "|imgh=" + img.getHeight()
+                            + "|tw=" + targetWidth + "|th=" + targetHeight + "|w=" + w + "|h=" + h + "]");
             }
 
             final BufferedImage tmp = new BufferedImage(w, h, type);
