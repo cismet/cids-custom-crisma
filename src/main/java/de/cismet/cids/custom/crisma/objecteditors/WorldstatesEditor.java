@@ -38,8 +38,6 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 
 import java.util.ArrayList;
@@ -152,7 +150,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         pnlTreepath = new javax.swing.JPanel();
-        pnlWorldstate = new FixedHeightRatioPanel();
+        pnlWorldstate = new javax.swing.JPanel();
         pnlDetails = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         scrSwapper = new javax.swing.JScrollPane();
@@ -509,10 +507,15 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                         .getBean();
 
             for (final Component c : pnlSwapper.getComponents()) {
-                final JPanel miniature = (JPanel)((JLayer)c).getView();
+                final JPanel miniature = ((BorderPanel)((JLayer)c).getView()).getContentPane();
                 miniature.removeAll();
                 final DetailView v = (DetailView)miniature.getClientProperty("detailView");
                 final DetailEditor e = (DetailEditor)miniature.getClientProperty("detailEditor");
+
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("setediting=" + editing + "|detailview=" + v + "|detaileditor=" + e);
+                }
+
                 if (editing) {
                     e.setWorldstate(copy);
                     miniature.add(e.getMiniatureEditor(), BorderLayout.CENTER);
@@ -522,22 +525,20 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                 }
             }
 
-            final JPanel miniature = (JPanel)pnlDetails.getComponent(0);
-            miniature.removeAll();
-            final DetailEditor e = (DetailEditor)miniature.getClientProperty("detailEditor");
-            final DetailView v = (DetailView)miniature.getClientProperty("detailView");
+            final JPanel detail = ((BorderPanel)pnlDetails.getComponent(0)).getContentPane();
+            detail.removeAll();
+            final DetailEditor e = (DetailEditor)detail.getClientProperty("detailEditor");
+            final DetailView v = (DetailView)detail.getClientProperty("detailView");
             if (editing) {
                 e.setWorldstate(copy);
-                miniature.add(e.getEditor(), BorderLayout.CENTER);
+                detail.add(e.getEditor(), BorderLayout.CENTER);
             } else {
                 v.setWorldstate(cidsBean);
-                miniature.add(v.getView(), BorderLayout.CENTER);
+                detail.add(v.getView(), BorderLayout.CENTER);
             }
 
             for (final Component c : pnlTreepath.getComponents()) {
-                if (c instanceof JButton) {
-                    ((JButton)c).setEnabled(!editing);
-                }
+                c.setEnabled(!editing);
             }
 
             StaticSwingTools.getParentFrame(this).invalidate();
@@ -563,37 +564,5 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
     @Override
     public String getTitle() {
         return jLabel1.getText();
-    }
-
-    //~ Inner Classes ----------------------------------------------------------
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @version  $Revision$, $Date$
-     */
-    private final class FixedHeightRatioPanel extends JPanel {
-
-        //~ Constructors -------------------------------------------------------
-
-        /**
-         * Creates a new FixedHeightRatioPanel object.
-         */
-        public FixedHeightRatioPanel() {
-        }
-
-        //~ Methods ------------------------------------------------------------
-
-        @Override
-        public void setSize(final Dimension d) {
-            setSize(d.width, d.height);
-        }
-
-        @Override
-        public void setSize(final int width, final int height) {
-            super.setSize(width, height);
-            pnlDetails.setSize(width * 7 / 10, height * 7 / 10);
-            jPanel1.setSize(width * 3 / 10, height * 3 / 10);
-        }
     }
 }
