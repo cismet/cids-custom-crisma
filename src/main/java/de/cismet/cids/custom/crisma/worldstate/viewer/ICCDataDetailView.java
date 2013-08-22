@@ -10,8 +10,6 @@ package de.cismet.cids.custom.crisma.worldstate.viewer;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.apache.log4j.Logger;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -19,6 +17,9 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import org.openide.util.NbBundle;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.Color;
 import java.awt.GridLayout;
@@ -45,7 +46,7 @@ public class ICCDataDetailView extends AbstractDetailView {
     //~ Static fields/initializers ---------------------------------------------
 
     /** LOGGER. */
-    private static final transient Logger LOG = Logger.getLogger(ICCDataDetailView.class);
+    private static final transient Logger LOG = LoggerFactory.getLogger(ICCDataDetailView.class);
 
     //~ Instance fields --------------------------------------------------------
 

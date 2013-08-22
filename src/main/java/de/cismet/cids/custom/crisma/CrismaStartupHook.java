@@ -12,10 +12,11 @@ import Sirius.navigator.ui.LayoutedContainer;
 import Sirius.navigator.ui.MutableConstraints;
 import Sirius.navigator.ui.widget.FloatingFrameConfigurator;
 
-import org.apache.log4j.Logger;
-
 import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.EventQueue;
 
@@ -35,7 +36,7 @@ public final class CrismaStartupHook implements StartupHook {
     //~ Static fields/initializers ---------------------------------------------
 
     /** LOGGER. */
-    private static final transient Logger LOG = Logger.getLogger(CrismaStartupHook.class);
+    private static final transient Logger LOG = LoggerFactory.getLogger(CrismaStartupHook.class);
 
     //~ Methods ----------------------------------------------------------------
 
@@ -75,7 +76,7 @@ public final class CrismaStartupHook implements StartupHook {
                             false,
                             null);
                     } catch (final Exception ex) {
-                        LOG.fatal("cannot add scenario viewer", ex);
+                        LOG.error("cannot add scenario viewer", ex);
                     }
 
                     view.updateLeafs();

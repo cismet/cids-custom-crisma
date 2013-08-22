@@ -20,21 +20,26 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.apache.log4j.Logger;
-
 import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 
 import java.util.ArrayList;
@@ -80,7 +85,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
     //~ Static fields/initializers ---------------------------------------------
 
     /** LOGGER. */
-    private static final transient Logger LOG = Logger.getLogger(WorldstatesEditor.class);
+    private static final transient Logger LOG = LoggerFactory.getLogger(WorldstatesEditor.class);
 
     //~ Instance fields --------------------------------------------------------
 
@@ -147,7 +152,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         pnlTreepath = new javax.swing.JPanel();
-        pnlWorldstate = new javax.swing.JPanel();
+        pnlWorldstate = new FixedHeightRatioPanel();
         pnlDetails = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         scrSwapper = new javax.swing.JScrollPane();
@@ -164,7 +169,13 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         setOpaque(false);
         setLayout(new java.awt.GridBagLayout());
 
-        pnlTreepath.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        pnlTreepath.setBorder(javax.swing.BorderFactory.createTitledBorder(
+                null,
+                NbBundle.getMessage(WorldstatesEditor.class, "WorldstatesEditor.pnlTreepath.border.title"),
+                javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+                javax.swing.border.TitledBorder.DEFAULT_POSITION,
+                null,
+                new java.awt.Color(68, 68, 68))); // NOI18N
         pnlTreepath.setOpaque(false);
         pnlTreepath.setLayout(new java.awt.GridBagLayout());
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -192,10 +203,11 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         jPanel1.setLayout(new java.awt.BorderLayout());
 
         scrSwapper.setBorder(null);
+        scrSwapper.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrSwapper.setOpaque(false);
 
         pnlSwapper.setOpaque(false);
-        pnlSwapper.setLayout(new java.awt.GridLayout(1, 0));
+        pnlSwapper.setLayout(new javax.swing.BoxLayout(pnlSwapper, javax.swing.BoxLayout.X_AXIS));
         scrSwapper.setViewportView(pnlSwapper);
 
         jPanel1.add(scrSwapper, java.awt.BorderLayout.CENTER);
@@ -249,6 +261,9 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
 
         for (int i = 0; i < beans.size(); ++i) {
             final JButton b = new JButton((String)beans.get(i).getProperty("name"));
+            b.setBackground(new Color(68, 68, 68, 255));
+            b.setFont(new Font("Tahoma", Font.BOLD, 14));
+            b.setForeground(Color.white);
             final MetaObject mo = beans.get(i).getMetaObject();
             b.addActionListener(new ActionListener() {
 
@@ -284,7 +299,12 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                     0);
 
             pnlTreepath.add(b, gc1);
-            pnlTreepath.add(new JLabel("-->"), gc2);
+            pnlTreepath.add(new JLabel(
+                    ImageUtilities.loadImageIcon(
+                        WorldstatesEditor.class.getPackage().getName().replaceAll("\\.", "/")
+                                + "/arrow_16.png",
+                        false)),
+                gc2);
         }
 
         pnlTreepath.remove(pnlTreepath.getComponentCount() - 1);
@@ -543,5 +563,37 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
     @Override
     public String getTitle() {
         return jLabel1.getText();
+    }
+
+    //~ Inner Classes ----------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    private final class FixedHeightRatioPanel extends JPanel {
+
+        //~ Constructors -------------------------------------------------------
+
+        /**
+         * Creates a new FixedHeightRatioPanel object.
+         */
+        public FixedHeightRatioPanel() {
+        }
+
+        //~ Methods ------------------------------------------------------------
+
+        @Override
+        public void setSize(final Dimension d) {
+            setSize(d.width, d.height);
+        }
+
+        @Override
+        public void setSize(final int width, final int height) {
+            super.setSize(width, height);
+            pnlDetails.setSize(width * 7 / 10, height * 7 / 10);
+            jPanel1.setSize(width * 3 / 10, height * 3 / 10);
+        }
     }
 }

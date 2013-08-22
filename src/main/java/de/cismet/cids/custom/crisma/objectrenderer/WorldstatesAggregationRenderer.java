@@ -18,8 +18,6 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.apache.log4j.Logger;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -39,6 +37,9 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import org.openide.util.NbBundle;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -90,7 +91,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     //~ Static fields/initializers ---------------------------------------------
 
     /** LOGGER. */
-    private static final transient Logger LOG = Logger.getLogger(WorldstatesAggregationRenderer.class);
+    private static final transient Logger LOG = LoggerFactory.getLogger(WorldstatesAggregationRenderer.class);
 
     //~ Instance fields --------------------------------------------------------
 
