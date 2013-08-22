@@ -12,9 +12,10 @@ import Sirius.navigator.connection.SessionManager;
 import Sirius.server.middleware.types.MetaClass;
 import Sirius.server.middleware.types.MetaObject;
 
-import org.apache.log4j.Logger;
-
 import org.openide.util.NbBundle;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.Component;
 
@@ -45,7 +46,7 @@ public class CategorySelectorPanel extends javax.swing.JPanel implements Worldst
     //~ Static fields/initializers ---------------------------------------------
 
     /** LOGGER. */
-    private static final transient Logger LOG = Logger.getLogger(CategorySelectorPanel.class);
+    private static final transient Logger LOG = LoggerFactory.getLogger(CategorySelectorPanel.class);
 
     //~ Instance fields --------------------------------------------------------
 

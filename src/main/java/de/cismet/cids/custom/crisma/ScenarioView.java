@@ -16,9 +16,10 @@ import Sirius.server.middleware.types.MetaClass;
 import Sirius.server.middleware.types.MetaObject;
 import Sirius.server.middleware.types.MetaObjectNode;
 
-import org.apache.log4j.Logger;
-
 import org.openide.util.ImageUtilities;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.Component;
 import java.awt.EventQueue;
@@ -52,7 +53,7 @@ public class ScenarioView extends javax.swing.JPanel {
     //~ Static fields/initializers ---------------------------------------------
 
     /** LOGGER. */
-    private static final transient Logger LOG = Logger.getLogger(ScenarioView.class);
+    private static final transient Logger LOG = LoggerFactory.getLogger(ScenarioView.class);
 
     //~ Instance fields --------------------------------------------------------
 

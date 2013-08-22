@@ -13,10 +13,11 @@ import Sirius.navigator.ui.ComponentRegistry;
 
 import Sirius.server.middleware.types.MetaObject;
 
-import org.apache.log4j.Logger;
-
 import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.event.ActionEvent;
 
@@ -41,7 +42,7 @@ public final class DeleteAction extends AbstractAction implements CidsClientTool
     //~ Static fields/initializers ---------------------------------------------
 
     /** LOGGER. */
-    private static final transient Logger LOG = Logger.getLogger(DeleteAction.class);
+    private static final transient Logger LOG = LoggerFactory.getLogger(DeleteAction.class);
 
     //~ Instance fields --------------------------------------------------------
 
