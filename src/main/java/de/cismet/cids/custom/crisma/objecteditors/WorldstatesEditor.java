@@ -483,8 +483,8 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                     return;
                 } else if (JOptionPane.YES_OPTION == answer) {
                     cidsBean = Tools.saveWorldstate(
-                            ((DetailEditor)((JPanel)pnlDetails.getComponent(0)).getClientProperty("detailEditor"))
-                                        .getWorldstate());
+                            ((DetailEditor)(((BorderPanel)pnlDetails.getComponent(0)).getContentPane())
+                                        .getClientProperty("detailEditor")).getWorldstate());
 
                     StaticSwingTools.getParentFrame(this).invalidate();
                     StaticSwingTools.getParentFrame(this).validate();
