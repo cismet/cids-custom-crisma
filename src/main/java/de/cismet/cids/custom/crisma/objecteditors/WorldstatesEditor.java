@@ -33,6 +33,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
 import java.awt.Insets;
@@ -55,7 +56,11 @@ import javax.swing.JLabel;
 import javax.swing.JLayer;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.border.Border;
 import javax.swing.plaf.LayerUI;
+import javax.swing.plaf.basic.BasicSplitPaneDivider;
+import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 import de.cismet.cids.custom.crisma.AbstractCidsBeanRenderer;
 import de.cismet.cids.custom.crisma.BorderPanel;
@@ -152,7 +157,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         jLabel1 = new javax.swing.JLabel();
         pnlTreepath = new javax.swing.JPanel();
         pnlWorldstate = new javax.swing.JPanel();
-        jSplitPane1 = new javax.swing.JSplitPane();
+        jSplitPane1 = new TransparentDivider();
         pnlDetails = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         scrSwapper = new javax.swing.JScrollPane();
@@ -255,7 +260,6 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
     private void initTreepath() {
         assert EventQueue.isDispatchThread() : "EDT only";
 
-//        final LinkedList<CidsBean> beans = new LinkedList<>();
         final LinkedList<CidsBean> beans = new LinkedList<CidsBean>();
         CidsBean current = cidsBean;
 
@@ -571,5 +575,75 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
     @Override
     public String getTitle() {
         return jLabel1.getText();
+    }
+
+    //~ Inner Classes ----------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    private static final class TransparentDivider extends JSplitPane {
+
+        @Override
+        public void updateUI() {
+            setUI(new SplitPaneWithZeroSizeDividerUI());
+            revalidate();
+        }
+
+        //~ Inner Classes ------------------------------------------------------
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @version  $Revision$, $Date$
+         */
+        private class SplitPaneWithZeroSizeDividerUI extends BasicSplitPaneUI {
+
+            //~ Methods --------------------------------------------------------
+
+            @Override
+            public BasicSplitPaneDivider createDefaultDivider() {
+                return new ZeroSizeDivider(this);
+            }
+        }
+        /**
+         * DOCUMENT ME!
+         *
+         * @version  $Revision$, $Date$
+         */
+        private class ZeroSizeDivider extends BasicSplitPaneDivider {
+
+            //~ Constructors ---------------------------------------------------
+
+            /**
+             * Creates a new ZeroSizeDivider object.
+             *
+             * @param  ui  DOCUMENT ME!
+             */
+            public ZeroSizeDivider(final BasicSplitPaneUI ui) {
+                super(ui);
+                super.setBorder(null);
+                setBackground(new Color(255, 255, 255, 0));
+            }
+
+            //~ Methods --------------------------------------------------------
+
+            @Override
+            public void setBorder(final Border border) {
+                // ignore
+            }
+
+            @Override
+            public void paint(final Graphics g) {
+                g.setColor(getBackground());
+                if (orientation == HORIZONTAL_SPLIT) {
+                    g.drawLine(0, 0, 0, getHeight() - 1);
+                } else {
+                    g.drawLine(0, 0, getWidth() - 1, 0);
+                }
+            }
+        }
     }
 }
