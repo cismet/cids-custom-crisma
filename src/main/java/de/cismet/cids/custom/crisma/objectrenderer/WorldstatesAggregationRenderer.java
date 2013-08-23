@@ -36,6 +36,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 
 import org.slf4j.Logger;
@@ -59,6 +60,8 @@ import java.util.Map;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -79,6 +82,8 @@ import de.cismet.cids.navigator.utils.ClassCacheMultiple;
 
 import de.cismet.cismap.commons.gui.MappingComponent;
 
+import de.cismet.tools.gui.TitleComponentProvider;
+
 /**
  * DOCUMENT ME!
  *
@@ -86,7 +91,8 @@ import de.cismet.cismap.commons.gui.MappingComponent;
  * @version  $Revision$, $Date$
  */
 public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationRenderer
-        implements RequestsFullSizeComponent {
+        implements RequestsFullSizeComponent,
+            TitleComponentProvider {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -95,11 +101,16 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
 
     //~ Instance fields --------------------------------------------------------
 
+    private final transient ImageIcon i = ImageUtilities.loadImageIcon(WorldstatesAggregationRenderer.class.getPackage()
+                    .getName().replaceAll("\\.", "/") + "/worlds_32.png",
+            false);
+
     private int next = 0;
 
     private final ObjectMapper m = new ObjectMapper(new JsonFactory());
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JList jList1;
     private javax.swing.JList jList2;
     private javax.swing.JList jList3;
@@ -110,6 +121,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -123,6 +135,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
      */
     public WorldstatesAggregationRenderer() {
         initComponents();
+
+        jLabel1.setIcon(i);
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -149,6 +163,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         jScrollPane3 = new javax.swing.JScrollPane();
         jList3 = new javax.swing.JList();
         jPanel7 = new javax.swing.JPanel();
+        jPanel8 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
         jTabbedPane1 = new javax.swing.JTabbedPane();
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
@@ -275,6 +291,22 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         gridBagConstraints.weightx = 0.8;
         jPanel5.add(jPanel7, gridBagConstraints);
 
+        jPanel8.setOpaque(false);
+        jPanel8.setLayout(new java.awt.GridBagLayout());
+
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18));     // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText(NbBundle.getMessage(
+                WorldstatesAggregationRenderer.class,
+                "WorldstatesAggregationRenderer.jLabel1.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        jPanel8.add(jLabel1, gridBagConstraints);
+
         setLayout(new java.awt.BorderLayout());
 
         jTabbedPane1.setTabPlacement(javax.swing.JTabbedPane.LEFT);
@@ -283,6 +315,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
 
     @Override
     protected void init() {
+        jLabel1.setText("Comparing " + getCidsBeans().size() + " Worldstates");
         int tab = 0;
         try {
             tab = initComp(tab);
@@ -304,11 +337,11 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
 //        } catch (final Exception e) {
 //            LOG.warn("cannot init", e);
 //        }
-//        try {
-//            initMultipleSpiderWebChart(tab++);
-//        } catch (final Exception e) {
-//            LOG.warn("cannot init", e);
-//        }
+        try {
+            initMultipleSpiderWebChart(tab++);
+        } catch (final Exception e) {
+            LOG.warn("cannot init", e);
+        }
 //        try {
 //            initLineChart(tab++);
 //        } catch (final Exception e) {
@@ -599,6 +632,15 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
 
         jList3.setCellRenderer(new DefaultListCellRenderer() {
 
+                private final ImageIcon i = ImageUtilities.loadImageIcon(
+                        WorldstatesAggregationRenderer.class.getPackage().getName().replaceAll("\\.", "/")
+                                + "/world_16.png",
+                        false);
+                private final ImageIcon i2 = ImageUtilities.loadImageIcon(
+                        WorldstatesAggregationRenderer.class.getPackage().getName().replaceAll("\\.", "/")
+                                + "/world_leaf_16.png",
+                        false);
+
                 @Override
                 public Component getListCellRendererComponent(final JList arg0,
                         final Object arg1,
@@ -607,6 +649,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                         final boolean arg4) {
                     final JLabel l = (JLabel)super.getListCellRendererComponent(arg0, arg1, arg2, arg3, arg4);
                     l.setText((String)((CidsBean)arg1).getProperty("name"));
+                    l.setIcon(((CidsBean)arg1).getBeanCollectionProperty("childworldstates").isEmpty() ? i2 : i);
 
                     return l;
                 }
@@ -642,18 +685,23 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                 private void add(final CidsBean wst, final DefaultCategoryDataset dataset) {
                     final String json = (String)wst.getProperty("iccdata.actualaccessinfo");
                     final ObjectMapper m = new ObjectMapper(new JsonFactory());
-                    final TypeReference<Map<String, Map<String, String>>> ref =
-                        new TypeReference<Map<String, Map<String, String>>>() {
-                        };
+
                     try {
-                        final Map<String, Map<String, String>> props = m.readValue(json, ref);
+                        final ICCData icc = m.readValue(json, ICCData.class);
 
-                        for (final String s : props.keySet()) {
-                            final Map<String, String> kv = props.get(s);
-                            final String catName = kv.get("displayName");
-                            final Integer value = Integer.parseInt(kv.get("value"));
+                        final Field[] fields = icc.getClass().getDeclaredFields();
+                        for (final Field field : fields) {
+                            field.setAccessible(true);
+                            final Object o = field.get(icc);
+                            for (final Field x : o.getClass().getDeclaredFields()) {
+                                x.setAccessible(true);
+                                final Value v = (Value)x.get(o);
 
-                            dataset.addValue(value, (String)wst.getProperty("name"), catName);
+                                dataset.addValue(
+                                    Double.parseDouble(v.getValue()),
+                                    (String)wst.getProperty("name"),
+                                    v.getDisplayName());
+                            }
                         }
                     } catch (Exception ex) {
                         LOG.error("cannot init icc data view", ex);
@@ -757,9 +805,17 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
 
             final DefaultListModel xdlm = new DefaultListModel();
             final DefaultListModel ydlm = new DefaultListModel();
+            final Map<Value, ImageIcon> icons = new HashMap<Value, ImageIcon>();
             for (final Value v : values) {
                 xdlm.addElement(v);
                 ydlm.addElement(v);
+                icons.put(
+                    v,
+                    ImageUtilities.loadImageIcon(
+                        WorldstatesAggregationRenderer.class.getPackage().getName().replaceAll("\\.", "/")
+                                + "/"
+                                + v.getIconResource(),
+                        false));
             }
 
             jList1.setModel(xdlm);
@@ -774,6 +830,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                             final boolean arg4) {
                         final JLabel l = (JLabel)super.getListCellRendererComponent(arg0, arg1, arg2, arg3, arg4);
                         l.setText(((Value)arg1).getDisplayName());
+                        l.setIcon(icons.get(arg1));
                         return l;
                     }
                 });
@@ -787,6 +844,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                             final boolean arg4) {
                         final JLabel l = (JLabel)super.getListCellRendererComponent(arg0, arg1, arg2, arg3, arg4);
                         l.setText(((Value)arg1).getDisplayName());
+                        l.setIcon(icons.get(arg1));
                         return l;
                     }
                 });
@@ -932,5 +990,10 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         }
 
         return Color.BLACK;
+    }
+
+    @Override
+    public JComponent getTitleComponent() {
+        return jPanel8;
     }
 }

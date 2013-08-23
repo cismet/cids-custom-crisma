@@ -13,11 +13,12 @@ package de.cismet.cids.custom.crisma.icc;
  * @author   martin.scholl@cismet.de
  * @version  $Revision$, $Date$
  */
-public abstract class DisplayName {
+public abstract class Common {
 
     //~ Instance fields --------------------------------------------------------
 
     String displayName;
+    String iconResource;
 
     //~ Methods ----------------------------------------------------------------
 
@@ -37,5 +38,23 @@ public abstract class DisplayName {
      */
     public void setDisplayName(final String displayName) {
         this.displayName = displayName;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public String getIconResource() {
+        return iconResource;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  iconResource  DOCUMENT ME!
+     */
+    public void setIconResource(final String iconResource) {
+        this.iconResource = iconResource;
     }
 }

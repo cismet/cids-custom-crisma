@@ -13,7 +13,7 @@ package de.cismet.cids.custom.crisma.icc;
  * @author   martin.scholl@cismet.de
  * @version  $Revision$, $Date$
  */
-public final class Value extends DisplayName {
+public final class Value extends Common {
 
     //~ Instance fields --------------------------------------------------------
 

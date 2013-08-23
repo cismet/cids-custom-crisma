@@ -29,7 +29,7 @@ import java.lang.reflect.Field;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import de.cismet.cids.custom.crisma.icc.DisplayName;
+import de.cismet.cids.custom.crisma.icc.Common;
 import de.cismet.cids.custom.crisma.icc.ICCData;
 import de.cismet.cids.custom.crisma.icc.Value;
 
@@ -201,7 +201,7 @@ public class ICCDataDetailView extends AbstractDetailView {
                 final Field[] fields2 = o.getClass().getDeclaredFields();
                 final GridLayout g = new GridLayout(1, fields2.length, 5, 5);
                 p.setLayout(g);
-                final String displayName = ((DisplayName)o).getDisplayName();
+                final String displayName = ((Common)o).getDisplayName();
                 jTabbedPane1.add(displayName, p);
                 Double bound = 0d;
                 for (final Field f1 : fields2) {
