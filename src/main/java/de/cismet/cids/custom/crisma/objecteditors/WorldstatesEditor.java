@@ -586,6 +586,8 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
      */
     private static final class TransparentDivider extends JSplitPane {
 
+        //~ Methods ------------------------------------------------------------
+
         @Override
         public void updateUI() {
             setUI(new SplitPaneWithZeroSizeDividerUI());
