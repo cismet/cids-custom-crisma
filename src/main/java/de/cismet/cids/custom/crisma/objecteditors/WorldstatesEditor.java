@@ -397,7 +397,6 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
 
         pnlSwapper.setLayout(new GridLayout(1, views.size() - 1, 10, 0));
 
-        int i = 0;
         for (final DetailView view : views.keySet()) {
             final BorderPanel p = new BorderPanel();
             final JPanel contentPane = new JPanel(new BorderLayout());
@@ -408,7 +407,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
             p.setTitle(view.getDisplayName());
             p.setContentPane(contentPane);
 
-            if (++i == views.size()) {
+            if ("Shakemaps".equals(view.getDisplayName())) {
                 contentPane.add(view.getView(), BorderLayout.CENTER);
                 pnlDetails.add(p);
             } else {
