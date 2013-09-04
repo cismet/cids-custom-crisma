@@ -18,6 +18,7 @@ public final class Value extends Common {
     //~ Instance fields --------------------------------------------------------
 
     String value;
+    String unit;
 
     //~ Methods ----------------------------------------------------------------
 
@@ -37,5 +38,23 @@ public final class Value extends Common {
      */
     public void setValue(final String value) {
         this.value = value;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public String getUnit() {
+        return unit;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  unit  DOCUMENT ME!
+     */
+    public void setUnit(final String unit) {
+        this.unit = unit;
     }
 }

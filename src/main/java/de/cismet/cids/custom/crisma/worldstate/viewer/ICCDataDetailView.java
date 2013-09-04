@@ -13,22 +13,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
 
 import org.openide.util.NbBundle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.Color;
-import java.awt.GridLayout;
+import java.awt.GridBagLayout;
 
 import java.lang.reflect.Field;
 
-import javax.swing.JComponent;
-import javax.swing.JPanel;
+import java.text.NumberFormat;
 
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+
+import de.cismet.cids.custom.crisma.BorderPanel;
 import de.cismet.cids.custom.crisma.icc.Common;
 import de.cismet.cids.custom.crisma.icc.ICCData;
 import de.cismet.cids.custom.crisma.icc.Value;
@@ -138,8 +141,6 @@ public class ICCDataDetailView extends AbstractDetailView {
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         add(jLabel4, gridBagConstraints);
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(
-                NbBundle.getMessage(ICCDataDetailView.class, "ICCDataDetailView.jPanel1.border.title"))); // NOI18N
         jPanel1.setLayout(new java.awt.BorderLayout());
         jPanel1.add(jTabbedPane1, java.awt.BorderLayout.CENTER);
 
@@ -188,6 +189,19 @@ public class ICCDataDetailView extends AbstractDetailView {
      * DOCUMENT ME!
      */
     private void init() {
+        final BorderPanel bp = new BorderPanel();
+        bp.setTitle("Data");
+        this.remove(jPanel1);
+        bp.setContentPane(jPanel1);
+        java.awt.GridBagConstraints gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+        add(bp, gridBagConstraints);
         final String json = (String)getWorldstate().getProperty("iccdata.actualaccessinfo");
         final ObjectMapper m = new ObjectMapper(new JsonFactory());
         try {
@@ -199,40 +213,68 @@ public class ICCDataDetailView extends AbstractDetailView {
                 field.setAccessible(true);
                 final Object o = field.get(icc);
                 final Field[] fields2 = o.getClass().getDeclaredFields();
-                final GridLayout g = new GridLayout(1, fields2.length, 5, 5);
+                final GridBagLayout g = new GridBagLayout();
                 p.setLayout(g);
                 final String displayName = ((Common)o).getDisplayName();
                 jTabbedPane1.add(displayName, p);
-                Double bound = 0d;
-                for (final Field f1 : fields2) {
-                    f1.setAccessible(true);
-                    final Double value = Double.parseDouble(((Value)f1.get(o)).getValue());
-                    bound = Math.max(value, bound);
-                }
-                bound = bound * 1.2;
-                for (final Field f1 : fields2) {
-                    f1.setAccessible(true);
-                    final Value val = (Value)f1.get(o);
+                final DefaultPieDataset dataset = new DefaultPieDataset();
+                int i = 0;
+                final NumberFormat nf = NumberFormat.getInstance();
+
+                for (; i < fields2.length; ++i) {
+                    fields2[i].setAccessible(true);
+                    final Value val = (Value)fields2[i].get(o);
                     final String catName = val.getDisplayName();
                     final Double value = Double.parseDouble(val.getValue());
 
-                    final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-                    dataset.addValue(value, catName, catName);
+                    dataset.setValue(catName, value);
 
-                    final JFreeChart chart = ChartFactory.createBarChart3D(
-                            catName,
-                            catName,
-                            "Value",
-                            dataset,
-                            PlotOrientation.VERTICAL,
-                            false,
-                            false,
-                            false);
-                    chart.getCategoryPlot().getRenderer().setSeriesPaint(0, Color.CYAN);
-                    chart.getCategoryPlot().getRangeAxis().setAutoRange(false);
-                    chart.getCategoryPlot().getRangeAxis().setUpperBound(bound);
-                    p.add(new ChartPanel(chart, true, false, false, false, true));
+                    gridBagConstraints = new java.awt.GridBagConstraints();
+                    gridBagConstraints.gridx = 0;
+                    gridBagConstraints.gridy = i;
+                    gridBagConstraints.gridwidth = 1;
+                    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+                    gridBagConstraints.weightx = 0.0;
+                    gridBagConstraints.weighty = 0.0;
+                    gridBagConstraints.insets = new java.awt.Insets(15, 5, 5, 5);
+
+                    final JLabel l = new JLabel(catName + ":");
+                    p.add(l, gridBagConstraints);
+
+                    gridBagConstraints.gridx = 1;
+                    gridBagConstraints.gridy = i;
+                    gridBagConstraints.gridwidth = 1;
+                    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+                    gridBagConstraints.weightx = 0.0;
+                    gridBagConstraints.weighty = 0.0;
+                    gridBagConstraints.insets = new java.awt.Insets(15, 5, 5, 5);
+
+                    final JLabel l1 = new JLabel(nf.format(value) + " " + val.getUnit());
+                    l1.setHorizontalAlignment(JLabel.RIGHT);
+                    p.add(l1, gridBagConstraints);
                 }
+                gridBagConstraints.gridx = 2;
+                gridBagConstraints.gridy = 0;
+                gridBagConstraints.gridwidth = 1;
+                gridBagConstraints.gridheight = i + 1;
+                gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
+                gridBagConstraints.weightx = 0.0;
+                gridBagConstraints.weighty = 1.0;
+                gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+                final JSeparator sep = new JSeparator(JSeparator.VERTICAL);
+                p.add(sep, gridBagConstraints);
+
+                gridBagConstraints.gridx = 3;
+                gridBagConstraints.gridy = 0;
+                gridBagConstraints.gridwidth = 1;
+                gridBagConstraints.gridheight = i + 1;
+                gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+                gridBagConstraints.weightx = 1.0;
+                gridBagConstraints.weighty = 1.0;
+                gridBagConstraints.insets = new java.awt.Insets(15, 5, 5, 5);
+
+                final JFreeChart chart = ChartFactory.createPieChart3D(null, dataset, true, true, false);
+                p.add(new ChartPanel(chart, true, false, false, false, true), gridBagConstraints);
             }
 
 //            for (final String s : props.keySet()) {
