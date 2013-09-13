@@ -33,6 +33,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
 import java.awt.Insets;
@@ -55,7 +56,11 @@ import javax.swing.JLabel;
 import javax.swing.JLayer;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.border.Border;
 import javax.swing.plaf.LayerUI;
+import javax.swing.plaf.basic.BasicSplitPaneDivider;
+import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 import de.cismet.cids.custom.crisma.AbstractCidsBeanRenderer;
 import de.cismet.cids.custom.crisma.BorderPanel;
@@ -97,6 +102,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JPanel pnlDetails;
     private javax.swing.JPanel pnlSwapper;
     private javax.swing.JPanel pnlTreepath;
@@ -151,6 +157,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         jLabel1 = new javax.swing.JLabel();
         pnlTreepath = new javax.swing.JPanel();
         pnlWorldstate = new javax.swing.JPanel();
+        jSplitPane1 = new TransparentDivider();
         pnlDetails = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         scrSwapper = new javax.swing.JScrollPane();
@@ -186,16 +193,17 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         pnlWorldstate.setOpaque(false);
         pnlWorldstate.setLayout(new java.awt.GridBagLayout());
 
+        jSplitPane1.setBorder(null);
+        jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        jSplitPane1.setResizeWeight(0.7);
+        jSplitPane1.setToolTipText(NbBundle.getMessage(
+                WorldstatesEditor.class,
+                "WorldstatesEditor.jSplitPane1.toolTipText")); // NOI18N
+        jSplitPane1.setOpaque(false);
+
         pnlDetails.setOpaque(false);
         pnlDetails.setLayout(new java.awt.BorderLayout());
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 0.7;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 10, 0);
-        pnlWorldstate.add(pnlDetails, gridBagConstraints);
+        jSplitPane1.setLeftComponent(pnlDetails);
 
         jPanel1.setOpaque(false);
         jPanel1.setLayout(new java.awt.BorderLayout());
@@ -210,12 +218,15 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
 
         jPanel1.add(scrSwapper, java.awt.BorderLayout.CENTER);
 
+        jSplitPane1.setRightComponent(jPanel1);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weighty = 0.3;
-        pnlWorldstate.add(jPanel1, gridBagConstraints);
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        pnlWorldstate.add(jSplitPane1, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -240,6 +251,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
 
         setTitle((String)cidsBean.getProperty("name"));
         jLabel1.setIcon(cidsBean.getBeanCollectionProperty("childworldstates").isEmpty() ? leafIcon32 : worldIcon32);
+        jSplitPane1.setDividerLocation(0.7);
     }
 
     /**
@@ -248,7 +260,6 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
     private void initTreepath() {
         assert EventQueue.isDispatchThread() : "EDT only";
 
-//        final LinkedList<CidsBean> beans = new LinkedList<>();
         final LinkedList<CidsBean> beans = new LinkedList<CidsBean>();
         CidsBean current = cidsBean;
 
@@ -386,7 +397,6 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
 
         pnlSwapper.setLayout(new GridLayout(1, views.size() - 1, 10, 0));
 
-        int i = 0;
         for (final DetailView view : views.keySet()) {
             final BorderPanel p = new BorderPanel();
             final JPanel contentPane = new JPanel(new BorderLayout());
@@ -397,7 +407,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
             p.setTitle(view.getDisplayName());
             p.setContentPane(contentPane);
 
-            if (++i == views.size()) {
+            if ("Shakemaps".equals(view.getDisplayName())) {
                 contentPane.add(view.getView(), BorderLayout.CENTER);
                 pnlDetails.add(p);
             } else {
@@ -483,8 +493,8 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                     return;
                 } else if (JOptionPane.YES_OPTION == answer) {
                     cidsBean = Tools.saveWorldstate(
-                            ((DetailEditor)((JPanel)pnlDetails.getComponent(0)).getClientProperty("detailEditor"))
-                                        .getWorldstate());
+                            ((DetailEditor)(((BorderPanel)pnlDetails.getComponent(0)).getContentPane())
+                                        .getClientProperty("detailEditor")).getWorldstate());
 
                     StaticSwingTools.getParentFrame(this).invalidate();
                     StaticSwingTools.getParentFrame(this).validate();
@@ -564,5 +574,77 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
     @Override
     public String getTitle() {
         return jLabel1.getText();
+    }
+
+    //~ Inner Classes ----------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    private static final class TransparentDivider extends JSplitPane {
+
+        //~ Methods ------------------------------------------------------------
+
+        @Override
+        public void updateUI() {
+            setUI(new SplitPaneWithZeroSizeDividerUI());
+            revalidate();
+        }
+
+        //~ Inner Classes ------------------------------------------------------
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @version  $Revision$, $Date$
+         */
+        private class SplitPaneWithZeroSizeDividerUI extends BasicSplitPaneUI {
+
+            //~ Methods --------------------------------------------------------
+
+            @Override
+            public BasicSplitPaneDivider createDefaultDivider() {
+                return new ZeroSizeDivider(this);
+            }
+        }
+        /**
+         * DOCUMENT ME!
+         *
+         * @version  $Revision$, $Date$
+         */
+        private class ZeroSizeDivider extends BasicSplitPaneDivider {
+
+            //~ Constructors ---------------------------------------------------
+
+            /**
+             * Creates a new ZeroSizeDivider object.
+             *
+             * @param  ui  DOCUMENT ME!
+             */
+            public ZeroSizeDivider(final BasicSplitPaneUI ui) {
+                super(ui);
+                super.setBorder(null);
+                setBackground(new Color(255, 255, 255, 0));
+            }
+
+            //~ Methods --------------------------------------------------------
+
+            @Override
+            public void setBorder(final Border border) {
+                // ignore
+            }
+
+            @Override
+            public void paint(final Graphics g) {
+                g.setColor(getBackground());
+                if (orientation == HORIZONTAL_SPLIT) {
+                    g.drawLine(0, 0, 0, getHeight() - 1);
+                } else {
+                    g.drawLine(0, 0, getWidth() - 1, 0);
+                }
+            }
+        }
     }
 }

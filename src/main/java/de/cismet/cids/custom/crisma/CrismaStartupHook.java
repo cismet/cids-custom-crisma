@@ -80,6 +80,8 @@ public final class CrismaStartupHook implements StartupHook {
                     }
 
                     view.updateLeafs();
+
+                    ComponentRegistry.getRegistry().getCatalogueTree().setSelectionRow(0);
                 }
             };
         if (EventQueue.isDispatchThread()) {
