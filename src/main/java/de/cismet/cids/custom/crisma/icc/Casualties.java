@@ -18,8 +18,8 @@ public final class Casualties extends Common {
     //~ Instance fields --------------------------------------------------------
 
     Value noOfDead;
-    Value noOfHomeless;
     Value noOfInjured;
+    Value noOfHomeless;
 
     //~ Methods ----------------------------------------------------------------
 

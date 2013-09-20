@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 
 import org.openide.util.NbBundle;
@@ -30,6 +32,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JTabbedPane;
 
 import de.cismet.cids.custom.crisma.BorderPanel;
 import de.cismet.cids.custom.crisma.icc.Common;
@@ -218,6 +221,7 @@ public class ICCDataDetailView extends AbstractDetailView {
                 final String displayName = ((Common)o).getDisplayName();
                 jTabbedPane1.add(displayName, p);
                 final DefaultPieDataset dataset = new DefaultPieDataset();
+                final DefaultCategoryDataset dataset2 = new DefaultCategoryDataset();
                 int i = 0;
                 final NumberFormat nf = NumberFormat.getInstance();
 
@@ -228,6 +232,7 @@ public class ICCDataDetailView extends AbstractDetailView {
                     final Double value = Double.parseDouble(val.getValue());
 
                     dataset.setValue(catName, value);
+                    dataset2.addValue(value, displayName, catName);
 
                     gridBagConstraints = new java.awt.GridBagConstraints();
                     gridBagConstraints.gridx = 0;
@@ -274,38 +279,21 @@ public class ICCDataDetailView extends AbstractDetailView {
                 gridBagConstraints.insets = new java.awt.Insets(15, 5, 5, 5);
 
                 final JFreeChart chart = ChartFactory.createPieChart3D(null, dataset, true, true, false);
-                p.add(new ChartPanel(chart, true, false, false, false, true), gridBagConstraints);
+                final JFreeChart chart2 = ChartFactory.createBarChart3D(
+                        null,
+                        null,
+                        null,
+                        dataset2,
+                        PlotOrientation.HORIZONTAL,
+                        true,
+                        true,
+                        false);
+                final JTabbedPane tp = new JTabbedPane();
+                tp.add("Pie chart", new ChartPanel(chart, true, false, false, false, true));
+                tp.add("Bar chart", new ChartPanel(chart2, true, false, false, false, true));
+                tp.setSelectedIndex(0);
+                p.add(tp, gridBagConstraints);
             }
-
-//            for (final String s : props.keySet()) {
-//                final JPanel p = new JPanel();
-//
-//                final GridLayout grid = new GridLayout(1, props.size(), 5, 5);
-//                jPanel1.setLayout(grid);
-//                final Map<String, Map<String, String>> kv = props.get(s);
-//                final String catName = kv.get("displayName");
-//                final Integer value = Integer.parseInt(kv.get("value"));
-//
-//                final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-//                dataset.addValue(value, catName, catName);
-//
-//                final JFreeChart chart = ChartFactory.createBarChart3D(
-//                        catName,
-//                        catName,
-//                        "Value",
-//                        dataset,
-//                        PlotOrientation.VERTICAL,
-//                        false,
-//                        false,
-//                        false);
-//
-//                chart.getCategoryPlot().getRenderer().setSeriesPaint(0, Color.CYAN);
-//                chart.getCategoryPlot().getRangeAxis().setAutoRange(true);
-////                chart.getCategoryPlot().getRangeAxis().setUpperBound(500);
-//                jPanel1.add(new ChartPanel(chart, true, false, false, false, true));
-//
-//                jTabbedPane1.add(s, p);
-//            }
         } catch (Exception ex) {
             LOG.error("cannot init icc data view", ex);
         }
