@@ -33,14 +33,16 @@
     <cismapWFSFormsPreferences/>
 
     <cismapMappingPreferences interactionMode="ZOOM" creationMode="POLYGON" handleInteractionMode="MOVE_HANDLE" snapping="false">
-        <home default="true" srs="EPSG:4326" metric="false">
-            <BoundingBox x1="-23.328414916992188" y1="27.816315492228306" x2="45.596466064453125" y2="74.51063839571114" />
+        <home default="true" srs="EPSG:32632" metric="true">
+            <BoundingBox x1="843777.7761878296" y1="4678938.000381585" x2="882818.1484291569" y2="4718440.42849531" />
         </home>
         <Position>
-            <BoundingBox x1="-23.328414916992188" y1="27.816315492228306" x2="45.596466064453125" y2="74.51063839571114" />
+            <BoundingBox x1="843777.7761878296" y1="4678938.000381585" x2="882818.1484291569" y2="4718440.42849531" />
         </Position>
         <crsList>
             <crs shortname="EPSG:4326" name="EPSG:4326" code="EPSG:4326" metric="true" selected="true"/>
+            <crs shortname="EPSG:32632" name="EPSG:32632" code="EPSG:32632" metric="true" selected="true"/>
+            <crs shortname="EPSG:32633" name="EPSG:32633" code="EPSG:32633" metric="true" selected="true"/>
         </crsList>
         <defaultCrs geometrySridAlias="-1"/>
         <printing/>

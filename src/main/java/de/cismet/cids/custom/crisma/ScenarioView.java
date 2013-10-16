@@ -183,7 +183,8 @@ public class ScenarioView extends javax.swing.JPanel {
         final MetaClass mc = ClassCacheMultiple.getMetaClass("CRISMA", "WORLDSTATES");
 
         final String sql = "SELECT " + mc.getID() + ", " + mc.getPrimaryKey()
-                    + " FROM WORLDSTATES WHERE id NOT IN (SELECT DISTINCT parentWorldstate FROM WORLDSTATES WHERE parentWorldstate IS NOT NULL)"; // NOI18N
+                    + " FROM WORLDSTATES WHERE id NOT IN (SELECT DISTINCT parentWorldstate FROM WORLDSTATES WHERE parentWorldstate IS NOT NULL)"
+                    + " AND (parentworldstate IN (SELECT id FROM WORLDSTATES) OR parentworldstate is null)"; // NOI18N
 
         final MetaObject[] mos;
         try {

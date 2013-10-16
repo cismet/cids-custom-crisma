@@ -66,6 +66,7 @@ import de.cismet.cids.custom.crisma.AbstractCidsBeanRenderer;
 import de.cismet.cids.custom.crisma.BorderPanel;
 import de.cismet.cids.custom.crisma.ScenarioView;
 import de.cismet.cids.custom.crisma.Tools;
+import de.cismet.cids.custom.crisma.tostringconverter.WorldstatesToStringConverter;
 import de.cismet.cids.custom.crisma.worldstate.editor.DetailEditor;
 import de.cismet.cids.custom.crisma.worldstate.viewer.DetailView;
 
@@ -98,10 +99,14 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
 
     private transient boolean editing;
 
+    private final WorldstatesToStringConverter conv;
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JPanel pnlDetails;
     private javax.swing.JPanel pnlSwapper;
@@ -126,6 +131,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
      */
     public WorldstatesEditor(final boolean editing) {
         this.editing = editing;
+        this.conv = new WorldstatesToStringConverter();
 
         initComponents();
 
@@ -140,6 +146,10 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                 false);
         jLabel1.setIconTextGap(8);
         scrSwapper.getViewport().setOpaque(false);
+        jScrollPane1.getViewport().setOpaque(false);
+
+        StaticSwingTools.setNiftyScrollBars(scrSwapper);
+        StaticSwingTools.setNiftyScrollBars(jScrollPane1);
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -155,13 +165,15 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
 
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        pnlTreepath = new javax.swing.JPanel();
         pnlWorldstate = new javax.swing.JPanel();
         jSplitPane1 = new TransparentDivider();
         pnlDetails = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         scrSwapper = new javax.swing.JScrollPane();
         pnlSwapper = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        pnlTreepath = new javax.swing.JPanel();
 
         jPanel2.setOpaque(false);
         jPanel2.setLayout(new java.awt.BorderLayout());
@@ -173,22 +185,6 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
 
         setOpaque(false);
         setLayout(new java.awt.GridBagLayout());
-
-        pnlTreepath.setBorder(javax.swing.BorderFactory.createTitledBorder(
-                null,
-                NbBundle.getMessage(WorldstatesEditor.class, "WorldstatesEditor.pnlTreepath.border.title"),
-                javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
-                javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                null,
-                new java.awt.Color(68, 68, 68))); // NOI18N
-        pnlTreepath.setOpaque(false);
-        pnlTreepath.setLayout(new java.awt.GridBagLayout());
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        add(pnlTreepath, gridBagConstraints);
 
         pnlWorldstate.setOpaque(false);
         pnlWorldstate.setLayout(new java.awt.GridBagLayout());
@@ -209,7 +205,6 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         jPanel1.setLayout(new java.awt.BorderLayout());
 
         scrSwapper.setBorder(null);
-        scrSwapper.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrSwapper.setOpaque(false);
 
         pnlSwapper.setOpaque(false);
@@ -236,6 +231,38 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(20, 0, 0, 0);
         add(pnlWorldstate, gridBagConstraints);
+
+        jPanel3.setOpaque(false);
+        jPanel3.setLayout(new java.awt.GridBagLayout());
+
+        jScrollPane1.setBorder(null);
+        jScrollPane1.setOpaque(false);
+
+        pnlTreepath.setBorder(javax.swing.BorderFactory.createTitledBorder(
+                null,
+                NbBundle.getMessage(WorldstatesEditor.class, "WorldstatesEditor.pnlTreepath.border.title"),
+                javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+                javax.swing.border.TitledBorder.DEFAULT_POSITION,
+                null,
+                new java.awt.Color(68, 68, 68))); // NOI18N
+        pnlTreepath.setOpaque(false);
+        pnlTreepath.setLayout(new java.awt.GridBagLayout());
+        jScrollPane1.setViewportView(pnlTreepath);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel3.add(jScrollPane1, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        add(jPanel3, gridBagConstraints);
     } // </editor-fold>//GEN-END:initComponents
 
     @Override
@@ -249,7 +276,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                 }
             });
 
-        setTitle((String)cidsBean.getProperty("name"));
+        setTitle(conv.convert(getCidsBean().getMetaObject()));
         jLabel1.setIcon(cidsBean.getBeanCollectionProperty("childworldstates").isEmpty() ? leafIcon32 : worldIcon32);
         jSplitPane1.setDividerLocation(0.7);
     }
@@ -269,7 +296,7 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
         }
 
         for (int i = 0; i < beans.size(); ++i) {
-            final JButton b = new JButton((String)beans.get(i).getProperty("name"));
+            final JButton b = new JButton(conv.convert(beans.get(i).getMetaObject()));
             b.setBackground(new Color(68, 68, 68, 255));
             b.setFont(new Font("Tahoma", Font.BOLD, 14));
             b.setForeground(Color.white);
@@ -279,7 +306,10 @@ public class WorldstatesEditor extends AbstractCidsBeanRenderer implements Reque
                     @Override
                     public void actionPerformed(final ActionEvent e) {
                         if (!mo.equals(WorldstatesEditor.this.cidsBean.getMetaObject())) {
-                            ComponentRegistry.getRegistry().getDescriptionPane().gotoMetaObject(mo, null);
+                            final List mos = new ArrayList();
+                            mos.add(new ObjectTreeNode(new MetaObjectNode(((MetaObject)mo).getBean())));
+
+                            ComponentRegistry.getRegistry().getDescriptionPane().setNodesDescriptions(mos);
                         }
                     }
                 });
