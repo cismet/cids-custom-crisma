@@ -88,6 +88,7 @@ import de.cismet.cids.custom.crisma.MapSync;
 import de.cismet.cids.custom.crisma.MapSyncUtil;
 import de.cismet.cids.custom.crisma.icc.ICCData;
 import de.cismet.cids.custom.crisma.icc.Value;
+import de.cismet.cids.custom.crisma.tostringconverter.WorldstatesToStringConverter;
 import de.cismet.cids.custom.crisma.worldstate.viewer.DetailView;
 
 import de.cismet.cids.dynamics.CidsBean;
@@ -122,6 +123,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     private int next = 0;
 
     private final ObjectMapper m = new ObjectMapper(new JsonFactory());
+
+    private final transient WorldstatesToStringConverter conv = new WorldstatesToStringConverter();
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
@@ -409,7 +412,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                 p.setLayout(g);
                 for (final DetailView dv : v) {
                     final BorderPanel bp = new BorderPanel();
-                    bp.setTitle(dv.getWorldstate().getProperty("name").toString());
+                    bp.setTitle(conv.convert(dv.getWorldstate().getMetaObject()));
                     bp.setContentPane((JPanel)dv.getView());
                     p.add(bp);
                 }

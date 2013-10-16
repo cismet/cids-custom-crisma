@@ -60,6 +60,10 @@ public final class EditAction extends AbstractAction implements CidsClientToolba
 
     @Override
     public void actionPerformed(final ActionEvent e) {
+        if (true) {
+            ScenarioView.getInstance().updateLeafs();
+            return;
+        }
         final CidsBeanRenderer r = ComponentRegistry.getRegistry().getDescriptionPane().currentRenderer();
         if (r instanceof WorldstatesRenderer) {
             final WorldstatesRenderer wr = (WorldstatesRenderer)r;

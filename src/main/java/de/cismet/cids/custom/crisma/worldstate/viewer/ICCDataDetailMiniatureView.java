@@ -9,8 +9,6 @@ package de.cismet.cids.custom.crisma.worldstate.viewer;
 
 import org.openide.util.NbBundle;
 
-import javax.swing.JPanel;
-
 import de.cismet.cids.custom.crisma.WorldstateContainer;
 
 import de.cismet.cids.dynamics.CidsBean;
@@ -21,7 +19,7 @@ import de.cismet.cids.dynamics.CidsBean;
  * @author   mscholl
  * @version  $Revision$, $Date$
  */
-public class ICCDataDetailMiniatureView extends JPanel implements WorldstateContainer {
+public class ICCDataDetailMiniatureView extends MiniaturePanel implements WorldstateContainer {
 
     //~ Instance fields --------------------------------------------------------
 
@@ -99,7 +97,7 @@ public class ICCDataDetailMiniatureView extends JPanel implements WorldstateCont
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+        gridBagConstraints.insets = new java.awt.Insets(3, 5, 3, 5);
         add(jLabel3, gridBagConstraints);
 
         jLabel4.setVerticalAlignment(javax.swing.SwingConstants.TOP);
@@ -120,7 +118,7 @@ public class ICCDataDetailMiniatureView extends JPanel implements WorldstateCont
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+        gridBagConstraints.insets = new java.awt.Insets(1, 5, 5, 5);
         add(jLabel4, gridBagConstraints);
 
         bindingGroup.bind();

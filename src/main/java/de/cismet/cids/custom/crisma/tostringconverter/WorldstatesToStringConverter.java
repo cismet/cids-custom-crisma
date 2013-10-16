@@ -30,6 +30,6 @@ public final class WorldstatesToStringConverter extends CustomToStringConverter 
             parent = (CidsBean)parent.getProperty("parentworldstate");
         }
 
-        return "<html>" + cidsBean.getProperty("name") + " [T<sub>" + step + "</sub>]</html>";
+        return "<html>" + cidsBean.getProperty("name") + " [S<sub>" + step + "</sub>]</html>";
     }
 }

@@ -13,6 +13,8 @@ import edu.umd.cs.piccolo.event.PInputEvent;
 import java.util.List;
 
 import de.cismet.cismap.commons.gui.MappingComponent;
+import de.cismet.cismap.commons.gui.piccolo.eventlistener.BackgroundRefreshingPanEventListener;
+import de.cismet.cismap.commons.gui.piccolo.eventlistener.RubberBandZoomListener;
 
 /**
  * DOCUMENT ME!
@@ -44,10 +46,11 @@ public final class MapSyncUtil {
      *
      * @version  $Revision$, $Date$
      */
-    private static final class SyncL extends PBasicInputEventHandler {
+    private static final class SyncL extends BackgroundRefreshingPanEventListener {
 
         //~ Instance fields ----------------------------------------------------
 
+        private final RubberBandZoomListener zoomDelegate;
         private final List<MappingComponent> mcs;
 
         //~ Constructors -------------------------------------------------------
@@ -58,6 +61,7 @@ public final class MapSyncUtil {
          * @param  mcs  DOCUMENT ME!
          */
         public SyncL(final List<MappingComponent> mcs) {
+            zoomDelegate = new RubberBandZoomListener();
             this.mcs = mcs;
         }
 
@@ -87,13 +91,11 @@ public final class MapSyncUtil {
 //            }
 //        }
 //
-//        @Override
-//        public void mouseWheelRotated(final PInputEvent event) {
-//            for (final MappingComponent mc : mcs) {
-//                final PBasicInputEventHandler p = (PBasicInputEventHandler)mc.getInputListener("wfsclick");
-//                p.mouseWheelRotated(event);
-//            }
-//        }
+
+        @Override
+        public void mouseWheelRotated(final PInputEvent pInputEvent) {
+            zoomDelegate.mouseWheelRotated(pInputEvent);
+        }
 //
 //        @Override
 //        public void mousePressed(final PInputEvent event) {
