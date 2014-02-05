@@ -71,10 +71,10 @@ public final class CrismaStartupHook implements StartupHook {
 
                     try {
                         ComponentRegistry.getRegistry().getGUIContainer().add(attributePanelConstraints);
-                        ((LayoutedContainer)ComponentRegistry.getRegistry().getGUIContainer()).loadLayout(
-                            "/Users/mscholl/.navigator/martin.layout",
-                            false,
-                            null);
+//                        ((LayoutedContainer)ComponentRegistry.getRegistry().getGUIContainer()).loadLayout(
+//                            "/Users/mscholl/.navigator/martin.layout",
+//                            false,
+//                            null);
                     } catch (final Exception ex) {
                         LOG.error("cannot add scenario viewer", ex);
                     }

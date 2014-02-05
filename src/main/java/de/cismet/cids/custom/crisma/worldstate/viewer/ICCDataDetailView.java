@@ -28,6 +28,8 @@ import java.lang.reflect.Field;
 
 import java.text.NumberFormat;
 
+import java.util.List;
+
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -205,10 +207,24 @@ public class ICCDataDetailView extends AbstractDetailView {
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         add(bp, gridBagConstraints);
-        final String json = (String)getWorldstate().getProperty("iccdata.actualaccessinfo");
+
+        final boolean criteria = false;
+        final List<CidsBean> icclist = getWorldstate().getBeanCollectionProperty("iccdata");
+        CidsBean iccbean = null;
+        for (final CidsBean icc : icclist) {
+            if (criteria && "Criteria".equalsIgnoreCase((String)icc.getProperty("name"))) {
+                iccbean = icc;
+                break;
+            }
+            if (!criteria && "Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
+                iccbean = icc;
+                break;
+            }
+        }
+
         final ObjectMapper m = new ObjectMapper(new JsonFactory());
         try {
-            final ICCData icc = m.readValue(json, ICCData.class);
+            final ICCData icc = m.readValue((String)iccbean.getProperty("actualaccessinfo"), ICCData.class);
 
             final Field[] fields = icc.getClass().getDeclaredFields();
             for (final Field field : fields) {

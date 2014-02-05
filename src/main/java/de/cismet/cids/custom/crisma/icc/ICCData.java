@@ -10,7 +10,7 @@ package de.cismet.cids.custom.crisma.icc;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.File;
+import java.util.Iterator;
 
 /**
  * DOCUMENT ME!
@@ -18,7 +18,7 @@ import java.io.File;
  * @author   martin.scholl@cismet.de
  * @version  $Revision$, $Date$
  */
-public final class ICCData {
+public final class ICCData implements Iterable<ValueIterable> {
 
     //~ Instance fields --------------------------------------------------------
 
@@ -185,5 +185,33 @@ public final class ICCData {
 
         final ObjectMapper mapper = new ObjectMapper(new JsonFactory());
 //        mapper.writeValue(new File(""), icc);
+    }
+
+    @Override
+    public Iterator<ValueIterable> iterator() {
+        return new Iterator<ValueIterable>() {
+
+                int i = 0;
+
+                @Override
+                public boolean hasNext() {
+                    return i < ICCData.class.getDeclaredFields().length;
+                }
+
+                @Override
+                public ValueIterable next() {
+                    try {
+                        return (ValueIterable)ICCData.class.getDeclaredFields()[i++].get(ICCData.this);
+                    } catch (final Exception ex) {
+                        throw new RuntimeException("cannot iterate", ex);
+                    }
+                }
+
+                @Override
+                public void remove() {
+                    throw new UnsupportedOperationException("Not supported yet."); // To change body of generated
+                                                                                   // methods, choose Tools | Templates.
+                }
+            };
     }
 }

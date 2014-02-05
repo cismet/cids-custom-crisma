@@ -13,7 +13,7 @@ package de.cismet.cids.custom.crisma.icc;
  * @author   martin.scholl@cismet.de
  * @version  $Revision$, $Date$
  */
-public final class DamagedBuildings extends Common {
+public final class DamagedBuildings extends ValueIterable {
 
     //~ Instance fields --------------------------------------------------------
 

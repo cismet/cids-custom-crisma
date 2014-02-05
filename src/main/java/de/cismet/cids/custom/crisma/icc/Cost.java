@@ -13,7 +13,7 @@ package de.cismet.cids.custom.crisma.icc;
  * @author   martin.scholl@cismet.de
  * @version  $Revision$, $Date$
  */
-public final class Cost extends Common {
+public final class Cost extends ValueIterable {
 
     //~ Instance fields --------------------------------------------------------
 
