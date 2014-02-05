@@ -148,6 +148,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     private javax.swing.JList jList3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -215,6 +216,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         jScrollPane5 = new javax.swing.JScrollPane();
         tblCrit = new javax.swing.JTable();
         tbpCrit = new javax.swing.JTabbedPane();
+        jPanel11 = new javax.swing.JPanel();
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
@@ -349,7 +351,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 0.42;
+        gridBagConstraints.weighty = 0.5;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
         jPanel9.add(jScrollPane4, gridBagConstraints);
 
@@ -359,7 +361,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 0.58;
+        gridBagConstraints.weighty = 0.5;
         jPanel9.add(tbpInd, gridBagConstraints);
 
         jTabbedPane2.addTab(NbBundle.getMessage(WorldstatesAggregationRenderer.class, "WorldstatesAggregationRenderer.jPanel9.TabConstraints.tabTitle", new Object[] {}), jPanel9); // NOI18N
@@ -402,6 +404,9 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
 
         jTabbedPane2.addTab(NbBundle.getMessage(WorldstatesAggregationRenderer.class, "WorldstatesAggregationRenderer.jPanel10.TabConstraints.tabTitle", new Object[] {}), jPanel10); // NOI18N
 
+        jPanel11.setOpaque(false);
+        jTabbedPane2.addTab(NbBundle.getMessage(WorldstatesAggregationRenderer.class, "WorldstatesAggregationRenderer.jPanel11.TabConstraints.tabTitle", new Object[] {}), jPanel11); // NOI18N
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -421,6 +426,11 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         }
         try {
             initBar(false);
+        } catch (final Exception e) {
+            LOG.warn("cannot init", e);
+        }
+        try {
+            initAnalysisGraph(false);
         } catch (final Exception e) {
             LOG.warn("cannot init", e);
         }
@@ -729,6 +739,208 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                     + getCidsBeans().size()
                     + " worldstates",
             0);
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  criteria  DOCUMENT ME!
+     */
+    private void initAnalysisGraph(final boolean criteria) {
+        GridBagConstraints gbc = new java.awt.GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.fill = java.awt.GridBagConstraints.BOTH;
+        gbc.weighty = 0.5;
+        gbc.insets = new java.awt.Insets(5, 5, 5, 5);
+        final BorderPanel p1 = new BorderPanel();
+        p1.setTitle(criteria ? "X-Criteria" : "X-Indicator");
+        jPanel1.remove(jPanel3);
+        p1.setContentPane(jPanel3);
+        jPanel1.add(p1, gbc);
+
+        gbc = new java.awt.GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.fill = java.awt.GridBagConstraints.BOTH;
+        gbc.weightx = 0.2;
+        gbc.weighty = 0.5;
+        gbc.insets = new java.awt.Insets(5, 5, 5, 5);
+        final BorderPanel p2 = new BorderPanel();
+        p2.setTitle(criteria ? "Y-Criteria" : "Y-Indicator");
+        jPanel1.remove(jPanel4);
+        p2.setContentPane(jPanel4);
+        jPanel1.add(p2, gbc);
+
+        gbc = new java.awt.GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.gridheight = 2;
+        gbc.fill = java.awt.GridBagConstraints.BOTH;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.insets = new java.awt.Insets(5, 5, 5, 5);
+        final BorderPanel p3 = new BorderPanel();
+        p3.setTitle("Graph");
+        jPanel1.remove(jPanel2);
+        p3.setContentPane(jPanel2);
+        jPanel1.add(p3, gbc);
+
+        final Collection<CidsBean> wsts = getCidsBeans();
+        final CidsBean wst = wsts.iterator().next();
+        final List<CidsBean> icclist = wst.getBeanCollectionProperty("iccdata");
+        CidsBean iccbean = null;
+        for (final CidsBean icc : icclist) {
+            if (criteria && "Criteria".equalsIgnoreCase((String)icc.getProperty("name"))) {
+                iccbean = icc;
+                break;
+            }
+            if (!criteria && "Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
+                iccbean = icc;
+                break;
+            }
+        }
+        final String json = (String)iccbean.getProperty("actualaccessinfo");
+        try {
+            final ICCData icc = m.readValue(json, ICCData.class);
+            final Field[] fields = icc.getClass().getDeclaredFields();
+            final List<Value> values = new ArrayList<Value>();
+            for (final Field field : fields) {
+                field.setAccessible(true);
+                final Object o = field.get(icc);
+                for (final Field x : o.getClass().getDeclaredFields()) {
+                    x.setAccessible(true);
+                    values.add((Value)x.get(o));
+                }
+            }
+
+            final DefaultListModel xdlm = new DefaultListModel();
+            final DefaultListModel ydlm = new DefaultListModel();
+            final Map<Value, ImageIcon> icons = new HashMap<Value, ImageIcon>();
+            for (final Value v : values) {
+                xdlm.addElement(v);
+                ydlm.addElement(v);
+                icons.put(
+                    v,
+                    ImageUtilities.loadImageIcon(
+                        WorldstatesAggregationRenderer.class.getPackage().getName().replaceAll("\\.", "/")
+                                + "/"
+                                + v.getIconResource(),
+                        false));
+            }
+
+            jList1.setModel(xdlm);
+            jList2.setModel(ydlm);
+            jList1.setCellRenderer(new DefaultListCellRenderer() {
+
+                    @Override
+                    public Component getListCellRendererComponent(final JList arg0,
+                            final Object arg1,
+                            final int arg2,
+                            final boolean arg3,
+                            final boolean arg4) {
+                        final JLabel l = (JLabel)super.getListCellRendererComponent(arg0, arg1, arg2, arg3, arg4);
+                        l.setText(((Value)arg1).getDisplayName());
+                        l.setIcon(icons.get(arg1));
+                        return l;
+                    }
+                });
+            jList2.setCellRenderer(new DefaultListCellRenderer() {
+
+                    @Override
+                    public Component getListCellRendererComponent(final JList arg0,
+                            final Object arg1,
+                            final int arg2,
+                            final boolean arg3,
+                            final boolean arg4) {
+                        final JLabel l = (JLabel)super.getListCellRendererComponent(arg0, arg1, arg2, arg3, arg4);
+                        l.setText(((Value)arg1).getDisplayName());
+                        l.setIcon(icons.get(arg1));
+                        return l;
+                    }
+                });
+            /**
+             * DOCUMENT ME!
+             *
+             * @version  $Revision$, $Date$
+             */
+            class ListSelL implements ListSelectionListener {
+
+                /**
+                 * DOCUMENT ME!
+                 *
+                 * @param  e  DOCUMENT ME!
+                 */
+                @Override
+                public void valueChanged(final ListSelectionEvent e) {
+                    if (e.getValueIsAdjusting()) {
+                        return;
+                    }
+
+                    final Value x = (Value)jList1.getSelectedValue();
+                    final Value y = (Value)jList2.getSelectedValue();
+
+                    if ((x != null) && (y != null)) {
+                        final XYSeriesCollection dataset = new XYSeriesCollection();
+                        for (final CidsBean wst : getCidsBeans()) {
+                            try {
+                                final Double xValue = getValue(criteria, x.getDisplayName(), wst);
+                                final Double yValue = getValue(criteria, y.getDisplayName(), wst);
+                                final XYSeries series = new XYSeries((String)wst.getProperty("name"), false, false);
+                                series.add(xValue, yValue);
+                                dataset.addSeries(series);
+                            } catch (final Exception ex) {
+                                LOG.error("cannot create comp chart", ex);
+                            }
+                        }
+
+                        final String xName = x.getDisplayName();
+                        final String yName = y.getDisplayName();
+                        final JFreeChart chart = ChartFactory.createScatterPlot("Relation " + xName + " to " + yName,
+                                xName,
+                                yName,
+                                dataset,
+                                PlotOrientation.VERTICAL,
+                                true,
+                                true,
+                                false);
+
+                        final Shape[] shapes = new Shape[DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE.length];
+                        for (int i = 0; i < DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE.length; ++i) {
+                            shapes[i] = AffineTransform.getScaleInstance(2, 2)
+                                        .createTransformedShape(DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE[i]);
+                        }
+
+                        ((XYPlot)chart.getPlot()).setDrawingSupplier(
+                            new DefaultDrawingSupplier(
+                                DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE,
+                                DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
+                                DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
+                                DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
+                                shapes));
+                        ((XYPlot)chart.getPlot()).setRangeCrosshairVisible(true);
+                        ((XYPlot)chart.getPlot()).setDomainCrosshairVisible(true);
+
+                        final ChartPanel p = new ChartPanel(chart, true, true, true, true, true);
+                        jPanel2.removeAll();
+                        jPanel2.add(p, BorderLayout.CENTER);
+                        WorldstatesAggregationRenderer.this.revalidate();
+                    }
+                }
+            }
+
+            final ListSelL l = new ListSelL();
+            jList1.addListSelectionListener(l);
+            jList2.addListSelectionListener(l);
+            tbpInd.insertTab(
+                "Analysis",
+                null,
+                jPanel1,
+                criteria ? "Analyse two criteria" : "Analyse two indicators",
+                1);
+        } catch (final Exception e) {
+            LOG.error("cannot init analysis graph", e);
+        }
     }
 
     /**
@@ -1642,6 +1854,51 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
             LOG.error("cannot init analysis graph", e);
         }
     }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   criteria     DOCUMENT ME!
+     * @param   displayName  DOCUMENT ME!
+     * @param   worldstate   DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private double getValue(final boolean criteria, final String displayName, final CidsBean worldstate) {
+        try {
+            final List<CidsBean> icclist = worldstate.getBeanCollectionProperty("iccdata");
+            CidsBean iccbean = null;
+            for (final CidsBean icc : icclist) {
+                if (criteria && "Criteria".equalsIgnoreCase((String)icc.getProperty("name"))) {
+                    iccbean = icc;
+                    break;
+                }
+                if (!criteria && "Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
+                    iccbean = icc;
+                    break;
+                }
+            }
+            final String json = (String)iccbean.getProperty("actualaccessinfo");
+            final ICCData icc = m.readValue(json, ICCData.class);
+            final Field[] fields = icc.getClass().getDeclaredFields();
+            for (final Field field : fields) {
+                field.setAccessible(true);
+                final Object o = field.get(icc);
+                for (final Field x : o.getClass().getDeclaredFields()) {
+                    x.setAccessible(true);
+                    final Value v = (Value)x.get(o);
+                    if (displayName.equals(v.getDisplayName())) {
+                        return Double.parseDouble(v.getValue());
+                    }
+                }
+            }
+        } catch (final Exception e) {
+            LOG.warn("cannot getvalue: " + displayName + " | " + worldstate, e);
+        }
+
+        return 0d;
+    }
+
     /**
      * DOCUMENT ME!
      *
