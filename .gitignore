@@ -1,3 +1,3 @@
 target/
 src/crismaDist/lib/localCrisma/*.jar
-src/main/resources/some_commands.sql
+src/main/resources/*.sql

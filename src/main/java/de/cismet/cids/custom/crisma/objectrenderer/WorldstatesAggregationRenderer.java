@@ -50,6 +50,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -85,6 +86,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -97,6 +99,7 @@ import javax.swing.table.TableColumnModel;
 import de.cismet.cids.custom.crisma.AbstractCidsBeanAggregationRenderer;
 import de.cismet.cids.custom.crisma.BorderPanel;
 import de.cismet.cids.custom.crisma.ColorIcon;
+import de.cismet.cids.custom.crisma.CrismaStartupHook;
 import de.cismet.cids.custom.crisma.MapSync;
 import de.cismet.cids.custom.crisma.MapSyncUtil;
 import de.cismet.cids.custom.crisma.icc.Common;
@@ -111,6 +114,8 @@ import de.cismet.cids.dynamics.CidsBean;
 import de.cismet.cids.navigator.utils.ClassCacheMultiple;
 
 import de.cismet.cismap.commons.gui.MappingComponent;
+
+import de.cismet.commons.concurrency.CismetExecutors;
 
 import de.cismet.tools.gui.TitleComponentProvider;
 
@@ -146,9 +151,15 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     private javax.swing.JList jList1;
     private javax.swing.JList jList2;
     private javax.swing.JList jList3;
+    private javax.swing.JList jList4;
+    private javax.swing.JList jList5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;
+    private javax.swing.JPanel jPanel12;
+    private javax.swing.JPanel jPanel13;
+    private javax.swing.JPanel jPanel14;
+    private javax.swing.JPanel jPanel15;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -162,6 +173,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JTable tblCrit;
     private javax.swing.JTable tblInd;
@@ -188,8 +201,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents()
-    {
+    private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
         jPanel1 = new javax.swing.JPanel();
@@ -207,13 +219,21 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         jPanel7 = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
+        jPanel12 = new javax.swing.JPanel();
+        jPanel13 = new javax.swing.JPanel();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        jList4 = new javax.swing.JList();
+        jPanel14 = new javax.swing.JPanel();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        jList5 = new javax.swing.JList();
+        jPanel15 = new javax.swing.JPanel();
         jTabbedPane2 = new javax.swing.JTabbedPane();
         jPanel9 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         tblInd = new javax.swing.JTable();
         tbpInd = new javax.swing.JTabbedPane();
         jPanel10 = new javax.swing.JPanel();
-        jScrollPane5 = new javax.swing.JScrollPane();
+        jScrollPane6 = new javax.swing.JScrollPane();
         tblCrit = new javax.swing.JTable();
         tbpCrit = new javax.swing.JTabbedPane();
         jPanel11 = new javax.swing.JPanel();
@@ -222,12 +242,19 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
 
         jPanel3.setLayout(new java.awt.BorderLayout());
 
-        jList1.setModel(new javax.swing.AbstractListModel()
-        {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
+        jList1.setModel(new javax.swing.AbstractListModel() {
+
+                String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+
+                @Override
+                public int getSize() {
+                    return strings.length;
+                }
+                @Override
+                public Object getElementAt(final int i) {
+                    return strings[i];
+                }
+            });
         jList1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane1.setViewportView(jList1);
 
@@ -243,12 +270,19 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
 
         jPanel4.setLayout(new java.awt.BorderLayout());
 
-        jList2.setModel(new javax.swing.AbstractListModel()
-        {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
+        jList2.setModel(new javax.swing.AbstractListModel() {
+
+                String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+
+                @Override
+                public int getSize() {
+                    return strings.length;
+                }
+                @Override
+                public Object getElementAt(final int i) {
+                    return strings[i];
+                }
+            });
         jList2.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane2.setViewportView(jList2);
 
@@ -278,14 +312,23 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
 
         jPanel6.setLayout(new java.awt.BorderLayout());
 
-        jList3.setModel(new javax.swing.AbstractListModel()
-        {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
+        jList3.setModel(new javax.swing.AbstractListModel() {
+
+                String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+
+                @Override
+                public int getSize() {
+                    return strings.length;
+                }
+                @Override
+                public Object getElementAt(final int i) {
+                    return strings[i];
+                }
+            });
         jList3.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        jList3.setToolTipText(NbBundle.getMessage(WorldstatesAggregationRenderer.class, "WorldstatesAggregationRenderer.jList3.toolTipText")); // NOI18N
+        jList3.setToolTipText(NbBundle.getMessage(
+                WorldstatesAggregationRenderer.class,
+                "WorldstatesAggregationRenderer.jList3.toolTipText")); // NOI18N
         jScrollPane3.setViewportView(jList3);
 
         jPanel6.add(jScrollPane3, java.awt.BorderLayout.CENTER);
@@ -311,9 +354,11 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         jPanel8.setOpaque(false);
         jPanel8.setLayout(new java.awt.GridBagLayout());
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18));     // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText(NbBundle.getMessage(WorldstatesAggregationRenderer.class, "WorldstatesAggregationRenderer.jLabel1.text")); // NOI18N
+        jLabel1.setText(NbBundle.getMessage(
+                WorldstatesAggregationRenderer.class,
+                "WorldstatesAggregationRenderer.jLabel1.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -321,6 +366,76 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
         jPanel8.add(jLabel1, gridBagConstraints);
+
+        jPanel12.setLayout(new java.awt.GridBagLayout());
+
+        jPanel13.setLayout(new java.awt.BorderLayout());
+
+        jList4.setModel(new javax.swing.AbstractListModel() {
+
+                String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+
+                @Override
+                public int getSize() {
+                    return strings.length;
+                }
+                @Override
+                public Object getElementAt(final int i) {
+                    return strings[i];
+                }
+            });
+        jList4.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jScrollPane5.setViewportView(jList4);
+
+        jPanel13.add(jScrollPane5, java.awt.BorderLayout.CENTER);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weighty = 0.5;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+        jPanel12.add(jPanel13, gridBagConstraints);
+
+        jPanel14.setLayout(new java.awt.BorderLayout());
+
+        jList5.setModel(new javax.swing.AbstractListModel() {
+
+                String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+
+                @Override
+                public int getSize() {
+                    return strings.length;
+                }
+                @Override
+                public Object getElementAt(final int i) {
+                    return strings[i];
+                }
+            });
+        jList5.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jScrollPane7.setViewportView(jList5);
+
+        jPanel14.add(jScrollPane7, java.awt.BorderLayout.CENTER);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 0.2;
+        gridBagConstraints.weighty = 0.5;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+        jPanel12.add(jPanel14, gridBagConstraints);
+
+        jPanel15.setLayout(new java.awt.BorderLayout());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+        jPanel12.add(jPanel15, gridBagConstraints);
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -330,18 +445,13 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         jPanel9.setLayout(new java.awt.GridBagLayout());
 
         tblInd.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][]
-            {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String []
-            {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
+                new Object[][] {
+                    { null, null, null, null },
+                    { null, null, null, null },
+                    { null, null, null, null },
+                    { null, null, null, null }
+                },
+                new String[] { "Title 1", "Title 2", "Title 3", "Title 4" }));
         tblInd.setCellSelectionEnabled(true);
         tblInd.setShowHorizontalLines(false);
         jScrollPane4.setViewportView(tblInd);
@@ -364,34 +474,35 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         gridBagConstraints.weighty = 0.5;
         jPanel9.add(tbpInd, gridBagConstraints);
 
-        jTabbedPane2.addTab(NbBundle.getMessage(WorldstatesAggregationRenderer.class, "WorldstatesAggregationRenderer.jPanel9.TabConstraints.tabTitle", new Object[] {}), jPanel9); // NOI18N
+        jTabbedPane2.addTab(NbBundle.getMessage(
+                WorldstatesAggregationRenderer.class,
+                "WorldstatesAggregationRenderer.jPanel9.TabConstraints.tabTitle",
+                new Object[] {}),
+            jPanel9); // NOI18N
 
         jPanel10.setOpaque(false);
         jPanel10.setLayout(new java.awt.GridBagLayout());
 
         tblCrit.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][]
-            {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String []
-            {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        jScrollPane5.setViewportView(tblCrit);
+                new Object[][] {
+                    { null, null, null, null },
+                    { null, null, null, null },
+                    { null, null, null, null },
+                    { null, null, null, null }
+                },
+                new String[] { "Title 1", "Title 2", "Title 3", "Title 4" }));
+        tblCrit.setCellSelectionEnabled(true);
+        tblCrit.setShowHorizontalLines(false);
+        jScrollPane6.setViewportView(tblCrit);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 0.4;
+        gridBagConstraints.weighty = 0.5;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
-        jPanel10.add(jScrollPane5, gridBagConstraints);
+        jPanel10.add(jScrollPane6, gridBagConstraints);
 
         tbpCrit.setTabPlacement(javax.swing.JTabbedPane.LEFT);
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -399,13 +510,21 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 0.6;
+        gridBagConstraints.weighty = 0.5;
         jPanel10.add(tbpCrit, gridBagConstraints);
 
-        jTabbedPane2.addTab(NbBundle.getMessage(WorldstatesAggregationRenderer.class, "WorldstatesAggregationRenderer.jPanel10.TabConstraints.tabTitle", new Object[] {}), jPanel10); // NOI18N
+        jTabbedPane2.addTab(NbBundle.getMessage(
+                WorldstatesAggregationRenderer.class,
+                "WorldstatesAggregationRenderer.jPanel10.TabConstraints.tabTitle",
+                new Object[] {}),
+            jPanel10); // NOI18N
 
         jPanel11.setOpaque(false);
-        jTabbedPane2.addTab(NbBundle.getMessage(WorldstatesAggregationRenderer.class, "WorldstatesAggregationRenderer.jPanel11.TabConstraints.tabTitle", new Object[] {}), jPanel11); // NOI18N
+        jTabbedPane2.addTab(NbBundle.getMessage(
+                WorldstatesAggregationRenderer.class,
+                "WorldstatesAggregationRenderer.jPanel11.TabConstraints.tabTitle",
+                new Object[] {}),
+            jPanel11); // NOI18N
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -414,13 +533,14 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         add(jTabbedPane2, gridBagConstraints);
-    }// </editor-fold>//GEN-END:initComponents
+    } // </editor-fold>//GEN-END:initComponents
 
     @Override
     protected void init() {
         jLabel1.setText("Comparing " + getCidsBeans().size() + " Worldstates");
         try {
             initTable(false);
+            initTable(true);
         } catch (Exception ex) {
             LOG.warn("cannot init", ex);
         }
@@ -431,6 +551,19 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         }
         try {
             initAnalysisGraph(false);
+            initAnalysisGraph(true);
+        } catch (final Exception e) {
+            LOG.warn("cannot init", e);
+        }
+        try {
+            final Thread t = new Thread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            initMultipleSpiderWebChart();
+                        }
+                    });
+            t.start();
         } catch (final Exception e) {
             LOG.warn("cannot init", e);
         }
@@ -499,7 +632,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
             final ICCData data = m.readValue((String)iccbean.getProperty("actualaccessinfo"), ICCData.class);
 
             if (first) {
-                tm.addColumn(criteria ? "Criteria" : "Indicators",
+                tm.addColumn(criteria ? "Criteria (higher is better)" : "Indicators",
                     new Object[] {
                         data.getCasualties(),
                         data.getCasualties().getNoOfDead(),
@@ -570,7 +703,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                                 false));
                     } else if (value instanceof Value) {
                         final Value v = (Value)value;
-                        l.setText(nf.format(Long.parseLong(v.getValue())) + " " + v.getUnit());
+                        l.setText(nf.format(Long.parseLong(v.getValue())) + (criteria ? " " : (" " + v.getUnit())));
                         l.setHorizontalTextPosition(SwingConstants.RIGHT);
                         l.setHorizontalAlignment(SwingConstants.RIGHT);
                     }
@@ -754,10 +887,17 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         gbc.weighty = 0.5;
         gbc.insets = new java.awt.Insets(5, 5, 5, 5);
         final BorderPanel p1 = new BorderPanel();
-        p1.setTitle(criteria ? "X-Criteria" : "X-Indicator");
-        jPanel1.remove(jPanel3);
-        p1.setContentPane(jPanel3);
-        jPanel1.add(p1, gbc);
+        if (criteria) {
+            p1.setTitle("X-Criteria");
+            jPanel12.remove(jPanel13);
+            p1.setContentPane(jPanel13);
+            jPanel12.add(p1, gbc);
+        } else {
+            p1.setTitle("X-Indicator");
+            jPanel1.remove(jPanel3);
+            p1.setContentPane(jPanel3);
+            jPanel1.add(p1, gbc);
+        }
 
         gbc = new java.awt.GridBagConstraints();
         gbc.gridx = 0;
@@ -767,11 +907,17 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         gbc.weighty = 0.5;
         gbc.insets = new java.awt.Insets(5, 5, 5, 5);
         final BorderPanel p2 = new BorderPanel();
-        p2.setTitle(criteria ? "Y-Criteria" : "Y-Indicator");
-        jPanel1.remove(jPanel4);
-        p2.setContentPane(jPanel4);
-        jPanel1.add(p2, gbc);
-
+        if (criteria) {
+            p2.setTitle("Y-Criteria");
+            jPanel12.remove(jPanel14);
+            p2.setContentPane(jPanel14);
+            jPanel12.add(p2, gbc);
+        } else {
+            p2.setTitle("Y-Indicator");
+            jPanel1.remove(jPanel4);
+            p2.setContentPane(jPanel4);
+            jPanel1.add(p2, gbc);
+        }
         gbc = new java.awt.GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 0;
@@ -782,9 +928,15 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         gbc.insets = new java.awt.Insets(5, 5, 5, 5);
         final BorderPanel p3 = new BorderPanel();
         p3.setTitle("Graph");
-        jPanel1.remove(jPanel2);
-        p3.setContentPane(jPanel2);
-        jPanel1.add(p3, gbc);
+        if (criteria) {
+            jPanel12.remove(jPanel15);
+            p3.setContentPane(jPanel15);
+            jPanel12.add(p3, gbc);
+        } else {
+            jPanel1.remove(jPanel2);
+            p3.setContentPane(jPanel2);
+            jPanel1.add(p3, gbc);
+        }
 
         final Collection<CidsBean> wsts = getCidsBeans();
         final CidsBean wst = wsts.iterator().next();
@@ -828,10 +980,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                                 + v.getIconResource(),
                         false));
             }
-
-            jList1.setModel(xdlm);
-            jList2.setModel(ydlm);
-            jList1.setCellRenderer(new DefaultListCellRenderer() {
+            final ListCellRenderer rend = new DefaultListCellRenderer() {
 
                     @Override
                     public Component getListCellRendererComponent(final JList arg0,
@@ -844,21 +993,18 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                         l.setIcon(icons.get(arg1));
                         return l;
                     }
-                });
-            jList2.setCellRenderer(new DefaultListCellRenderer() {
-
-                    @Override
-                    public Component getListCellRendererComponent(final JList arg0,
-                            final Object arg1,
-                            final int arg2,
-                            final boolean arg3,
-                            final boolean arg4) {
-                        final JLabel l = (JLabel)super.getListCellRendererComponent(arg0, arg1, arg2, arg3, arg4);
-                        l.setText(((Value)arg1).getDisplayName());
-                        l.setIcon(icons.get(arg1));
-                        return l;
-                    }
-                });
+                };
+            if (criteria) {
+                jList4.setModel(xdlm);
+                jList5.setModel(ydlm);
+                jList4.setCellRenderer(rend);
+                jList5.setCellRenderer(rend);
+            } else {
+                jList1.setModel(xdlm);
+                jList2.setModel(ydlm);
+                jList1.setCellRenderer(rend);
+                jList2.setCellRenderer(rend);
+            }
             /**
              * DOCUMENT ME!
              *
@@ -877,8 +1023,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                         return;
                     }
 
-                    final Value x = (Value)jList1.getSelectedValue();
-                    final Value y = (Value)jList2.getSelectedValue();
+                    final Value x = (Value)(criteria ? jList4.getSelectedValue() : jList1.getSelectedValue());
+                    final Value y = (Value)(criteria ? jList5.getSelectedValue() : jList2.getSelectedValue());
 
                     if ((x != null) && (y != null)) {
                         final XYSeriesCollection dataset = new XYSeriesCollection();
@@ -922,25 +1068,212 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                         ((XYPlot)chart.getPlot()).setDomainCrosshairVisible(true);
 
                         final ChartPanel p = new ChartPanel(chart, true, true, true, true, true);
-                        jPanel2.removeAll();
-                        jPanel2.add(p, BorderLayout.CENTER);
+                        if (criteria) {
+                            jPanel15.removeAll();
+                            jPanel15.add(p, BorderLayout.CENTER);
+                        } else {
+                            jPanel2.removeAll();
+                            jPanel2.add(p, BorderLayout.CENTER);
+                        }
                         WorldstatesAggregationRenderer.this.revalidate();
                     }
                 }
             }
 
-            final ListSelL l = new ListSelL();
-            jList1.addListSelectionListener(l);
-            jList2.addListSelectionListener(l);
-            tbpInd.insertTab(
-                "Analysis",
-                null,
-                jPanel1,
-                criteria ? "Analyse two criteria" : "Analyse two indicators",
-                1);
+            if (criteria) {
+                final ListSelL l = new ListSelL();
+                jList4.addListSelectionListener(l);
+                jList5.addListSelectionListener(l);
+                tbpCrit.insertTab(
+                    "Analysis",
+                    null,
+                    jPanel12,
+                    "Analyse two criteria",
+                    0);
+            } else {
+                final ListSelL l = new ListSelL();
+                jList1.addListSelectionListener(l);
+                jList2.addListSelectionListener(l);
+                tbpInd.insertTab(
+                    "Analysis",
+                    null,
+                    jPanel1,
+                    "Analyse two indicators",
+                    1);
+            }
         } catch (final Exception e) {
             LOG.error("cannot init analysis graph", e);
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     */
+    private void initMultipleSpiderWebChart() {
+        final GridBagConstraints gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 0.2;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+
+        EventQueue.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    jPanel5.remove(jPanel6);
+                    final BorderPanel p1 = new BorderPanel();
+                    p1.setTitle("Reference Worldstate");
+                    p1.setContentPane(jPanel6);
+                    jPanel5.add(p1, gridBagConstraints);
+                }
+            });
+
+        final MetaClass mc = ClassCacheMultiple.getMetaClass("CRISMA", "WORLDSTATES");
+
+        final String sql = "SELECT " + mc.getID() + ", " + mc.getPrimaryKey() + " FROM WORLDSTATES";
+
+        final MetaObject[] mos;
+        try {
+            mos = SessionManager.getProxy().getMetaObjectByQuery(sql, 0);
+        } catch (final ConnectionException ex) {
+            LOG.error("cannot update leafs", ex);
+            return;
+        }
+
+        final DefaultListModel dlm = new DefaultListModel();
+        for (final MetaObject mo : mos) {
+            dlm.addElement(mo.getBean());
+        }
+
+        EventQueue.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    jList3.setModel(dlm);
+
+                    final int count = getCidsBeans().size();
+                    final int rows = Double.valueOf(Math.ceil(count / 3d)).intValue();
+                    final int columns = Double.valueOf(Math.ceil(count / 2d)).intValue();
+
+                    if (count == 2) {
+                        jPanel7.setLayout(new GridLayout(2, 1, 5, 5));
+                    } else if (count == 3) {
+                        jPanel7.setLayout(new GridLayout(3, 1, 5, 5));
+                    } else {
+                        jPanel7.setLayout(new GridLayout(rows, columns, 5, 5));
+                    }
+
+                    jList3.setCellRenderer(new DefaultListCellRenderer() {
+
+                            private final ImageIcon i = ImageUtilities.loadImageIcon(
+                                    WorldstatesAggregationRenderer.class.getPackage().getName().replaceAll("\\.", "/")
+                                            + "/world_16.png",
+                                    false);
+                            private final ImageIcon i2 = ImageUtilities.loadImageIcon(
+                                    WorldstatesAggregationRenderer.class.getPackage().getName().replaceAll("\\.", "/")
+                                            + "/world_leaf_16.png",
+                                    false);
+
+                            @Override
+                            public Component getListCellRendererComponent(final JList arg0,
+                                    final Object arg1,
+                                    final int arg2,
+                                    final boolean arg3,
+                                    final boolean arg4) {
+                                final JLabel l = (JLabel)super.getListCellRendererComponent(
+                                        arg0,
+                                        arg1,
+                                        arg2,
+                                        arg3,
+                                        arg4);
+                                l.setText((String)((CidsBean)arg1).getProperty("name"));
+                                l.setIcon(
+                                    ((CidsBean)arg1).getBeanCollectionProperty("childworldstates").isEmpty() ? i2 : i);
+
+                                return l;
+                            }
+                        });
+                    jList3.addListSelectionListener(new ListSelectionListener() {
+
+                            private final ObjectMapper m = new ObjectMapper(new JsonFactory());
+
+                            @Override
+                            public void valueChanged(final ListSelectionEvent e) {
+                                if (e.getValueIsAdjusting()) {
+                                    return;
+                                }
+
+                                jPanel7.removeAll();
+                                final CidsBean refB = (CidsBean)jList3.getSelectedValue();
+                                final Collection<CidsBean> wsts = getCidsBeans();
+                                for (final CidsBean wst : wsts) {
+                                    final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+                                    add(wst, dataset);
+                                    add(refB, dataset);
+                                    final SpiderWebPlot plot = new SpiderWebPlot(dataset);
+
+                                    final JFreeChart chart = new JFreeChart(null,
+                                            TextTitle.DEFAULT_FONT,
+                                            plot,
+                                            true);
+                                    final ChartPanel chartPanel = new ChartPanel(chart, true, false, false, true, true);
+                                    final BorderPanel p = new BorderPanel();
+                                    p.setContentPane(chartPanel);
+                                    p.setTitle(
+                                        "Criteria Data of "
+                                                + wst.getProperty("name"));
+                                    jPanel7.add(p);
+                                }
+                                jPanel5.revalidate();
+                            }
+
+                            private void add(final CidsBean wst, final DefaultCategoryDataset dataset) {
+                                final List<CidsBean> icclist = wst.getBeanCollectionProperty("iccdata");
+                                CidsBean iccbean = null;
+                                for (final CidsBean icc : icclist) {
+                                    if ("Criteria".equalsIgnoreCase((String)icc.getProperty("name"))) {
+                                        iccbean = icc;
+                                        break;
+                                    }
+                                }
+
+                                try {
+                                    final ICCData icc = m.readValue(
+                                            (String)iccbean.getProperty("actualaccessinfo"),
+                                            ICCData.class);
+
+                                    final Field[] fields = icc.getClass().getDeclaredFields();
+                                    for (final Field field : fields) {
+                                        field.setAccessible(true);
+                                        final Object o = field.get(icc);
+                                        for (final Field x : o.getClass().getDeclaredFields()) {
+                                            x.setAccessible(true);
+                                            final Value v = (Value)x.get(o);
+                                            dataset.addValue(
+                                                Integer.parseInt(v.getValue()),
+                                                (String)wst.getProperty("name"),
+                                                v.getDisplayName());
+                                        }
+                                    }
+                                } catch (Exception ex) {
+                                    LOG.error("cannot init icc data view", ex);
+                                }
+                            }
+                        });
+
+                    jList3.setSelectedIndex(dlm.size() - 1);
+                    tbpCrit.insertTab(
+                        "Spider",
+                        null,
+                        jPanel5,
+                        "Criteria data of "
+                                + getCidsBeans().size()
+                                + " worldstates",
+                        1);
+                }
+            });
     }
 
     /**
