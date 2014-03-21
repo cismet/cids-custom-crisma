@@ -23,9 +23,9 @@ public final class ICCData implements Iterable<ValueIterable> {
     //~ Instance fields --------------------------------------------------------
 
     Casualties casualties;
-    Cost cost;
     DamagedBuildings damagedBuildings;
     DamagedInfrastructure damagedInfrastructure;
+    Cost cost;
     EvacuationCost evacuationCost;
 
     //~ Methods ----------------------------------------------------------------
