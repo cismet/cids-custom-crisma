@@ -72,8 +72,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.prefs.Preferences;
 
@@ -127,10 +125,8 @@ import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cids.navigator.utils.ClassCacheMultiple;
 
-import de.cismet.commons.gui.equalizer.AbstractEqualizerModel;
 import de.cismet.commons.gui.equalizer.DefaultEqualizerModel;
 import de.cismet.commons.gui.equalizer.EqualizerCategory;
-import de.cismet.commons.gui.equalizer.EqualizerModel;
 import de.cismet.commons.gui.equalizer.EqualizerModelEvent;
 import de.cismet.commons.gui.equalizer.EqualizerModelListener;
 import de.cismet.commons.gui.equalizer.EqualizerPanel;
@@ -1000,6 +996,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
             btnEditSave.setEnabled(false);
             btnDel.setEnabled(false);
         }
+        calcOWARanks();
     }                                                                        //GEN-LAST:event_btnDelActionPerformed
 
     /**
@@ -1875,8 +1872,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     /**
      * DOCUMENT ME!
      *
-     * @throws  Exception         DOCUMENT ME!
-     * @throws  RuntimeException  DOCUMENT ME!
+     * @throws  Exception  DOCUMENT ME!
      */
     private void initMCA() throws Exception {
         final List<CidsBean> icclist = getCidsBeans().iterator().next().getBeanCollectionProperty("iccdata");
@@ -1961,8 +1957,12 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                     }
                     if (!changing) {
                         changing = true;
-                        for (int j = 0; j < spinners.size(); j++) {
-                            spinners.get(j).setValue(eqPanel.getModel().getValueAt(j));
+                        if (event.getIndex() < 0) {
+                            for (int j = 0; j < spinners.size(); j++) {
+                                spinners.get(j).setValue(eqPanel.getModel().getValueAt(j));
+                            }
+                        } else {
+                            spinners.get(event.getIndex()).setValue(event.getNewValue());
                         }
 
                         if (singleColumnModel.editingRow == null) {
@@ -2005,6 +2005,14 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                     }
                 }
             });
+        try {
+            final Preferences p = Preferences.userNodeForPackage(WorldstatesAggregationRenderer.class);
+            final String s = p.get("strategies", null);
+            final List<Strategy> ss = m.readValue(s, List.class);
+//            singleColumnModel.strategies.addAll(ss);
+        } catch (final Exception ex) {
+            LOG.error("cannot read strategies", ex);
+        }
         tblStrategies.setModel(singleColumnModel);
         tblStrategies.setSelectionModel(new DefaultListSelectionModel() {
 
@@ -2138,30 +2146,17 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                         }
                         final Strategy s = singleColumnModel.strategies.get(index);
                         int i = 0;
-                        final List<EqualizerCategory> cats = new ArrayList<EqualizerCategory>();
                         for (final ValueIterable vi : s.data) {
                             for (final Value v : vi) {
-                                spinners.get(i).setValue(Integer.parseInt(v.getValue()));
-                                cats.add(new EqualizerCategory(String.valueOf(++i), Integer.parseInt(v.getValue())));
+                                final int val = Integer.parseInt(v.getValue());
+                                dem.setValueAt(i, val);
+                                spinners.get(i++).setValue(val);
                             }
                         }
                         btnEditSave.setEnabled(true);
                         btnDel.setEnabled(true);
                         btnNew.setEnabled(true);
 
-                        final EqualizerModel emodel = new DefaultEqualizerModel(cats, new Range(0, 100));
-                        try {
-                            final Field field = AbstractEqualizerModel.class.getDeclaredField("listeners");
-                            field.setAccessible(true);
-                            for (final EqualizerModelListener eml
-                                        : (Set<EqualizerModelListener>)field.get(eqPanel.getModel())) {
-                                emodel.addEqualizerModelListener(eml);
-                            }
-                        } catch (Exception ex) {
-                            throw new RuntimeException("cannot add listeners", ex);
-                        }
-
-                        eqPanel.setModel(emodel);
                         switch (s.lse) {
                             case -2: {
                                 rdbMin.setSelected(true);
@@ -2257,6 +2252,14 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         updateOWATable();
         jPanel22.removeAll();
         jPanel22.add(createRankingPlot());
+        EventQueue.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    jPanel22.invalidate();
+                    jPanel22.revalidate();
+                }
+            });
     }
 
     /**
@@ -2326,9 +2329,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
      * @return  DOCUMENT ME!
      */
     private ChartPanel createRankingPlot() {
-        final int index = tblStrategies.getSelectedRow();
         final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        if (index < 0) {
+        if (ranks.isEmpty()) {
             for (final CidsBean wst : getCidsBeans()) {
                 dataset.addValue(0, "", (String)wst.getProperty("name"));
             }
@@ -2376,11 +2378,13 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
 
     @Override
     public void dispose() {
+        System.out.println("dispose");
         final Preferences p = Preferences.userNodeForPackage(WorldstatesAggregationRenderer.class);
         try {
+            p.clear();
             p.put("strategies", m.writeValueAsString(singleColumnModel.strategies));
-        } catch (JsonProcessingException ex) {
-            throw new RuntimeException("cannot save strategies", ex);
+        } catch (final Exception ex) {
+            LOG.error("cannot save strategies", ex);
         }
     }
 
@@ -2512,6 +2516,62 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         String name;
         int lse;
         ICCData data;
+
+        //~ Methods ------------------------------------------------------------
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public String getName() {
+            return name;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  name  DOCUMENT ME!
+         */
+        public void setName(final String name) {
+            this.name = name;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public int getLse() {
+            return lse;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  lse  DOCUMENT ME!
+         */
+        public void setLse(final int lse) {
+            this.lse = lse;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public ICCData getData() {
+            return data;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  data  DOCUMENT ME!
+         */
+        public void setData(final ICCData data) {
+            this.data = data;
+        }
     }
 
     /**
@@ -2604,7 +2664,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
 
         @Override
         public boolean isCellEditable(final int rowIndex, final int columnIndex) {
-            return (editingRow == null) || (editingRow == rowIndex);
+            return (editingRow != null) && (editingRow == rowIndex);
         }
 
         @Override
