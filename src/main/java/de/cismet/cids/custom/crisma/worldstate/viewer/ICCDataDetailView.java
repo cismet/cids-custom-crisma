@@ -67,7 +67,6 @@ public class ICCDataDetailView extends AbstractDetailView {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 
     //~ Constructors -----------------------------------------------------------
@@ -89,7 +88,6 @@ public class ICCDataDetailView extends AbstractDetailView {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
-        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -107,15 +105,6 @@ public class ICCDataDetailView extends AbstractDetailView {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         add(jLabel1, gridBagConstraints);
-
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(
-                org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE,
-                this,
-                org.jdesktop.beansbinding.ELProperty.create("${worldstate.iccdata.name}"),
-                jLabel2,
-                org.jdesktop.beansbinding.BeanProperty.create("text"));
-        bindingGroup.addBinding(binding);
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -130,15 +119,6 @@ public class ICCDataDetailView extends AbstractDetailView {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         add(jLabel3, gridBagConstraints);
-
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(
-                org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE,
-                this,
-                org.jdesktop.beansbinding.ELProperty.create("${worldstate.iccdata.description}"),
-                jLabel4,
-                org.jdesktop.beansbinding.BeanProperty.create("text"));
-        bindingGroup.addBinding(binding);
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -158,8 +138,6 @@ public class ICCDataDetailView extends AbstractDetailView {
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         add(jPanel1, gridBagConstraints);
-
-        bindingGroup.bind();
     } // </editor-fold>//GEN-END:initComponents
     @Override
     public JComponent getView() {
@@ -176,8 +154,6 @@ public class ICCDataDetailView extends AbstractDetailView {
         super.setWorldstate(worldstate);
         mView.setWorldstate(worldstate);
         init();
-        bindingGroup.unbind();
-        bindingGroup.bind();
     }
 
     @Override
@@ -221,6 +197,9 @@ public class ICCDataDetailView extends AbstractDetailView {
                 break;
             }
         }
+
+        jLabel2.setText((String)iccbean.getProperty("name"));
+        jLabel4.setText((String)iccbean.getProperty("description"));
 
         final ObjectMapper m = new ObjectMapper(new JsonFactory());
         try {

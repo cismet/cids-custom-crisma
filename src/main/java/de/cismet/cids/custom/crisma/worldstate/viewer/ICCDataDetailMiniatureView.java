@@ -9,6 +9,8 @@ package de.cismet.cids.custom.crisma.worldstate.viewer;
 
 import org.openide.util.NbBundle;
 
+import java.util.List;
+
 import de.cismet.cids.custom.crisma.WorldstateContainer;
 
 import de.cismet.cids.dynamics.CidsBean;
@@ -71,15 +73,6 @@ public class ICCDataDetailMiniatureView extends MiniaturePanel implements Worlds
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         add(jLabel1, gridBagConstraints);
-
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(
-                org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE,
-                this,
-                org.jdesktop.beansbinding.ELProperty.create("${worldstate.iccdata.name}"),
-                jLabel2,
-                org.jdesktop.beansbinding.BeanProperty.create("text"));
-        bindingGroup.addBinding(binding);
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -102,7 +95,7 @@ public class ICCDataDetailMiniatureView extends MiniaturePanel implements Worlds
 
         jLabel4.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(
+        final org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(
                 org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE,
                 this,
                 org.jdesktop.beansbinding.ELProperty.create("${worldstate.iccdata.description}"),
@@ -132,7 +125,21 @@ public class ICCDataDetailMiniatureView extends MiniaturePanel implements Worlds
     @Override
     public void setWorldstate(final CidsBean worldstate) {
         this.worldstate = worldstate;
-        bindingGroup.unbind();
-        bindingGroup.bind();
+        final boolean criteria = false;
+        final List<CidsBean> icclist = getWorldstate().getBeanCollectionProperty("iccdata");
+        CidsBean iccbean = null;
+        for (final CidsBean icc : icclist) {
+            if (criteria && "Criteria".equalsIgnoreCase((String)icc.getProperty("name"))) {
+                iccbean = icc;
+                break;
+            }
+            if (!criteria && "Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
+                iccbean = icc;
+                break;
+            }
+        }
+
+        jLabel2.setText((String)iccbean.getProperty("name"));
+        jLabel4.setText((String)iccbean.getProperty("description"));
     }
 }

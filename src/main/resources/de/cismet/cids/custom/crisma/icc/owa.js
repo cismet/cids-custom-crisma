@@ -1,9 +1,9 @@
 (function (owa, undefined) {
     'use strict';
 
-    var checkVector, checkVectorRange, epsilon, equals, gcf, lcm, eFactor, self;
+    var checkVector, checkVectorRange, epsilon, equals, eFactor, self;
 
-    // default tolerance, also used to convert values to ints for lcm calculation
+    // default tolerance
     epsilon = 0.0000001;
     eFactor = 1000000;
     self = this;

@@ -9,13 +9,13 @@ package de.cismet.cids.custom.crisma.objectrenderer;
 
 import Sirius.navigator.connection.SessionManager;
 import Sirius.navigator.exception.ConnectionException;
+import Sirius.navigator.ui.LAFManager;
 import Sirius.navigator.ui.RequestsFullSizeComponent;
 
 import Sirius.server.middleware.types.MetaClass;
 import Sirius.server.middleware.types.MetaObject;
 
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -53,8 +53,11 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import java.lang.reflect.Field;
@@ -73,7 +76,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.prefs.Preferences;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.InflaterOutputStream;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -83,15 +90,18 @@ import javax.swing.DefaultListModel;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.ListCellRenderer;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
@@ -133,6 +143,11 @@ import de.cismet.commons.gui.equalizer.EqualizerPanel;
 import de.cismet.commons.gui.equalizer.Range;
 
 import de.cismet.tools.gui.TitleComponentProvider;
+import de.cismet.tools.gui.jbands.BandModelEvent;
+import de.cismet.tools.gui.jbands.JBand;
+import de.cismet.tools.gui.jbands.SimpleBandModel;
+import de.cismet.tools.gui.jbands.interfaces.BandModelListener;
+import de.cismet.tools.gui.log4jquickconfig.Log4JQuickConfig;
 
 /**
  * DOCUMENT ME!
@@ -172,7 +187,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                     + "/save_16.png",
             false);
 
-    private SingleColumnModel singleColumnModel = loadModel();
+    private SingleColumnModel singleColumnModel = loadStrategyModel();
+    private SingleColumnModelCritFunc singleColumnModelCritFunc = loadCritFuncModel();
 
     private EqualizerPanel eqPanel;
 
@@ -188,13 +204,19 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
 
     private final List<Rank> ranks = new ArrayList<Rank>();
 
+    private final HashMap<String, IndicatorBand> valueBands = new HashMap<String, IndicatorBand>(10);
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAddCritFunc;
     private javax.swing.JButton btnDel;
     private javax.swing.JButton btnEditSave;
+    private javax.swing.JButton btnEditSaveCritFunc;
     private javax.swing.JButton btnNew;
+    private javax.swing.JButton btnRemCritFunc;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.Box.Filler filler1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JList jList1;
     private javax.swing.JList jList2;
     private javax.swing.JList jList3;
@@ -215,6 +237,9 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     private javax.swing.JPanel jPanel20;
     private javax.swing.JPanel jPanel21;
     private javax.swing.JPanel jPanel22;
+    private javax.swing.JPanel jPanel23;
+    private javax.swing.JPanel jPanel24;
+    private javax.swing.JPanel jPanel25;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
@@ -223,6 +248,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane10;
+    private javax.swing.JScrollPane jScrollPane12;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
@@ -233,6 +260,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     private javax.swing.JScrollPane jScrollPane9;
     private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JToolBar jToolBar1;
+    private javax.swing.JToolBar jToolBar2;
+    private javax.swing.JPanel pnlBands;
     private javax.swing.JPanel pnlEq;
     private javax.swing.JPanel pnlSpin;
     private javax.swing.JRadioButton rdbMax;
@@ -241,6 +270,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     private javax.swing.JRadioButton rdbNeutral;
     private javax.swing.JRadioButton rdbPlus;
     private javax.swing.JTable tblCrit;
+    private javax.swing.JTable tblCritFunc;
+    private javax.swing.JTable tblIC;
     private javax.swing.JTable tblInd;
     private javax.swing.JTable tblRankings;
     private javax.swing.JTable tblStrategies;
@@ -260,6 +291,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         initComponents();
 
         jLabel1.setIcon(i);
+        jTabbedPane2.addChangeListener(new TabChangedL());
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -297,11 +329,24 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         jList5 = new javax.swing.JList();
         jPanel15 = new javax.swing.JPanel();
         buttonGroup1 = new javax.swing.ButtonGroup();
+        pnlBands = new javax.swing.JPanel();
         jTabbedPane2 = new javax.swing.JTabbedPane();
         jPanel9 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         tblInd = new javax.swing.JTable();
         tbpInd = new javax.swing.JTabbedPane();
+        jPanel23 = new javax.swing.JPanel();
+        jScrollPane10 = new javax.swing.JScrollPane();
+        tblIC = new javax.swing.JTable();
+        jPanel24 = new javax.swing.JPanel();
+        jToolBar2 = new javax.swing.JToolBar();
+        btnEditSaveCritFunc = new javax.swing.JButton();
+        btnAddCritFunc = new javax.swing.JButton();
+        btnRemCritFunc = new javax.swing.JButton();
+        jScrollPane12 = new javax.swing.JScrollPane();
+        tblCritFunc = new javax.swing.JTable();
+        jPanel25 = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
         jPanel10 = new javax.swing.JPanel();
         jScrollPane6 = new javax.swing.JScrollPane();
         tblCrit = new javax.swing.JTable();
@@ -532,12 +577,17 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         jPanel12.add(jPanel15, gridBagConstraints);
 
+        pnlBands.setLayout(new java.awt.BorderLayout());
+
         setLayout(new java.awt.GridBagLayout());
 
         jTabbedPane2.setName("f"); // NOI18N
 
         jPanel9.setOpaque(false);
         jPanel9.setLayout(new java.awt.GridBagLayout());
+
+        jScrollPane4.setMinimumSize(new java.awt.Dimension(454, 270));
+        jScrollPane4.setPreferredSize(new java.awt.Dimension(454, 270));
 
         tblInd.setModel(new javax.swing.table.DefaultTableModel(
                 new Object[][] {
@@ -548,6 +598,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                 },
                 new String[] { "Title 1", "Title 2", "Title 3", "Title 4" }));
         tblInd.setCellSelectionEnabled(true);
+        tblInd.setPreferredSize(new java.awt.Dimension(300, 245));
         tblInd.setShowHorizontalLines(false);
         jScrollPane4.setViewportView(tblInd);
 
@@ -556,7 +607,6 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 0.5;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
         jPanel9.add(jScrollPane4, gridBagConstraints);
 
@@ -575,8 +625,131 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                 new Object[] {}),
             jPanel9); // NOI18N
 
+        jPanel23.setLayout(new java.awt.GridBagLayout());
+
+        jScrollPane10.setPreferredSize(new java.awt.Dimension(454, 270));
+
+        tblIC.setModel(new javax.swing.table.DefaultTableModel(
+                new Object[][] {
+                    { null, null, null, null },
+                    { null, null, null, null },
+                    { null, null, null, null },
+                    { null, null, null, null }
+                },
+                new String[] { "Title 1", "Title 2", "Title 3", "Title 4" }));
+        tblIC.setPreferredSize(new java.awt.Dimension(300, 245));
+        jScrollPane10.setViewportView(tblIC);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        jPanel23.add(jScrollPane10, gridBagConstraints);
+
+        jPanel24.setPreferredSize(new java.awt.Dimension(250, 433));
+        jPanel24.setLayout(new java.awt.BorderLayout(5, 5));
+
+        jToolBar2.setRollover(true);
+
+        btnEditSaveCritFunc.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/cids/custom/crisma/objectrenderer/edit_16.png"))); // NOI18N
+        btnEditSaveCritFunc.setText(NbBundle.getMessage(
+                WorldstatesAggregationRenderer.class,
+                "WorldstatesAggregationRenderer.btnEditSaveCritFunc.text"));                          // NOI18N
+        btnEditSaveCritFunc.setFocusable(false);
+        btnEditSaveCritFunc.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnEditSaveCritFunc.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar2.add(btnEditSaveCritFunc);
+
+        btnAddCritFunc.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/cids/custom/crisma/objectrenderer/new.png"))); // NOI18N
+        btnAddCritFunc.setText(NbBundle.getMessage(
+                WorldstatesAggregationRenderer.class,
+                "WorldstatesAggregationRenderer.btnAddCritFunc.text"));                           // NOI18N
+        btnAddCritFunc.setFocusable(false);
+        btnAddCritFunc.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnAddCritFunc.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnAddCritFunc.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnAddCritFuncActionPerformed(evt);
+                }
+            });
+        jToolBar2.add(btnAddCritFunc);
+
+        btnRemCritFunc.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/cids/custom/crisma/objectrenderer/del.png"))); // NOI18N
+        btnRemCritFunc.setText(NbBundle.getMessage(
+                WorldstatesAggregationRenderer.class,
+                "WorldstatesAggregationRenderer.btnRemCritFunc.text"));                           // NOI18N
+        btnRemCritFunc.setFocusable(false);
+        btnRemCritFunc.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnRemCritFunc.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnRemCritFunc.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnRemCritFuncActionPerformed(evt);
+                }
+            });
+        jToolBar2.add(btnRemCritFunc);
+
+        jPanel24.add(jToolBar2, java.awt.BorderLayout.PAGE_START);
+
+        tblCritFunc.setModel(new javax.swing.table.DefaultTableModel(
+                new Object[][] {
+                    { null, null, null, null },
+                    { null, null, null, null },
+                    { null, null, null, null },
+                    { null, null, null, null }
+                },
+                new String[] { "Title 1", "Title 2", "Title 3", "Title 4" }));
+        jScrollPane12.setViewportView(tblCritFunc);
+
+        jPanel24.add(jScrollPane12, java.awt.BorderLayout.CENTER);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+        jPanel23.add(jPanel24, gridBagConstraints);
+
+        jPanel25.setBorder(javax.swing.BorderFactory.createTitledBorder(
+                NbBundle.getMessage(
+                    WorldstatesAggregationRenderer.class,
+                    "WorldstatesAggregationRenderer.jPanel25.border.title"))); // NOI18N
+        jPanel25.setLayout(new java.awt.BorderLayout());
+
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel2.setText(NbBundle.getMessage(
+                WorldstatesAggregationRenderer.class,
+                "WorldstatesAggregationRenderer.jLabel2.text")); // NOI18N
+        jPanel25.add(jLabel2, java.awt.BorderLayout.PAGE_END);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+        jPanel23.add(jPanel25, gridBagConstraints);
+
+        jTabbedPane2.addTab(NbBundle.getMessage(
+                WorldstatesAggregationRenderer.class,
+                "WorldstatesAggregationRenderer.jPanel23.TabConstraints.tabTitle"),
+            jPanel23); // NOI18N
+
         jPanel10.setOpaque(false);
         jPanel10.setLayout(new java.awt.GridBagLayout());
+
+        jScrollPane6.setPreferredSize(new java.awt.Dimension(454, 270));
 
         tblCrit.setModel(new javax.swing.table.DefaultTableModel(
                 new Object[][] {
@@ -595,7 +768,6 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 0.5;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
         jPanel10.add(jScrollPane6, gridBagConstraints);
 
@@ -989,23 +1161,23 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnDelActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_btnDelActionPerformed
-    {                                                                        //GEN-HEADEREND:event_btnDelActionPerformed
+    private void btnDelActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnDelActionPerformed
+    {//GEN-HEADEREND:event_btnDelActionPerformed
         singleColumnModel.removeRow(tblStrategies.getSelectedRow());
         if (singleColumnModel.getRowCount() == 0) {
             btnEditSave.setEnabled(false);
             btnDel.setEnabled(false);
         }
         calcOWARanks();
-    }                                                                        //GEN-LAST:event_btnDelActionPerformed
+    }//GEN-LAST:event_btnDelActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnNewActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_btnNewActionPerformed
-    {                                                                        //GEN-HEADEREND:event_btnNewActionPerformed
+    private void btnNewActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnNewActionPerformed
+    {//GEN-HEADEREND:event_btnNewActionPerformed
         final Strategy s = new Strategy();
         s.name = "New Strategy";
         s.lse = 0;
@@ -1046,89 +1218,151 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         tblStrategies.setEditingRow(row);
         btnNew.setEnabled(false);
         btnDel.setEnabled(false);
-    } //GEN-LAST:event_btnNewActionPerformed
+    }//GEN-LAST:event_btnNewActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void rdbPlusActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_rdbPlusActionPerformed
-    {                                                                         //GEN-HEADEREND:event_rdbPlusActionPerformed
+    private void rdbPlusActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_rdbPlusActionPerformed
+    {//GEN-HEADEREND:event_rdbPlusActionPerformed
         singleColumnModel.strategies.get(singleColumnModel.getEditingRow()).lse = 1;
         calcOWARanks();
-    }                                                                         //GEN-LAST:event_rdbPlusActionPerformed
+    }//GEN-LAST:event_rdbPlusActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void rdbNeutralActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_rdbNeutralActionPerformed
-    {                                                                            //GEN-HEADEREND:event_rdbNeutralActionPerformed
+    private void rdbNeutralActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_rdbNeutralActionPerformed
+    {//GEN-HEADEREND:event_rdbNeutralActionPerformed
         singleColumnModel.strategies.get(singleColumnModel.getEditingRow()).lse = 0;
         calcOWARanks();
-    }                                                                            //GEN-LAST:event_rdbNeutralActionPerformed
+    }//GEN-LAST:event_rdbNeutralActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void rdbMinusActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_rdbMinusActionPerformed
-    {                                                                          //GEN-HEADEREND:event_rdbMinusActionPerformed
+    private void rdbMinusActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_rdbMinusActionPerformed
+    {//GEN-HEADEREND:event_rdbMinusActionPerformed
         singleColumnModel.strategies.get(singleColumnModel.getEditingRow()).lse = -1;
         calcOWARanks();
-    }                                                                          //GEN-LAST:event_rdbMinusActionPerformed
+    }//GEN-LAST:event_rdbMinusActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void rdbMinActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_rdbMinActionPerformed
-    {                                                                        //GEN-HEADEREND:event_rdbMinActionPerformed
+    private void rdbMinActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_rdbMinActionPerformed
+    {//GEN-HEADEREND:event_rdbMinActionPerformed
         singleColumnModel.strategies.get(singleColumnModel.getEditingRow()).lse = -2;
         calcOWARanks();
-    }                                                                        //GEN-LAST:event_rdbMinActionPerformed
+    }//GEN-LAST:event_rdbMinActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void rdbMaxActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_rdbMaxActionPerformed
-    {                                                                        //GEN-HEADEREND:event_rdbMaxActionPerformed
+    private void rdbMaxActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_rdbMaxActionPerformed
+    {//GEN-HEADEREND:event_rdbMaxActionPerformed
         singleColumnModel.strategies.get(singleColumnModel.getEditingRow()).lse = 2;
         calcOWARanks();
-    }                                                                        //GEN-LAST:event_rdbMaxActionPerformed
+    }//GEN-LAST:event_rdbMaxActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void btnRemCritFuncActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnRemCritFuncActionPerformed
+    {//GEN-HEADEREND:event_btnRemCritFuncActionPerformed
+        singleColumnModelCritFunc.removeRow(tblCritFunc.getSelectedRow());
+        if (singleColumnModelCritFunc.getRowCount() == 0) {
+            btnEditSaveCritFunc.setEnabled(false);
+            btnRemCritFunc.setEnabled(false);
+        }
+        // reinit bands?
+    }//GEN-LAST:event_btnRemCritFuncActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void btnAddCritFuncActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnAddCritFuncActionPerformed
+    {//GEN-HEADEREND:event_btnAddCritFuncActionPerformed
+        try {
+            final CritFunc s = new CritFunc();
+            s.name = "New Criteria Function";
+            s.bands = new ArrayList<CritFuncBand>();
+
+            final List<CidsBean> icclist = getCidsBeans().iterator().next().getBeanCollectionProperty("iccdata");
+            CidsBean iccbean = null;
+            for (final CidsBean icc : icclist) {
+                if ("Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
+                    iccbean = icc;
+                    break;
+                }
+            }
+
+            final ICCData data = m.readValue((String)iccbean.getProperty("actualaccessinfo"), ICCData.class);
+            for (final ValueIterable vi : data) {
+                for (final Value v : vi) {
+                    final CritFuncBand band = new CritFuncBand();
+                    band.name = v.getDisplayName();
+                    band.groups = new TreeSet<CriteriaGroup>();
+                    band.zeroGroup = new CriteriaGroup(0, 0, v.getUnit());
+                    band.hundredGroup = new CriteriaGroup(100, 0, v.getUnit());
+                    s.bands.add(band);
+                }
+            }
+
+            singleColumnModelCritFunc.addRow(s);
+            final int row = tblCritFunc.getRowCount() - 1;
+            tblCritFunc.getSelectionModel().setSelectionInterval(row, row);
+            singleColumnModelCritFunc.setEditingRow(row);
+            btnEditSaveCritFunc.getAction().putValue(Action.SMALL_ICON, saveIcon16);
+            tblCritFunc.repaint();
+            tblCritFunc.setEditingRow(row);
+            btnAddCritFunc.setEnabled(false);
+            btnRemCritFunc.setEnabled(false);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }//GEN-LAST:event_btnAddCritFuncActionPerformed
 
     @Override
     protected void init() {
         jLabel1.setText("Comparing " + getCidsBeans().size() + " Worldstates");
         try {
-            for (final CidsBean c : getCidsBeans()) {
-                final List<CidsBean> icclist = c.getBeanCollectionProperty("iccdata");
-                CidsBean iccbean = null;
-                for (final CidsBean icc : icclist) {
-                    if ("Criteria".equalsIgnoreCase((String)icc.getProperty("name"))) {
-                        iccbean = icc;
-                        break;
-                    }
-                }
-
-                final ICCData data = m.readValue((String)iccbean.getProperty("actualaccessinfo"), ICCData.class);
-                final double[] vector = new double[10];
-                int i = 0;
-                for (final ValueIterable vi : data) {
-                    for (final Value v : vi) {
-                        vector[i++] = Double.parseDouble(v.getValue()) / 100d;
-                    }
-                }
-                crit.put(c, vector);
-            }
+//            for (final CidsBean c : getCidsBeans()) {
+//                final List<CidsBean> icclist = c.getBeanCollectionProperty("iccdata");
+//                CidsBean iccbean = null;
+//                for (final CidsBean icc : icclist) {
+//                    if ("Criteria".equalsIgnoreCase((String)icc.getProperty("name"))) {
+//                        iccbean = icc;
+//                        break;
+//                    }
+//                }
+//
+//                final ICCData data = m.readValue((String)iccbean.getProperty("actualaccessinfo"), ICCData.class);
+//                final double[] vector = new double[10];
+//                int i = 0;
+//                for (final ValueIterable vi : data) {
+//                    for (final Value v : vi) {
+//                        vector[i++] = Double.parseDouble(v.getValue()) / 100d;
+//                    }
+//                }
+//                crit.put(c, vector);
+//            }
             initTable(false);
-            initTable(true);
+//            initTable(true);
         } catch (Exception ex) {
             LOG.warn("cannot init", ex);
         }
@@ -1139,27 +1373,35 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         }
         try {
             initAnalysisGraph(false);
-            initAnalysisGraph(true);
+//            initAnalysisGraph(true);
         } catch (final Exception e) {
             LOG.warn("cannot init", e);
         }
-        try {
-            final Thread t = new Thread(new Runnable() {
 
-                        @Override
-                        public void run() {
-                            initMultipleSpiderWebChart();
-                        }
-                    });
-            t.start();
-        } catch (final Exception e) {
-            LOG.warn("cannot init", e);
-        }
         try {
-            initMCA();
+            initBand();
+            initICTable();
+            jPanel25.add(pnlBands);
         } catch (final Exception e) {
             LOG.warn("cannot init", e);
         }
+//        try {
+//            final Thread t = new Thread(new Runnable() {
+//
+//                        @Override
+//                        public void run() {
+//                            initMultipleSpiderWebChart();
+//                        }
+//                    });
+//            t.start();
+//        } catch (final Exception e) {
+//            LOG.warn("cannot init", e);
+//        }
+//        try {
+//            initMCA();
+//        } catch (final Exception e) {
+//            LOG.warn("cannot init", e);
+//        }
         // int tab = 0;
         // try {
         // tab = initComp(tab);
@@ -1212,17 +1454,16 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
             final List<CidsBean> icclist = wst.getBeanCollectionProperty("iccdata");
             CidsBean iccbean = null;
             for (final CidsBean icc : icclist) {
-                if (criteria && "Criteria".equalsIgnoreCase((String)icc.getProperty("name"))) {
-                    iccbean = icc;
-                    break;
-                }
-                if (!criteria && "Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
+                if ("Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
                     iccbean = icc;
                     break;
                 }
             }
 
-            final ICCData data = m.readValue((String)iccbean.getProperty("actualaccessinfo"), ICCData.class);
+            ICCData data = m.readValue((String)iccbean.getProperty("actualaccessinfo"), ICCData.class);
+            if (criteria) {
+                data = calcCritData(data);
+            }
 
             if (first) {
                 tm.addColumn(criteria ? "Criteria (higher is better)" : "Indicators",
@@ -1296,7 +1537,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                                 false));
                     } else if (value instanceof Value) {
                         final Value v = (Value)value;
-                        l.setText(nf.format(Long.parseLong(v.getValue())) + (criteria ? " " : (" " + v.getUnit())));
+                        l.setText(nf.format(Double.parseDouble(v.getValue())) + " " + v.getUnit());
                         l.setHorizontalTextPosition(SwingConstants.RIGHT);
                         l.setHorizontalAlignment(SwingConstants.RIGHT);
                     }
@@ -1480,6 +1721,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         gbc.weighty = 0.5;
         gbc.insets = new java.awt.Insets(5, 5, 5, 5);
         final BorderPanel p1 = new BorderPanel();
+        jPanel12.removeAll();
+        jPanel15.removeAll();
         if (criteria) {
             p1.setTitle("X-Criteria");
             jPanel12.remove(jPanel13);
@@ -1536,18 +1779,17 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         final List<CidsBean> icclist = wst.getBeanCollectionProperty("iccdata");
         CidsBean iccbean = null;
         for (final CidsBean icc : icclist) {
-            if (criteria && "Criteria".equalsIgnoreCase((String)icc.getProperty("name"))) {
-                iccbean = icc;
-                break;
-            }
-            if (!criteria && "Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
+            if ("Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
                 iccbean = icc;
                 break;
             }
         }
         final String json = (String)iccbean.getProperty("actualaccessinfo");
         try {
-            final ICCData icc = m.readValue(json, ICCData.class);
+            ICCData icc = m.readValue(json, ICCData.class);
+            if (criteria) {
+                icc = calcCritData(icc);
+            }
             final Field[] fields = icc.getClass().getDeclaredFields();
             final List<Value> values = new ArrayList<Value>();
             for (final Field field : fields) {
@@ -1740,6 +1982,10 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
             dlm.addElement(mo.getBean());
         }
 
+        if (Thread.currentThread().isInterrupted()) {
+            return;
+        }
+
         EventQueue.invokeLater(new Runnable() {
 
                 @Override
@@ -1826,16 +2072,17 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                                 final List<CidsBean> icclist = wst.getBeanCollectionProperty("iccdata");
                                 CidsBean iccbean = null;
                                 for (final CidsBean icc : icclist) {
-                                    if ("Criteria".equalsIgnoreCase((String)icc.getProperty("name"))) {
+                                    if ("Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
                                         iccbean = icc;
                                         break;
                                     }
                                 }
 
                                 try {
-                                    final ICCData icc = m.readValue(
+                                    ICCData icc = m.readValue(
                                             (String)iccbean.getProperty("actualaccessinfo"),
                                             ICCData.class);
+                                    icc = calcCritData(icc);
 
                                     final Field[] fields = icc.getClass().getDeclaredFields();
                                     for (final Field field : fields) {
@@ -1845,7 +2092,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                                             x.setAccessible(true);
                                             final Value v = (Value)x.get(o);
                                             dataset.addValue(
-                                                Integer.parseInt(v.getValue()),
+                                                (int)Double.parseDouble(v.getValue()),
                                                 (String)wst.getProperty("name"),
                                                 v.getDisplayName());
                                         }
@@ -1875,16 +2122,40 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
      * @throws  Exception  DOCUMENT ME!
      */
     private void initMCA() throws Exception {
+        crit.clear();
+        for (final CidsBean c : getCidsBeans()) {
+            final List<CidsBean> icclist = c.getBeanCollectionProperty("iccdata");
+            CidsBean iccbean = null;
+            for (final CidsBean icc : icclist) {
+                if ("Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
+                    iccbean = icc;
+                    break;
+                }
+            }
+
+            final ICCData data = calcCritData(m.readValue(
+                        (String)iccbean.getProperty("actualaccessinfo"),
+                        ICCData.class));
+            final double[] vector = new double[10];
+            int i = 0;
+            for (final ValueIterable vi : data) {
+                for (final Value v : vi) {
+                    vector[i++] = Double.parseDouble(v.getValue()) / 100d;
+                }
+            }
+            crit.put(c, vector);
+        }
         final List<CidsBean> icclist = getCidsBeans().iterator().next().getBeanCollectionProperty("iccdata");
         CidsBean iccbean = null;
         for (final CidsBean icc : icclist) {
-            if ("Criteria".equalsIgnoreCase((String)icc.getProperty("name"))) {
+            if ("Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
                 iccbean = icc;
                 break;
             }
         }
 
-        final ICCData data = m.readValue((String)iccbean.getProperty("actualaccessinfo"), ICCData.class);
+        ICCData data = m.readValue((String)iccbean.getProperty("actualaccessinfo"), ICCData.class);
+        data = calcCritData(data);
 
         int i = 0;
         final List<EqualizerCategory> cats = new ArrayList<EqualizerCategory>();
@@ -1909,6 +2180,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                 new Insets(3, 3, 3, 3),
                 0,
                 0);
+        pnlSpin.removeAll();
+        spinners.clear();
         for (final ValueIterable vi : data) {
             for (final Value v : vi) {
                 cats.add(new EqualizerCategory(v.getDisplayName()));
@@ -2078,11 +2351,13 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         eqPanel = new EqualizerPanel(dem);
         eqPanel.setSplinePainted(false);
         eqPanel.setOpaque(false);
+        pnlEq.removeAll();
         pnlEq.add(eqPanel);
-        jPanel11.remove(jPanel18);
-        jPanel11.remove(jPanel17);
-        jPanel11.remove(jPanel16);
-        jPanel11.remove(jPanel20);
+        jPanel11.removeAll();
+//        jPanel11.remove(jPanel18);
+//        jPanel11.remove(jPanel17);
+//        jPanel11.remove(jPanel16);
+//        jPanel11.remove(jPanel20);
         GridBagConstraints gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -2376,6 +2651,608 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         rdbMin.setEnabled(enabled);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @throws  IOException  DOCUMENT ME!
+     */
+    private void initBand() throws IOException {
+        tblCritFunc.setModel(singleColumnModelCritFunc);
+        tblCritFunc.setSelectionModel(new DefaultListSelectionModel() {
+
+                @Override
+                public void setSelectionInterval(final int index0, final int index1) {
+                    if (singleColumnModelCritFunc.editingRow == null) {
+                        super.setSelectionInterval(index0, index1);
+                    }
+                }
+            });
+        tblCritFunc.setDefaultRenderer(String.class, new DefaultTableCellRenderer() {
+
+                @Override
+                public Component getTableCellRendererComponent(final JTable table,
+                        final Object value,
+                        final boolean isSelected,
+                        final boolean hasFocus,
+                        final int row,
+                        final int column) {
+                    final JLabel l = (JLabel)super.getTableCellRendererComponent(
+                            table,
+                            value,
+                            isSelected,
+                            hasFocus,
+                            row,
+                            column);
+                    l.setEnabled(
+                        (singleColumnModelCritFunc.editingRow == null)
+                                || (singleColumnModelCritFunc.editingRow == row));
+
+                    return l;
+                }
+            });
+
+        btnEditSaveCritFunc.setAction(new AbstractAction() {
+
+                {
+                    putValue(Action.SMALL_ICON, editIcon16);
+                }
+
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    final Integer index = singleColumnModelCritFunc.editingRow;
+                    if (index == null) {
+                        putValue(Action.SMALL_ICON, saveIcon16);
+                        singleColumnModelCritFunc.setEditingRow(tblCritFunc.getSelectedRow());
+                        btnAddCritFunc.setEnabled(false);
+                        btnRemCritFunc.setEnabled(false);
+                        tblCritFunc.setEditingRow(singleColumnModelCritFunc.editingRow);
+                    } else {
+                        singleColumnModelCritFunc.setEditingRow(null);
+                        if (tblCritFunc.getCellEditor() != null) {
+                            tblCritFunc.getCellEditor().stopCellEditing();
+                        }
+                        putValue(Action.SMALL_ICON, editIcon16);
+                        btnRemCritFunc.setEnabled(true);
+                        btnAddCritFunc.setEnabled(true);
+                    }
+                    tblCritFunc.repaint();
+                }
+            });
+        tblCritFunc.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+        tblCritFunc.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+                @Override
+                public void valueChanged(final ListSelectionEvent e) {
+                    if (e.getValueIsAdjusting()) {
+                        return;
+                    }
+                    if (e.getFirstIndex() < 0) {
+                        btnEditSaveCritFunc.setEnabled(false);
+                        btnRemCritFunc.setEnabled(false);
+                    } else {
+                        init = true;
+                        final int index = tblCritFunc.getSelectedRow();
+                        if (index == -1) {
+                            init = false;
+                            return;
+                        }
+                        final CritFunc cf = singleColumnModelCritFunc.funcs.get(index);
+                        try {
+                            setBands(cf);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                        btnEditSaveCritFunc.setEnabled(true);
+                        btnRemCritFunc.setEnabled(true);
+                        btnAddCritFunc.setEnabled(true);
+                    }
+                    init = false;
+                }
+            });
+        tblCritFunc.getSelectionModel().setSelectionInterval(-1, -1);
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   funcs  DOCUMENT ME!
+     *
+     * @throws  IOException  DOCUMENT ME!
+     */
+    private void setBands(final CritFunc funcs) throws IOException {
+//        final List<CidsBean> icclist = getCidsBeans().iterator().next().getBeanCollectionProperty("iccdata");
+//        CidsBean iccbean = null;
+//        for (final CidsBean icc : icclist) {
+//            if ("Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
+//                iccbean = icc;
+//                break;
+//            }
+//        }
+
+        valueBands.clear();
+        final SimpleBandModel bm = new SimpleBandModel();
+        for (final CritFuncBand cfb : funcs.bands) {
+            final IndicatorBand b = new IndicatorBand(
+                    cfb.name,
+                    cfb.zeroGroup,
+                    cfb.hundredGroup,
+                    cfb.groups,
+                    bm);
+            bm.addBand(b);
+            bm.addBand(b.getSpotBand());
+            valueBands.put(cfb.name, b);
+            bm.addBand(new VGapBand());
+        }
+        bm.removeBand(bm.getBand(bm.getNumberOfBands() - 1));
+
+//        final ICCData data = m.readValue((String)iccbean.getProperty("actualaccessinfo"), ICCData.class);
+//        final Iterator<ValueIterable> it1 = data.iterator();
+//        while (it1.hasNext()) {
+//            final Iterator<Value> it2 = it1.next().iterator();
+//            while (it2.hasNext()) {
+//                final Value v = it2.next();
+//                final IndicatorBand b = new IndicatorBand(
+//                        v.getDisplayName(),
+//                        new CriteriaGroup(0, 0, v.getUnit()),
+//                        new CriteriaGroup(100, 0, v.getUnit()),
+//                        new ArrayList<CriteriaGroup>(),
+//                        bm);
+//                bm.addBand(b);
+//                bm.addBand(b.getSpotBand());
+//                valueBands.put(v.getDisplayName(), b);
+//                if (it1.hasNext() || it2.hasNext()) {
+//                    bm.addBand(new VGapBand());
+//                }
+//            }
+//        }
+
+        bm.addBandModelListener(new BandModelListener() {
+
+                @Override
+                public void bandModelChanged(final BandModelEvent e) {
+                    bandModelValuesChanged(e);
+                }
+
+                @Override
+                public void bandModelSelectionChanged(final BandModelEvent e) {
+                    // noop
+                }
+
+                @Override
+                public void bandModelValuesChanged(final BandModelEvent e) {
+                    EventQueue.invokeLater(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                tblIC.repaint();
+                            }
+                        });
+                }
+            });
+
+        final JBand band = new JBand(bm);
+        band.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        pnlBands.removeAll();
+        pnlBands.add(band);
+        EventQueue.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    jPanel23.invalidate();
+                    jPanel23.validate();
+                    jPanel23.repaint();
+                    ((SimpleBandModel)band.getModel()).fireBandModelChanged();
+                    jPanel23.invalidate();
+                    jPanel23.validate();
+                    jPanel23.repaint();
+                }
+            });
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   indData  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private ICCData calcCritData(final ICCData indData) {
+        final ICCData critData = new ICCData();
+
+        // casualties
+        final Casualties cas = indData.getCasualties();
+        final Casualties nc = new Casualties();
+        nc.setDisplayName(cas.getDisplayName());
+        nc.setIconResource(cas.getIconResource());
+
+        // noofdead
+        Value n = new Value();
+        Value o = cas.getNoOfDead();
+        n.setDisplayName(o.getDisplayName());
+        n.setIconResource(o.getIconResource());
+        n.setUnit("%");
+        n.setValue(String.valueOf(calcCriteria(o)));
+        nc.setNoOfDead(n);
+
+        // noofinjured
+        n = new Value();
+        o = cas.getNoOfInjured();
+        n.setDisplayName(o.getDisplayName());
+        n.setIconResource(o.getIconResource());
+        n.setUnit("%");
+        n.setValue(String.valueOf(calcCriteria(o)));
+        nc.setNoOfInjured(n);
+
+        // noofhomeless
+        n = new Value();
+        o = cas.getNoOfHomeless();
+        n.setDisplayName(o.getDisplayName());
+        n.setIconResource(o.getIconResource());
+        n.setUnit("%");
+        n.setValue(String.valueOf(calcCriteria(o)));
+        nc.setNoOfHomeless(n);
+
+        critData.setCasualties(nc);
+
+        // buildings
+        final DamagedBuildings dam = indData.getDamagedBuildings();
+        final DamagedBuildings ndb = new DamagedBuildings();
+        ndb.setDisplayName(dam.getDisplayName());
+        ndb.setIconResource(dam.getIconResource());
+
+        // lostbuildings
+        n = new Value();
+        o = dam.getLostBuildings();
+        n.setDisplayName(o.getDisplayName());
+        n.setIconResource(o.getIconResource());
+        n.setUnit("%");
+        n.setValue(String.valueOf(calcCriteria(o)));
+        ndb.setLostBuildings(n);
+
+        // unsafe buildings
+        n = new Value();
+        o = dam.getUnsafeBuildings();
+        n.setDisplayName(o.getDisplayName());
+        n.setIconResource(o.getIconResource());
+        n.setUnit("%");
+        n.setValue(String.valueOf(calcCriteria(o)));
+        ndb.setUnsafeBuildings(n);
+
+        critData.setDamagedBuildings(ndb);
+
+        // infra
+        final DamagedInfrastructure di = indData.getDamagedInfrastructure();
+        final DamagedInfrastructure ndi = new DamagedInfrastructure();
+        ndi.setDisplayName(di.getDisplayName());
+        ndi.setIconResource(di.getIconResource());
+
+        // roads
+        n = new Value();
+        o = di.getDamagedRoadSegments();
+        n.setDisplayName(o.getDisplayName());
+        n.setIconResource(o.getIconResource());
+        n.setUnit("%");
+        n.setValue(String.valueOf(calcCriteria(o)));
+        ndi.setDamagedRoadSegments(n);
+
+        critData.setDamagedInfrastructure(ndi);
+
+        // cost
+        final Cost c = indData.getCost();
+        final Cost co = new Cost();
+        co.setDisplayName(c.getDisplayName());
+        co.setIconResource(c.getIconResource());
+
+        // direct
+        n = new Value();
+        o = c.getDirectDamageCost();
+        n.setDisplayName(o.getDisplayName());
+        n.setIconResource(o.getIconResource());
+        n.setUnit("%");
+        n.setValue(String.valueOf(calcCriteria(o)));
+        co.setDirectDamageCost(n);
+
+        // indirect
+        n = new Value();
+        o = c.getIndirectDamageCost();
+        n.setDisplayName(o.getDisplayName());
+        n.setIconResource(o.getIconResource());
+        n.setUnit("%");
+        n.setValue(String.valueOf(calcCriteria(o)));
+        co.setIndirectDamageCost(n);
+
+        // restoration
+        n = new Value();
+        o = c.getRestorationCost();
+        n.setDisplayName(o.getDisplayName());
+        n.setIconResource(o.getIconResource());
+        n.setUnit("%");
+        n.setValue(String.valueOf(calcCriteria(o)));
+        co.setRestorationCost(n);
+
+        critData.setCost(co);
+
+        // evac
+        final EvacuationCost ec = indData.getEvacuationCost();
+        final EvacuationCost ne = new EvacuationCost();
+        ne.setDisplayName(ec.getDisplayName());
+        ne.setIconResource(ec.getIconResource());
+
+        // total evac cost
+        n = new Value();
+        o = ec.getTotalEvacuationCost();
+        n.setDisplayName(o.getDisplayName());
+        n.setIconResource(o.getIconResource());
+        n.setUnit("%");
+        n.setValue(String.valueOf(calcCriteria(o)));
+        ne.setTotalEvacuationCost(n);
+
+        critData.setEvacuationCost(ne);
+
+        return critData;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   value  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private double calcCriteria(final Value value) {
+        final IndicatorBand b = valueBands.get(value.getDisplayName());
+        if (b == null) {
+            return 0;
+        }
+        final ArrayList<CriteriaGroup> l = new ArrayList<CriteriaGroup>();
+        l.add(b.getZeroGroup());
+        l.addAll(b.getGroups());
+        l.add(b.getHundredGroup());
+        if (b.getZeroGroup().getValue() > b.getHundredGroup().getValue()) {
+            Collections.reverse(l);
+        }
+
+        assert l.size() >= 2 : "too few criteria groups";
+
+        final double los;
+        final double val = Double.parseDouble(value.getValue());
+        if (l.get(0).getValue() >= val) {
+            los = l.get(0).getLevelOfSatisfaction();
+        } else if (l.get(l.size() - 1).getValue() <= val) {
+            los = l.get(l.size() - 1).getLevelOfSatisfaction();
+        } else {
+            CriteriaGroup pre = null;
+            CriteriaGroup suc = null;
+            for (int i = 0; i < l.size(); ++i) {
+                final CriteriaGroup g = l.get(i);
+                if (g.getValue() < val) {
+                    pre = g;
+                    if (l.get(i + 1).getValue() > val) {
+                        suc = l.get(i + 1);
+                        break;
+                    }
+                }
+            }
+
+            assert (pre != null) && (suc != null) : "pre and suc not found";
+
+            final double max = Math.max(pre.getValue(), suc.getValue());
+            final double min = Math.min(pre.getValue(), suc.getValue());
+            final double preLos = pre.getLevelOfSatisfaction();
+            final double sucLos = suc.getLevelOfSatisfaction();
+            final double rate = (max - val) / (max - min);
+
+            los = sucLos + ((preLos - sucLos) * rate);
+        }
+
+        return Math.round(los * 100) / 100d;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @throws  Exception  DOCUMENT ME!
+     */
+    private void initICTable() throws Exception {
+        boolean first = true;
+        final DefaultTableModel tm = new DefaultTableModel();
+        for (final CidsBean wst : getCidsBeans()) {
+            final List<CidsBean> icclist = wst.getBeanCollectionProperty("iccdata");
+            CidsBean ibean = null;
+            for (final CidsBean icc : icclist) {
+                if ("Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
+                    ibean = icc;
+                }
+            }
+
+            final ICCData idata = m.readValue((String)ibean.getProperty("actualaccessinfo"), ICCData.class);
+
+            if (first) {
+                tm.addColumn(
+                    "Indicators / Criteria",
+                    new Object[] {
+                        idata.getCasualties(),
+                        idata.getCasualties().getNoOfDead(),
+                        idata.getCasualties().getNoOfInjured(),
+                        idata.getCasualties().getNoOfHomeless(),
+                        idata.getDamagedBuildings(),
+                        idata.getDamagedBuildings().getLostBuildings(),
+                        idata.getDamagedBuildings().getUnsafeBuildings(),
+                        idata.getDamagedInfrastructure(),
+                        idata.getDamagedInfrastructure().getDamagedRoadSegments(),
+                        idata.getCost(),
+                        idata.getCost().getDirectDamageCost(),
+                        idata.getCost().getIndirectDamageCost(),
+                        idata.getCost().getRestorationCost(),
+                        idata.getEvacuationCost(),
+                        idata.getEvacuationCost().getTotalEvacuationCost()
+                    });
+                first = false;
+            }
+
+            tm.addColumn(wst.getProperty("name"),
+                new Object[] {
+                    "",
+                    idata.getCasualties().getNoOfDead(),
+                    idata.getCasualties().getNoOfInjured(),
+                    idata.getCasualties().getNoOfHomeless(),
+                    "",
+                    idata.getDamagedBuildings().getLostBuildings(),
+                    idata.getDamagedBuildings().getUnsafeBuildings(),
+                    "",
+                    idata.getDamagedInfrastructure().getDamagedRoadSegments(),
+                    "",
+                    idata.getCost().getDirectDamageCost(),
+                    idata.getCost().getIndirectDamageCost(),
+                    idata.getCost().getRestorationCost(),
+                    "",
+                    idata.getEvacuationCost().getTotalEvacuationCost()
+                });
+
+            final TableCellRenderer rend = new DefaultTableCellRenderer() {
+
+                    private final NumberFormat nf = NumberFormat.getInstance();
+
+                    @Override
+                    public Component getTableCellRendererComponent(final JTable table,
+                            final Object value,
+                            final boolean isSelected,
+                            final boolean hasFocus,
+                            final int row,
+                            final int column) {
+                        final JLabel l = new JLabel();
+
+                        if ((column % 2) == 0) {
+                            l.setBackground(Color.red);
+                        }
+
+                        if ((column == 0) && (value instanceof Common)) {
+                            if (!(value instanceof Value)) {
+                                l.setFont(l.getFont().deriveFont(Font.BOLD));
+                            }
+                            final Common common = (Common)value;
+                            l.setText(common.getDisplayName());
+                            l.setIcon(ImageUtilities.loadImageIcon(
+                                    WorldstatesAggregationRenderer.class.getPackage().getName().replaceAll("\\.", "/")
+                                            + "/"
+                                            + common.getIconResource(),
+                                    false));
+                        } else if (value instanceof Value) {
+                            final Value ic = (Value)value;
+                            l.setText(nf.format(Double.parseDouble(ic.getValue())) + " " + ic.getUnit() + " / "
+                                        + calcCriteria(ic) + " %");
+                            l.setHorizontalTextPosition(SwingConstants.RIGHT);
+                            l.setHorizontalAlignment(SwingConstants.RIGHT);
+                        }
+
+                        return l;
+                    }
+                };
+
+            final JTable t = tblIC;
+            t.setModel(tm);
+            final Enumeration<TableColumn> e = t.getColumnModel().getColumns();
+            while (e.hasMoreElements()) {
+                e.nextElement().setCellRenderer(rend);
+            }
+
+            final TableColumnModel columnModel = t.getColumnModel();
+            int width = 0;
+            for (int column = 0; column < t.getColumnCount(); column++) {
+                for (int row = 0; row < t.getRowCount(); row++) {
+                    final TableCellRenderer renderer = t.getCellRenderer(row, column);
+                    final Component comp = t.prepareRenderer(renderer, row, column);
+                    width = Math.max(comp.getPreferredSize().width, width);
+                }
+            }
+
+            for (int column = 1; column < t.getColumnCount(); column++) {
+                columnModel.getColumn(column).setWidth(width);
+                columnModel.getColumn(column).setMinWidth(width);
+                columnModel.getColumn(column).setMaxWidth(width);
+                columnModel.getColumn(column).setPreferredWidth(width);
+            }
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   args  DOCUMENT ME!
+     *
+     * @throws  Exception  DOCUMENT ME!
+     */
+    public static void main(final String[] args) throws Exception {
+        LAFManager.getManager().changeLookAndFeel("Plastic 3D");
+        Log4JQuickConfig.configure4LumbermillOnLocalhost();
+        EventQueue.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        final WorldstatesAggregationRenderer r = new WorldstatesAggregationRenderer();
+                        r.cidsBeans = new ArrayList<CidsBean>(4);
+
+                        CidsBean iccbean = new ICCClass();
+                        iccbean.setProperty(
+                            "actualaccessinfo",
+                            "{   \"casualties\": {     \"displayName\": \"Casualties\",      \"iconResource\": \"flower_16.png\",      \"noOfDead\": {       \"displayName\": \"Number of dead\",        \"iconResource\": \"flower_dead_16.png\",        \"value\": \"138\",     \"unit\":\"People\"     },      \"noOfInjured\": {       \"displayName\": \"Number of injured\",        \"iconResource\": \"flower_injured_16.png\",        \"value\": \"1515\",     \"unit\":\"People\"     },      \"noOfHomeless\": {       \"displayName\": \"Number of homeless\",        \"iconResource\": \"flower_homeless_16.png\",        \"value\": \"13953\",     \"unit\":\"People\"     }   },    \"cost\": {     \"directDamageCost\": {       \"displayName\": \"Direct damage cost\",        \"iconResource\": \"dollar_direct_16.png\",        \"value\": \"33547532\",     \"unit\":\"Dollar\"     },      \"displayName\": \"Economic cost\",      \"iconResource\": \"dollar_16.png\",      \"indirectDamageCost\": {       \"displayName\": \"Indirect damage cost\",        \"iconResource\": \"dollar_indirect_16.png\",        \"value\": \"65753689\",     \"unit\":\"Dollar\"     },      \"restorationCost\": {       \"displayName\": \"Direct restoration cost\",        \"iconResource\": \"dollar_restoration_16.png\",        \"value\": \"123657772\",     \"unit\":\"Dollar\"     }   },    \"damagedBuildings\": {     \"displayName\": \"Damaged buildings\",      \"iconResource\": \"home_16.png\",      \"lostBuildings\": {       \"displayName\": \"Lost buildings\",        \"iconResource\": \"home_lost_16.png\",        \"value\": \"241\",     \"unit\":\"Buildings\"     },      \"unsafeBuildings\": {       \"displayName\": \"Unsafe buildings\",        \"iconResource\": \"home_unsafe_16.png\",        \"value\": \"7350\",     \"unit\":\"Buildings\"     }   },    \"damagedInfrastructure\": {     \"damagedRoadSegments\": {       \"displayName\": \"Number of damaged road segments\",        \"iconResource\": \"road_damaged_16.png\",        \"value\": \"1567\",     \"unit\":\"Road seqments\"     },      \"displayName\": \"Damaged Infrastructure\",      \"iconResource\": \"road_16.png\"   },    \"evacuationCost\": {     \"displayName\": \"Evacuation cost\",      \"iconResource\": \"money_evac_16.png\",      \"totalEvacuationCost\": {       \"displayName\": \"Total evacuation cost\",        \"iconResource\": \"money_total_evac_16.png\",        \"value\": \"18067094\",     \"unit\":\"Dollar\"     }   } } ");
+                        iccbean.setProperty("name", "Indicators");
+                        CidsBean b = new WSClass();
+                        b.addCollectionElement("iccdata", iccbean);
+                        r.cidsBeans.add(b);
+
+                        iccbean = new ICCClass();
+                        iccbean.setProperty(
+                            "actualaccessinfo",
+                            "{   \"casualties\": {     \"displayName\": \"Casualties\",      \"iconResource\": \"flower_16.png\",      \"noOfDead\": {       \"displayName\": \"Number of dead\",        \"iconResource\": \"flower_dead_16.png\",        \"value\": \"1\",     \"unit\":\"People\"     },      \"noOfInjured\": {       \"displayName\": \"Number of injured\",        \"iconResource\": \"flower_injured_16.png\",        \"value\": \"54\",     \"unit\":\"People\"     },      \"noOfHomeless\": {       \"displayName\": \"Number of homeless\",        \"iconResource\": \"flower_homeless_16.png\",        \"value\": \"8434\",     \"unit\":\"People\"     }   },    \"cost\": {     \"directDamageCost\": {       \"displayName\": \"Direct damage cost\",        \"iconResource\": \"dollar_direct_16.png\",        \"value\": \"22547532\",     \"unit\":\"Dollar\"     },      \"displayName\": \"Economic cost\",      \"iconResource\": \"dollar_16.png\",      \"indirectDamageCost\": {       \"displayName\": \"Indirect damage cost\",        \"iconResource\": \"dollar_indirect_16.png\",        \"value\": \"43753689\",     \"unit\":\"Dollar\"     },      \"restorationCost\": {       \"displayName\": \"Direct restoration cost\",        \"iconResource\": \"dollar_restoration_16.png\",        \"value\": \"83657772\",     \"unit\":\"Dollar\"     }   },    \"damagedBuildings\": {     \"displayName\": \"Damaged buildings\",      \"iconResource\": \"home_16.png\",      \"lostBuildings\": {       \"displayName\": \"Lost buildings\",        \"iconResource\": \"home_lost_16.png\",        \"value\": \"178\",     \"unit\":\"Buildings\"     },      \"unsafeBuildings\": {       \"displayName\": \"Unsafe buildings\",        \"iconResource\": \"home_unsafe_16.png\",        \"value\": \"449\",     \"unit\":\"Buildings\"     }   },    \"damagedInfrastructure\": {     \"damagedRoadSegments\": {       \"displayName\": \"Number of damaged road segments\",        \"iconResource\": \"road_damaged_16.png\",        \"value\": \"1287\",     \"unit\":\"Road seqments\"     },      \"displayName\": \"Damaged Infrastructure\",      \"iconResource\": \"road_16.png\"   },    \"evacuationCost\": {     \"displayName\": \"Evacuation cost\",      \"iconResource\": \"money_evac_16.png\",      \"totalEvacuationCost\": {       \"displayName\": \"Total evacuation cost\",        \"iconResource\": \"money_total_evac_16.png\",        \"value\": \"25067094\",     \"unit\":\"Dollar\"     }   } } ");
+                        iccbean.setProperty("name", "Indicators");
+                        b = new WSClass();
+                        b.addCollectionElement("iccdata", iccbean);
+                        r.cidsBeans.add(b);
+
+                        iccbean = new ICCClass();
+                        iccbean.setProperty(
+                            "actualaccessinfo",
+                            "{   \"casualties\": {     \"displayName\": \"Casualties\",      \"iconResource\": \"flower_16.png\",      \"noOfDead\": {       \"displayName\": \"Number of dead\",        \"iconResource\": \"flower_dead_16.png\",        \"value\": \"189\",     \"unit\":\"People\"     },      \"noOfInjured\": {       \"displayName\": \"Number of injured\",        \"iconResource\": \"flower_injured_16.png\",        \"value\": \"2840\",     \"unit\":\"People\"     },      \"noOfHomeless\": {       \"displayName\": \"Number of homeless\",        \"iconResource\": \"flower_homeless_16.png\",        \"value\": \"10416\",     \"unit\":\"People\"     }   },    \"cost\": {     \"directDamageCost\": {       \"displayName\": \"Direct damage cost\",        \"iconResource\": \"dollar_direct_16.png\",        \"value\": \"32547532\",     \"unit\":\"Dollar\"     },      \"displayName\": \"Economic cost\",      \"iconResource\": \"dollar_16.png\",      \"indirectDamageCost\": {       \"displayName\": \"Indirect damage cost\",        \"iconResource\": \"dollar_indirect_16.png\",        \"value\": \"78453689\",     \"unit\":\"Dollar\"     },      \"restorationCost\": {       \"displayName\": \"Direct restoration cost\",        \"iconResource\": \"dollar_restoration_16.png\",        \"value\": \"113657772\",     \"unit\":\"Dollar\"     }   },    \"damagedBuildings\": {     \"displayName\": \"Damaged buildings\",      \"iconResource\": \"home_16.png\",      \"lostBuildings\": {       \"displayName\": \"Lost buildings\",        \"iconResource\": \"home_lost_16.png\",        \"value\": \"251\",     \"unit\":\"Buildings\"     },      \"unsafeBuildings\": {       \"displayName\": \"Unsafe buildings\",        \"iconResource\": \"home_unsafe_16.png\",        \"value\": \"637\",     \"unit\":\"Buildings\"     }   },    \"damagedInfrastructure\": {     \"damagedRoadSegments\": {       \"displayName\": \"Number of damaged road segments\",        \"iconResource\": \"road_damaged_16.png\",        \"value\": \"1416\",     \"unit\":\"Road seqments\"     },      \"displayName\": \"Damaged Infrastructure\",      \"iconResource\": \"road_16.png\"   },    \"evacuationCost\": {     \"displayName\": \"Evacuation cost\",      \"iconResource\": \"money_evac_16.png\",      \"totalEvacuationCost\": {       \"displayName\": \"Total evacuation cost\",        \"iconResource\": \"money_total_evac_16.png\",        \"value\": \"13067094\",     \"unit\":\"Dollar\"     }   } } ");
+                        iccbean.setProperty("name", "Indicators");
+                        b = new WSClass();
+                        b.addCollectionElement("iccdata", iccbean);
+                        r.cidsBeans.add(b);
+
+                        iccbean = new ICCClass();
+                        iccbean.setProperty(
+                            "actualaccessinfo",
+                            "{   \"casualties\": {     \"displayName\": \"Casualties\",      \"iconResource\": \"flower_16.png\",      \"noOfDead\": {       \"displayName\": \"Number of dead\",        \"iconResource\": \"flower_dead_16.png\",        \"value\": \"15\",     \"unit\":\"People\"     },      \"noOfInjured\": {       \"displayName\": \"Number of injured\",        \"iconResource\": \"flower_injured_16.png\",        \"value\": \"164\",     \"unit\":\"People\"     },      \"noOfHomeless\": {       \"displayName\": \"Number of homeless\",        \"iconResource\": \"flower_homeless_16.png\",        \"value\": \"8434\",     \"unit\":\"People\"     }   },    \"cost\": {     \"directDamageCost\": {       \"displayName\": \"Direct damage cost\",        \"iconResource\": \"dollar_direct_16.png\",        \"value\": \"22547532\",     \"unit\":\"Dollar\"     },      \"displayName\": \"Economic cost\",      \"iconResource\": \"dollar_16.png\",      \"indirectDamageCost\": {       \"displayName\": \"Indirect damage cost\",        \"iconResource\": \"dollar_indirect_16.png\",        \"value\": \"58453689\",     \"unit\":\"Dollar\"     },      \"restorationCost\": {       \"displayName\": \"Direct restoration cost\",        \"iconResource\": \"dollar_restoration_16.png\",        \"value\": \"83657772\",     \"unit\":\"Dollar\"     }   },    \"damagedBuildings\": {     \"displayName\": \"Damaged buildings\",      \"iconResource\": \"home_16.png\",      \"lostBuildings\": {       \"displayName\": \"Lost buildings\",        \"iconResource\": \"home_lost_16.png\",        \"value\": \"178\",     \"unit\":\"Buildings\"     },      \"unsafeBuildings\": {       \"displayName\": \"Unsafe buildings\",        \"iconResource\": \"home_unsafe_16.png\",        \"value\": \"449\",     \"unit\":\"Buildings\"     }   },    \"damagedInfrastructure\": {     \"damagedRoadSegments\": {       \"displayName\": \"Number of damaged road segments\",        \"iconResource\": \"road_damaged_16.png\",        \"value\": \"1287\",     \"unit\":\"Road seqments\"     },      \"displayName\": \"Damaged Infrastructure\",      \"iconResource\": \"road_16.png\"   },    \"evacuationCost\": {     \"displayName\": \"Evacuation cost\",      \"iconResource\": \"money_evac_16.png\",      \"totalEvacuationCost\": {       \"displayName\": \"Total evacuation cost\",        \"iconResource\": \"money_total_evac_16.png\",        \"value\": \"18067094\",     \"unit\":\"Dollar\"     }   } } ");
+                        iccbean.setProperty("name", "Indicators");
+                        b = new WSClass();
+                        b.addCollectionElement("iccdata", iccbean);
+                        r.cidsBeans.add(b);
+
+                        r.init();
+                        final JFrame f = new JFrame("test");
+                        f.addWindowListener(new WindowAdapter() {
+
+                                @Override
+                                public void windowClosing(final WindowEvent e) {
+                                    r.dispose();
+                                    System.exit(0);
+                                }
+                            });
+                        f.setLayout(new BorderLayout(5, 5));
+                        f.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+                        f.add(r);
+                        f.pack();
+                        f.setSize(1200, 1024);
+                        f.setVisible(true);
+                        f.toFront();
+                    } catch (final Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+    }
+
     @Override
     public void dispose() {
         System.out.println("dispose");
@@ -2383,8 +3260,67 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         try {
             p.clear();
             p.put("strategies", m.writeValueAsString(singleColumnModel.strategies));
+            final String s = m.writeValueAsString(singleColumnModelCritFunc.getCritFuncs());
+            System.out.println(s);
+            p.put("critfuncs", compressString(s));
         } catch (final Exception ex) {
-            LOG.error("cannot save strategies", ex);
+            LOG.error("cannot save prefs", ex);
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   s  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  Exception  DOCUMENT ME!
+     */
+    private String compressString(final String s) throws Exception {
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final DeflaterOutputStream dos = new DeflaterOutputStream(baos);
+        dos.write(s.getBytes("ISO-8859-1"));
+        dos.close();
+
+        return baos.toString("ISO-8859-1");
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   s  b DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  Exception  DOCUMENT ME!
+     */
+    private String decompressString(final String s) throws Exception {
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final InflaterOutputStream ios = new InflaterOutputStream(baos);
+        ios.write(s.getBytes("ISO-8859-1"));
+        ios.close();
+
+        return baos.toString("ISO-8859-1");
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  RuntimeException  DOCUMENT ME!
+     */
+    private SingleColumnModel loadStrategyModel() {
+        try {
+            final Preferences p = Preferences.userNodeForPackage(WorldstatesAggregationRenderer.class);
+            final List<Strategy> strategies = m.readValue(p.get("strategies", "[]"),
+                    new TypeReference<List<Strategy>>() {
+                    });
+
+            return new SingleColumnModel(strategies);
+        } catch (IOException iOException) {
+            throw new RuntimeException("cannot load strategies", iOException);
         }
     }
 
@@ -2395,16 +3331,24 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
      *
      * @throws  RuntimeException  DOCUMENT ME!
      */
-    private SingleColumnModel loadModel() {
+    private SingleColumnModelCritFunc loadCritFuncModel() {
         try {
             final Preferences p = Preferences.userNodeForPackage(WorldstatesAggregationRenderer.class);
-            final List<Strategy> strategies = m.readValue(p.get("strategies", "[]"),
-                    new TypeReference<List<Strategy>>() {
+            String s = "[]";
+            try {
+                s = decompressString(p.get("critfuncs", ""));
+                if (s.isEmpty()) {
+                    s = "[]";
+                }
+            } catch (Exception e) {
+            }
+            final List<CritFunc> strategies = m.readValue(s,
+                    new TypeReference<List<CritFunc>>() {
                     });
 
-            return new SingleColumnModel(strategies);
-        } catch (IOException iOException) {
-            throw new RuntimeException("cannot load strategies", iOException);
+            return new SingleColumnModelCritFunc(strategies);
+        } catch (Exception iOException) {
+            throw new RuntimeException("cannot load critfuncs", iOException);
         }
     }
 
@@ -2422,17 +3366,16 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
             final List<CidsBean> icclist = worldstate.getBeanCollectionProperty("iccdata");
             CidsBean iccbean = null;
             for (final CidsBean icc : icclist) {
-                if (criteria && "Criteria".equalsIgnoreCase((String)icc.getProperty("name"))) {
-                    iccbean = icc;
-                    break;
-                }
-                if (!criteria && "Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
+                if ("Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
                     iccbean = icc;
                     break;
                 }
             }
             final String json = (String)iccbean.getProperty("actualaccessinfo");
-            final ICCData icc = m.readValue(json, ICCData.class);
+            ICCData icc = m.readValue(json, ICCData.class);
+            if (criteria) {
+                icc = calcCritData(icc);
+            }
             final Field[] fields = icc.getClass().getDeclaredFields();
             for (final Field field : fields) {
                 field.setAccessible(true);
@@ -2490,6 +3433,158 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     }
 
     //~ Inner Classes ----------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    private final class TabChangedL implements ChangeListener {
+
+        //~ Instance fields ----------------------------------------------------
+
+        Thread t;
+
+        //~ Methods ------------------------------------------------------------
+
+        @Override
+        public void stateChanged(final ChangeEvent e) {
+            try {
+                final int selTab = jTabbedPane2.getSelectedIndex();
+                if (selTab == 2) {
+                    tbpCrit.removeAll();
+                    initTable(true);
+                    initAnalysisGraph(true);
+                    if (t != null) {
+                        t.interrupt();
+                    }
+                    t = new Thread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    initMultipleSpiderWebChart();
+                                }
+                            });
+                    t.start();
+                } else if (selTab == 3) {
+                    initMCA();
+                }
+            } catch (final Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    public static class ICCClass extends CidsBean {
+
+        //~ Instance fields ----------------------------------------------------
+
+        String actualaccessinfo;
+        String name;
+
+        //~ Methods ------------------------------------------------------------
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  name  DOCUMENT ME!
+         */
+        public void setName(final String name) {
+            this.name = name;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public String getName() {
+            return name;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public String getActualaccessinfo() {
+            return actualaccessinfo;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  actualaccessinfo  DOCUMENT ME!
+         */
+        public void setActualaccessinfo(final String actualaccessinfo) {
+            this.actualaccessinfo = actualaccessinfo;
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    public static class WSClass extends CidsBean {
+
+        //~ Static fields/initializers -----------------------------------------
+
+        static AtomicInteger ai = new AtomicInteger(1);
+
+        //~ Instance fields ----------------------------------------------------
+
+        Collection<CidsBean> iccdata = new ArrayList<CidsBean>(1);
+        final int id;
+
+        //~ Constructors -------------------------------------------------------
+
+        /**
+         * Creates a new WSClass object.
+         */
+        public WSClass() {
+            id = ai.getAndIncrement();
+        }
+
+        //~ Methods ------------------------------------------------------------
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public String getName() {
+            return "WS" + id;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public Collection<CidsBean> getIccdata() {
+            return iccdata;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  iccdata  DOCUMENT ME!
+         */
+        public void setIccdata(final Collection<CidsBean> iccdata) {
+            this.iccdata = iccdata;
+        }
+
+        @Override
+        public int hashCode() {
+            return id;
+        }
+    }
 
     /**
      * DOCUMENT ME!
@@ -2579,6 +3674,290 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
      *
      * @version  $Revision$, $Date$
      */
+    public static final class CritFunc {
+
+        //~ Instance fields ----------------------------------------------------
+
+        String name;
+        List<CritFuncBand> bands;
+
+        //~ Methods ------------------------------------------------------------
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public String getName() {
+            return name;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  name  DOCUMENT ME!
+         */
+        public void setName(final String name) {
+            this.name = name;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public List<CritFuncBand> getBands() {
+            return bands;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  bands  DOCUMENT ME!
+         */
+        public void setBands(final List<CritFuncBand> bands) {
+            this.bands = bands;
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    public static final class CritFuncBand {
+
+        //~ Instance fields ----------------------------------------------------
+
+        String name;
+        CriteriaGroup zeroGroup;
+        CriteriaGroup hundredGroup;
+        TreeSet<CriteriaGroup> groups;
+
+        //~ Methods ------------------------------------------------------------
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public String getName() {
+            return name;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  name  DOCUMENT ME!
+         */
+        public void setName(final String name) {
+            this.name = name;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public CriteriaGroup getZeroGroup() {
+            return zeroGroup;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  zeroGroup  DOCUMENT ME!
+         */
+        public void setZeroGroup(final CriteriaGroup zeroGroup) {
+            this.zeroGroup = zeroGroup;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public CriteriaGroup getHundredGroup() {
+            return hundredGroup;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  hundredGroup  DOCUMENT ME!
+         */
+        public void setHundredGroup(final CriteriaGroup hundredGroup) {
+            this.hundredGroup = hundredGroup;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public TreeSet<CriteriaGroup> getGroups() {
+            return groups;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  groups  DOCUMENT ME!
+         */
+        public void setGroups(final TreeSet<CriteriaGroup> groups) {
+            this.groups = groups;
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    private final class SingleColumnModelCritFunc implements TableModel {
+
+        //~ Instance fields ----------------------------------------------------
+
+        Integer editingRow;
+        List<CritFunc> funcs;
+        private final EventListenerList listeners = new EventListenerList();
+
+        //~ Constructors -------------------------------------------------------
+
+        /**
+         * Creates a new SingleColumnModel object.
+         *
+         * @param  funcs  strategies DOCUMENT ME!
+         */
+        public SingleColumnModelCritFunc(final List<CritFunc> funcs) {
+            this.funcs = funcs;
+        }
+
+        //~ Methods ------------------------------------------------------------
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        List<CritFunc> getCritFuncs() {
+            for (final CritFunc cf : funcs) {
+                for (final CritFuncBand b : cf.getBands()) {
+                    final IndicatorBand ib = valueBands.get(b.name);
+                    b.setGroups((TreeSet)ib.getGroups());
+                }
+            }
+
+            return funcs;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  row  DOCUMENT ME!
+         */
+        public void removeRow(final int row) {
+            try {
+                funcs.remove(row);
+                fire(new TableModelEvent(this));
+            } catch (Exception e) {
+                // noop
+            }
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  s  DOCUMENT ME!
+         */
+        public void addRow(final CritFunc s) {
+            funcs.add(s);
+            fire(new TableModelEvent(this));
+        }
+
+        @Override
+        public int getRowCount() {
+            return funcs.size();
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public Integer getEditingRow() {
+            return editingRow;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  rowIndex  DOCUMENT ME!
+         */
+        public void setEditingRow(final Integer rowIndex) {
+            this.editingRow = rowIndex;
+        }
+
+        @Override
+        public int getColumnCount() {
+            return 1;
+        }
+
+        @Override
+        public String getColumnName(final int columnIndex) {
+            return "";
+        }
+
+        @Override
+        public Class<?> getColumnClass(final int columnIndex) {
+            return String.class;
+        }
+
+        @Override
+        public boolean isCellEditable(final int rowIndex, final int columnIndex) {
+            return (editingRow != null) && (editingRow == rowIndex);
+        }
+
+        @Override
+        public Object getValueAt(final int rowIndex, final int columnIndex) {
+            return funcs.get(rowIndex).name;
+        }
+
+        @Override
+        public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
+            funcs.get(rowIndex).name = (String)aValue;
+
+            fire(new TableModelEvent(this, rowIndex));
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  e  DOCUMENT ME!
+         */
+        private void fire(final TableModelEvent e) {
+            final TableModelListener[] l = listeners.getListeners(TableModelListener.class);
+            for (final TableModelListener tl : l) {
+                tl.tableChanged(e);
+            }
+        }
+
+        @Override
+        public void addTableModelListener(final TableModelListener l) {
+            listeners.add(TableModelListener.class, l);
+        }
+
+        @Override
+        public void removeTableModelListener(final TableModelListener l) {
+            listeners.remove(TableModelListener.class, l);
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
     private static final class SingleColumnModel implements TableModel {
 
         //~ Instance fields ----------------------------------------------------
@@ -2590,7 +3969,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         //~ Constructors -------------------------------------------------------
 
         /**
-         * Creates a new SingleColumnModel object.
+         * Creates a new SingleColumnModelCritFunc object.
          *
          * @param  strategies  DOCUMENT ME!
          */
