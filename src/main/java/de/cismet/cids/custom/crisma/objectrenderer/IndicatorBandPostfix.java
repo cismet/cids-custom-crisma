@@ -244,7 +244,8 @@ public final class IndicatorBandPostfix extends javax.swing.JPanel implements Ba
 
         @Override
         public void mouseEntered(final MouseEvent e) {
-            // noop
+            setCursor(WorldstatesAggregationRenderer._critEditing ? Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+                                                                  : Cursor.getDefaultCursor());
         }
 
         @Override

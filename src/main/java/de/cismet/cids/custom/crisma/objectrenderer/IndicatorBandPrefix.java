@@ -257,7 +257,8 @@ public final class IndicatorBandPrefix extends javax.swing.JPanel implements Ban
 
         @Override
         public void mouseEntered(final MouseEvent e) {
-            // noop
+            setCursor(WorldstatesAggregationRenderer._critEditing ? Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+                                                                  : Cursor.getDefaultCursor());
         }
 
         @Override
