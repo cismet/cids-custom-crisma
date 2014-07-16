@@ -209,6 +209,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     private final List<Rank> ranks = new ArrayList<Rank>();
 
     private final HashMap<String, IndicatorBand> valueBands = new HashMap<String, IndicatorBand>(10);
+    
+    static boolean _critEditing = false;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddCritFunc;
@@ -4026,6 +4028,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
          */
         public SingleColumnModelCritFunc(final List<CritFunc> funcs) {
             this.funcs = funcs;
+            _critEditing = (editingRow != null);
         }
 
         //~ Methods ------------------------------------------------------------
@@ -4091,6 +4094,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
          */
         public void setEditingRow(final Integer rowIndex) {
             this.editingRow = rowIndex;
+            _critEditing = (editingRow != null);
         }
 
         @Override

@@ -228,7 +228,7 @@ public final class IndicatorBandMember extends javax.swing.JPanel implements Sec
 
     @Override
     public void mouseClicked(final MouseEvent e) {
-        if (!e.isPopupTrigger()) {
+        if (!e.isPopupTrigger() && WorldstatesAggregationRenderer._critEditing) {
             final CriteriaGroup g = new CriteriaGroup((int)(getMin() + ((getMax() - getMin()) / 2)),
                     0,
                     band.getHundredGroup().getUnit());

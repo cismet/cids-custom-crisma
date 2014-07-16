@@ -234,7 +234,7 @@ public final class IndicatorBandPrefix extends javax.swing.JPanel implements Ban
 
         @Override
         public void mouseClicked(final MouseEvent e) {
-            if (!e.isPopupTrigger()) {
+            if (!e.isPopupTrigger() && WorldstatesAggregationRenderer._critEditing) {
                 JOptionPane.showMessageDialog(
                     this,
                     new CriteriaBoundaryPopup(band.getZeroGroup(), true),
