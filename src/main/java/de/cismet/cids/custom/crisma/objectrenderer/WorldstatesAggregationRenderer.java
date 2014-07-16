@@ -151,6 +151,7 @@ import de.cismet.tools.gui.jbands.JBand;
 import de.cismet.tools.gui.jbands.SimpleBandModel;
 import de.cismet.tools.gui.jbands.interfaces.BandModelListener;
 import de.cismet.tools.gui.log4jquickconfig.Log4JQuickConfig;
+import javax.swing.JComboBox;
 
 /**
  * DOCUMENT ME!
@@ -1199,23 +1200,23 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnDelActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_btnDelActionPerformed
-    {                                                                        //GEN-HEADEREND:event_btnDelActionPerformed
+    private void btnDelActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnDelActionPerformed
+    {//GEN-HEADEREND:event_btnDelActionPerformed
         singleColumnModel.removeRow(tblStrategies.getSelectedRow());
         if (singleColumnModel.getRowCount() == 0) {
             btnEditSave.setEnabled(false);
             btnDel.setEnabled(false);
         }
         calcOWARanks();
-    }                                                                        //GEN-LAST:event_btnDelActionPerformed
+    }//GEN-LAST:event_btnDelActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnNewActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_btnNewActionPerformed
-    {                                                                        //GEN-HEADEREND:event_btnNewActionPerformed
+    private void btnNewActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnNewActionPerformed
+    {//GEN-HEADEREND:event_btnNewActionPerformed
         final Strategy s = new Strategy();
         s.name = "New Strategy";
         s.lse = 0;
@@ -1256,85 +1257,85 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         tblStrategies.setEditingRow(row);
         btnNew.setEnabled(false);
         btnDel.setEnabled(false);
-    } //GEN-LAST:event_btnNewActionPerformed
+    }//GEN-LAST:event_btnNewActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void rdbPlusActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_rdbPlusActionPerformed
-    {                                                                         //GEN-HEADEREND:event_rdbPlusActionPerformed
+    private void rdbPlusActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_rdbPlusActionPerformed
+    {//GEN-HEADEREND:event_rdbPlusActionPerformed
         singleColumnModel.strategies.get(singleColumnModel.getEditingRow()).lse = 1;
         calcOWARanks();
-    }                                                                         //GEN-LAST:event_rdbPlusActionPerformed
+    }//GEN-LAST:event_rdbPlusActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void rdbNeutralActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_rdbNeutralActionPerformed
-    {                                                                            //GEN-HEADEREND:event_rdbNeutralActionPerformed
+    private void rdbNeutralActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_rdbNeutralActionPerformed
+    {//GEN-HEADEREND:event_rdbNeutralActionPerformed
         singleColumnModel.strategies.get(singleColumnModel.getEditingRow()).lse = 0;
         calcOWARanks();
-    }                                                                            //GEN-LAST:event_rdbNeutralActionPerformed
+    }//GEN-LAST:event_rdbNeutralActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void rdbMinusActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_rdbMinusActionPerformed
-    {                                                                          //GEN-HEADEREND:event_rdbMinusActionPerformed
+    private void rdbMinusActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_rdbMinusActionPerformed
+    {//GEN-HEADEREND:event_rdbMinusActionPerformed
         singleColumnModel.strategies.get(singleColumnModel.getEditingRow()).lse = -1;
         calcOWARanks();
-    }                                                                          //GEN-LAST:event_rdbMinusActionPerformed
+    }//GEN-LAST:event_rdbMinusActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void rdbMinActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_rdbMinActionPerformed
-    {                                                                        //GEN-HEADEREND:event_rdbMinActionPerformed
+    private void rdbMinActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_rdbMinActionPerformed
+    {//GEN-HEADEREND:event_rdbMinActionPerformed
         singleColumnModel.strategies.get(singleColumnModel.getEditingRow()).lse = -2;
         calcOWARanks();
-    }                                                                        //GEN-LAST:event_rdbMinActionPerformed
+    }//GEN-LAST:event_rdbMinActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void rdbMaxActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_rdbMaxActionPerformed
-    {                                                                        //GEN-HEADEREND:event_rdbMaxActionPerformed
+    private void rdbMaxActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_rdbMaxActionPerformed
+    {//GEN-HEADEREND:event_rdbMaxActionPerformed
         singleColumnModel.strategies.get(singleColumnModel.getEditingRow()).lse = 2;
         calcOWARanks();
-    }                                                                        //GEN-LAST:event_rdbMaxActionPerformed
+    }//GEN-LAST:event_rdbMaxActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnRemCritFuncActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_btnRemCritFuncActionPerformed
-    {                                                                                //GEN-HEADEREND:event_btnRemCritFuncActionPerformed
+    private void btnRemCritFuncActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnRemCritFuncActionPerformed
+    {//GEN-HEADEREND:event_btnRemCritFuncActionPerformed
         singleColumnModelCritFunc.removeRow(tblCritFunc.getSelectedRow());
         if (singleColumnModelCritFunc.getRowCount() == 0) {
             btnEditSaveCritFunc.setEnabled(false);
             btnRemCritFunc.setEnabled(false);
         }
         // reinit bands?
-    }                                                                                //GEN-LAST:event_btnRemCritFuncActionPerformed
+    }//GEN-LAST:event_btnRemCritFuncActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddCritFuncActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_btnAddCritFuncActionPerformed
-    {                                                                                //GEN-HEADEREND:event_btnAddCritFuncActionPerformed
+    private void btnAddCritFuncActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnAddCritFuncActionPerformed
+    {//GEN-HEADEREND:event_btnAddCritFuncActionPerformed
         try {
             final CritFunc s = new CritFunc();
             s.name = "New Criteria Function";
@@ -1373,7 +1374,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-    } //GEN-LAST:event_btnAddCritFuncActionPerformed
+    }//GEN-LAST:event_btnAddCritFuncActionPerformed
 
     @Override
     protected void init() {
@@ -2375,11 +2376,12 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
 //        jPanel11.remove(jPanel20);
         GridBagConstraints gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 0;
         gridBagConstraints.insets = new Insets(5, 5, 5, 5);
+        gridBagConstraints.gridwidth = 2;
         BorderPanel p = new BorderPanel();
         p.setTitle("Decision Strategy");
         p.setContentPane(jPanel18);
@@ -2388,7 +2390,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         p.setTitle("Criteria Emphasis");
         p.setContentPane(jPanel16);
         gridBagConstraints = (GridBagConstraints)gridBagConstraints.clone();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridwidth = 2;
         jPanel11.add(p, gridBagConstraints);
         p = new BorderPanel();
         p.setTitle("Level of Satisfaction Emphasis");
@@ -2409,11 +2412,90 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         p.setContentPane(jPanel20);
         gridBagConstraints = (GridBagConstraints)gridBagConstraints.clone();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 4;
         gridBagConstraints.weighty = 1;
         gridBagConstraints.weightx = 1;
         jPanel11.add(p, gridBagConstraints);
+        gridBagConstraints = (GridBagConstraints)gridBagConstraints.clone();
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 1;
+        gridBagConstraints.insets = new Insets(0, 10, 0, 5);
+        gridBagConstraints.weightx = 0;
+        gridBagConstraints.weighty = 0;
+        final JLabel l = new JLabel("Criteria function:");
+        jPanel11.add(l, gridBagConstraints);
+        gridBagConstraints = (GridBagConstraints)gridBagConstraints.clone();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridwidth = 1;
+        gridBagConstraints.insets = new Insets(0, 0, 0, 0);
+        gridBagConstraints.weightx = 0;
+        gridBagConstraints.weighty = 0;
+        gridBagConstraints.anchor = GridBagConstraints.WEST;
+        final JComboBox<CritFunc> cboCritFuncOwa = new JComboBox<CritFunc>();
+        final DefaultComboBoxModel<CritFunc> model = new DefaultComboBoxModel<CritFunc>();
+        for (final CritFunc func : singleColumnModelCritFunc.funcs) {
+            model.addElement(func);
+        }
+        cboCritFuncOwa.setRenderer(new DefaultListCellRenderer() {
+
+                @Override
+                public Component getListCellRendererComponent(final JList<?> list,
+                        final Object value,
+                        final int index,
+                        final boolean isSelected,
+                        final boolean cellHasFocus) {
+                    final JLabel l = (JLabel)super.getListCellRendererComponent(
+                            list,
+                            value,
+                            index,
+                            isSelected,
+                            cellHasFocus);
+                    l.setText(((CritFunc)value).getName());
+
+                    return l;
+                }
+            });
+        cboCritFuncOwa.addItemListener(new ItemListener() {
+
+                @Override
+                public void itemStateChanged(final ItemEvent e) {
+                    if (e.getStateChange() == ItemEvent.SELECTED) {
+                        final CritFunc func = (CritFunc)e.getItem();
+                        try {
+                            crit.clear();
+                            for (final CidsBean c : getCidsBeans()) {
+                                final List<CidsBean> icclist = c.getBeanCollectionProperty("iccdata");
+                                CidsBean iccbean = null;
+                                for (final CidsBean icc : icclist) {
+                                    if ("Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
+                                        iccbean = icc;
+                                        break;
+                                    }
+                                }
+
+                                final ICCData data = calcCritData(m.readValue(
+                                            (String)iccbean.getProperty("actualaccessinfo"),
+                                            ICCData.class), func);
+                                final double[] vector = new double[10];
+                                int i = 0;
+                                for (final ValueIterable vi : data) {
+                                    for (final Value v : vi) {
+                                        vector[i++] = Double.parseDouble(v.getValue()) / 100d;
+                                    }
+                                }
+                                crit.put(c, vector);
+                            }
+                            calcOWARanks();
+                        } catch (final Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+            });
+        cboCritFuncOwa.setModel(model);
+        cboCritFuncOwa.setSelectedIndex(0);
+        jPanel11.add(cboCritFuncOwa, gridBagConstraints);
 
         jPanel11.invalidate();
         jPanel11.validate();
@@ -2480,29 +2562,30 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         btnEditSave.setEnabled(false);
         btnDel.setEnabled(false);
 
-//        crit.clear();
-//        for (final CidsBean c : getCidsBeans()) {
-//            final List<CidsBean> icclist = c.getBeanCollectionProperty("iccdata");
-//            CidsBean iccbean = null;
-//            for (final CidsBean icc : icclist) {
-//                if ("Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
-//                    iccbean = icc;
-//                    break;
-//                }
-//            }
-//
-//            final ICCData data = calcCritData(m.readValue(
-//                        (String)iccbean.getProperty("actualaccessinfo"),
-//                        ICCData.class));
-//            final double[] vector = new double[10];
-//            int i = 0;
-//            for (final ValueIterable vi : data) {
-//                for (final Value v : vi) {
-//                    vector[i++] = Double.parseDouble(v.getValue()) / 100d;
-//                }
-//            }
-//            crit.put(c, vector);
-//        }
+        final CritFunc func = (CritFunc)cboCritFuncOwa.getSelectedItem();
+        crit.clear();
+        for (final CidsBean c : getCidsBeans()) {
+            final List<CidsBean> icclist1 = c.getBeanCollectionProperty("iccdata");
+            CidsBean iccbean1 = null;
+            for (final CidsBean icc : icclist1) {
+                if ("Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
+                    iccbean1 = icc;
+                    break;
+                }
+            }
+
+            final ICCData data1 = calcCritData(m.readValue(
+                        (String)iccbean1.getProperty("actualaccessinfo"),
+                        ICCData.class), func);
+            final double[] vector = new double[10];
+            int i1 = 0;
+            for (final ValueIterable vi : data1) {
+                for (final Value v : vi) {
+                    vector[i1++] = Double.parseDouble(v.getValue()) / 100d;
+                }
+            }
+            crit.put(c, vector);
+        }
         calcOWARanks();
     }
 
