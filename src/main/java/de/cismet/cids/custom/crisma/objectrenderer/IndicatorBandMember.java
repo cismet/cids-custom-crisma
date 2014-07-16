@@ -212,8 +212,8 @@ public final class IndicatorBandMember extends javax.swing.JPanel implements Sec
         lblValueRange.setText(lower + " - " + upper);
         final String unit = band.getHundredGroup().getUnit();
         this.setToolTipText("<html>Level of satisfaction range: " + (int)getMin() + " % - " + (int)getMax() + " %"
-                + "<br/>Indicator value range: " + lower + " " + unit + " - " + upper + " " + unit
-                + "</html>");
+                    + "<br/>Indicator value range: " + lower + " " + unit + " - " + upper + " " + unit
+                    + "</html>");
     }
 
     @Override
