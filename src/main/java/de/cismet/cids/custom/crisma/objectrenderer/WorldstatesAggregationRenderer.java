@@ -835,6 +835,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         jPanel10.setOpaque(false);
         jPanel10.setLayout(new java.awt.GridBagLayout());
 
+        jScrollPane6.setMinimumSize(new java.awt.Dimension(454, 270));
         jScrollPane6.setPreferredSize(new java.awt.Dimension(454, 270));
 
         tblCrit.setModel(new javax.swing.table.DefaultTableModel(
@@ -865,11 +866,9 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 0.5;
+        gridBagConstraints.weighty = 0.6;
         jPanel10.add(tbpCrit, gridBagConstraints);
 
-        cboCritFuncCrit.setModel(new javax.swing.DefaultComboBoxModel(
-                new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -3798,6 +3797,33 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         //~ Instance fields ----------------------------------------------------
 
         Thread t;
+        ItemListener itemL = new ItemListener() {
+
+                @Override
+                public void itemStateChanged(final ItemEvent e) {
+                    if (e.getStateChange() == ItemEvent.SELECTED) {
+                        e.getItem();
+                        try {
+                            tbpCrit.removeAll();
+                            initTable(true);
+                            initAnalysisGraph(true);
+                            if (t != null) {
+                                t.interrupt();
+                            }
+                            t = new Thread(new Runnable() {
+
+                                        @Override
+                                        public void run() {
+                                            initMultipleSpiderWebChart();
+                                        }
+                                    });
+                            t.start();
+                        } catch (final Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+            };
 
         //~ Methods ------------------------------------------------------------
 
@@ -3829,33 +3855,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                                 return l;
                             }
                         });
-                    cboCritFuncCrit.addItemListener(new ItemListener() {
-
-                            @Override
-                            public void itemStateChanged(final ItemEvent e) {
-                                if (e.getStateChange() == ItemEvent.SELECTED) {
-                                    e.getItem();
-                                    try {
-                                        tbpCrit.removeAll();
-                                        initTable(true);
-                                        initAnalysisGraph(true);
-                                        if (t != null) {
-                                            t.interrupt();
-                                        }
-                                        t = new Thread(new Runnable() {
-
-                                                    @Override
-                                                    public void run() {
-                                                        initMultipleSpiderWebChart();
-                                                    }
-                                                });
-                                        t.start();
-                                    } catch (final Exception ex) {
-                                        ex.printStackTrace();
-                                    }
-                                }
-                            }
-                        });
+                    cboCritFuncCrit.removeItemListener(itemL);
+                    cboCritFuncCrit.addItemListener(itemL);
                     cboCritFuncCrit.setModel(model);
                     cboCritFuncCrit.setSelectedIndex(0);
                     tbpCrit.removeAll();
