@@ -96,13 +96,13 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -227,11 +227,14 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     private javax.swing.JButton btnRemCritFunc;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JComboBox cboCritFuncCrit;
+    private javax.swing.JComboBox cboCritFuncOwa;
     private javax.swing.Box.Filler filler1;
     private javax.swing.Box.Filler filler2;
+    private javax.swing.Box.Filler filler3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JList jList1;
     private javax.swing.JList jList2;
     private javax.swing.JList jList3;
@@ -303,6 +306,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     public WorldstatesAggregationRenderer() throws IOException {
         owa = new OWA();
         initComponents();
+        final JSeparator sep = new JSeparator(SwingConstants.VERTICAL);
+        jToolBar1.add(sep, 4);
 
         jLabel1.setIcon(i);
         jTabbedPane2.addChangeListener(new TabChangedL());
@@ -391,6 +396,69 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         btnEditSave = new javax.swing.JButton();
         btnNew = new javax.swing.JButton();
         btnDel = new javax.swing.JButton();
+        filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(5, 0),
+                new java.awt.Dimension(5, 0),
+                new java.awt.Dimension(5, 32767));
+        jLabel4 = new javax.swing.JLabel();
+        cboCritFuncOwa = new javax.swing.JComboBox();
+
+        cboCritFuncOwa.setRenderer(new DefaultListCellRenderer() {
+
+                @Override
+                public Component getListCellRendererComponent(final JList<?> list,
+                        final Object value,
+                        final int index,
+                        final boolean isSelected,
+                        final boolean cellHasFocus) {
+                    final JLabel l = (JLabel)super.getListCellRendererComponent(
+                            list,
+                            value,
+                            index,
+                            isSelected,
+                            cellHasFocus);
+                    l.setText(((CritFunc)value).getName());
+
+                    return l;
+                }
+            });
+        cboCritFuncOwa.addItemListener(new ItemListener() {
+
+                @Override
+                public void itemStateChanged(final ItemEvent e) {
+                    if (e.getStateChange() == ItemEvent.SELECTED) {
+                        final CritFunc func = (CritFunc)e.getItem();
+                        try {
+                            crit.clear();
+                            for (final CidsBean c : getCidsBeans()) {
+                                final List<CidsBean> icclist = c.getBeanCollectionProperty("iccdata");
+                                CidsBean iccbean = null;
+                                for (final CidsBean icc : icclist) {
+                                    if ("Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
+                                        iccbean = icc;
+                                        break;
+                                    }
+                                }
+
+                                final ICCData data = calcCritData(
+                                        m.readValue((String)iccbean.getProperty("actualaccessinfo"),
+                                            ICCData.class),
+                                        func);
+                                final double[] vector = new double[10];
+                                int i = 0;
+                                for (final ValueIterable vi : data) {
+                                    for (final Value v : vi) {
+                                        vector[i++] = Double.parseDouble(v.getValue()) / 100d;
+                                    }
+                                }
+                                crit.put(c, vector);
+                            }
+                            calcOWARanks();
+                        } catch (final Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+            });
         jPanel20 = new javax.swing.JPanel();
         jPanel21 = new javax.swing.JPanel();
         jScrollPane9 = new javax.swing.JScrollPane();
@@ -1018,6 +1086,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         jPanel18.add(jPanel19, gridBagConstraints);
 
         jToolBar1.setRollover(true);
+        jToolBar1.setOpaque(false);
 
         btnEditSave.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/cids/custom/crisma/objectrenderer/edit_16.png"))); // NOI18N
@@ -1065,12 +1134,21 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                 }
             });
         jToolBar1.add(btnDel);
+        jToolBar1.add(filler3);
+
+        jLabel4.setText(NbBundle.getMessage(
+                WorldstatesAggregationRenderer.class,
+                "WorldstatesAggregationRenderer.jLabel4.text")); // NOI18N
+        jToolBar1.add(jLabel4);
+
+        jToolBar1.add(cboCritFuncOwa);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         jPanel18.add(jToolBar1, gridBagConstraints);
 
@@ -2419,8 +2497,6 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         gridBagConstraints.insets = new Insets(0, 10, 0, 5);
         gridBagConstraints.weightx = 0;
         gridBagConstraints.weighty = 0;
-        final JLabel l = new JLabel("Criteria function:");
-        jPanel11.add(l, gridBagConstraints);
         gridBagConstraints = (GridBagConstraints)gridBagConstraints.clone();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridwidth = 1;
@@ -2428,72 +2504,12 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         gridBagConstraints.weightx = 0;
         gridBagConstraints.weighty = 0;
         gridBagConstraints.anchor = GridBagConstraints.WEST;
-        final JComboBox<CritFunc> cboCritFuncOwa = new JComboBox<CritFunc>();
         final DefaultComboBoxModel<CritFunc> model = new DefaultComboBoxModel<CritFunc>();
         for (final CritFunc func : singleColumnModelCritFunc.funcs) {
             model.addElement(func);
         }
-        cboCritFuncOwa.setRenderer(new DefaultListCellRenderer() {
-
-                @Override
-                public Component getListCellRendererComponent(final JList<?> list,
-                        final Object value,
-                        final int index,
-                        final boolean isSelected,
-                        final boolean cellHasFocus) {
-                    final JLabel l = (JLabel)super.getListCellRendererComponent(
-                            list,
-                            value,
-                            index,
-                            isSelected,
-                            cellHasFocus);
-                    l.setText(((CritFunc)value).getName());
-
-                    return l;
-                }
-            });
-        cboCritFuncOwa.addItemListener(new ItemListener() {
-
-                @Override
-                public void itemStateChanged(final ItemEvent e) {
-                    if (e.getStateChange() == ItemEvent.SELECTED) {
-                        final CritFunc func = (CritFunc)e.getItem();
-                        try {
-                            crit.clear();
-                            for (final CidsBean c : getCidsBeans()) {
-                                final List<CidsBean> icclist = c.getBeanCollectionProperty("iccdata");
-                                CidsBean iccbean = null;
-                                for (final CidsBean icc : icclist) {
-                                    if ("Indicators".equalsIgnoreCase((String)icc.getProperty("name"))) {
-                                        iccbean = icc;
-                                        break;
-                                    }
-                                }
-
-                                final ICCData data = calcCritData(
-                                        m.readValue((String)iccbean.getProperty("actualaccessinfo"),
-                                            ICCData.class),
-                                        func);
-                                final double[] vector = new double[10];
-                                int i = 0;
-                                for (final ValueIterable vi : data) {
-                                    for (final Value v : vi) {
-                                        vector[i++] = Double.parseDouble(v.getValue()) / 100d;
-                                    }
-                                }
-                                crit.put(c, vector);
-                            }
-                            calcOWARanks();
-                        } catch (final Exception ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                }
-            });
         cboCritFuncOwa.setModel(model);
         cboCritFuncOwa.setSelectedIndex(0);
-        jPanel11.add(cboCritFuncOwa, gridBagConstraints);
-
         jPanel11.invalidate();
         jPanel11.validate();
         tblStrategies.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
