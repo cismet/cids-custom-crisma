@@ -2596,6 +2596,16 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                     updateOWATable();
                 }
             });
+        if (tblStrategies.getRowCount() > 0) {
+            EventQueue.invokeLater(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        tblStrategies.getSelectionModel().setSelectionInterval(0, 0);
+                        updateOWATable();
+                    }
+                });
+        }
     }
 
     /**
@@ -2665,9 +2675,9 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         final DefaultTableModel dtm = new DefaultTableModel();
         dtm.setColumnIdentifiers(
             new Object[] {
-                "Worldstate",
-                "Level of Satisfaction",
                 "Rank",
+                "Worldstate",
+                "Score",
                 "Criteria Overview",
                 "Number of Dead",
                 "Number of Injured",
@@ -2688,9 +2698,9 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                 final IndCrit ic = wsIndCrit.get(wsName);
                 dtm.addRow(
                     new Object[] {
+                        i++,
                         wsName,
                         score.rank,
-                        i++,
                         ic.criteria,
                         nfn.format(Double.parseDouble(ic.indicators.getCasualties().getNoOfDead().getValue()))
                                 + " "
@@ -2784,7 +2794,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                 }
             });
         tblRankings.getColumn("Worldstate").setPreferredWidth(150);
-        tblRankings.getColumn("Level of Satisfaction").setPreferredWidth(80);
+        tblRankings.getColumn("Score").setPreferredWidth(80);
         tblRankings.getColumn("Rank").setPreferredWidth(30);
         tblRankings.getColumn("Worldstate").setCellRenderer(new DefaultTableCellRenderer() {
 
@@ -2829,7 +2839,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                     return l;
                 }
             });
-        tblRankings.getColumn("Level of Satisfaction").setCellRenderer(new DefaultTableCellRenderer() {
+        tblRankings.getColumn("Score").setCellRenderer(new DefaultTableCellRenderer() {
 
                 @Override
                 public Component getTableCellRendererComponent(final JTable table,
@@ -2883,10 +2893,11 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                     return chartPanel;
                 }
             });
+        ((JXTable)tblRankings).setEditable(false);
         ((JXTable)tblRankings).packAll();
         final int rows = tblRankings.getRowCount();
         if (rows != 0) {
-            final int rowHeight = tblRankings.getHeight() / rows;
+            final int rowHeight = jScrollPane9.getViewport().getHeight() / rows;
             tblRankings.setRowHeight(rowHeight);
             tblRankings.getColumn("Criteria Overview").setPreferredWidth(2 * rowHeight);
         }
