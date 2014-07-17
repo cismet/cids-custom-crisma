@@ -19,6 +19,8 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.jdesktop.swingx.JXTable;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -53,6 +55,8 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
@@ -212,6 +216,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
 
     private final HashMap<String, IndicatorBand> valueBands = new HashMap<String, IndicatorBand>(10);
 
+    private final Map<String, IndCrit> wsIndCrit = new HashMap<String, IndCrit>(12);
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddCritFunc;
     private javax.swing.JButton btnDel;
@@ -245,7 +251,6 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel20;
     private javax.swing.JPanel jPanel21;
-    private javax.swing.JPanel jPanel22;
     private javax.swing.JPanel jPanel23;
     private javax.swing.JPanel jPanel24;
     private javax.swing.JPanel jPanel25;
@@ -389,8 +394,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         jPanel20 = new javax.swing.JPanel();
         jPanel21 = new javax.swing.JPanel();
         jScrollPane9 = new javax.swing.JScrollPane();
-        tblRankings = new javax.swing.JTable();
-        jPanel22 = new javax.swing.JPanel();
+        tblRankings = new JXTable();
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
@@ -1120,6 +1124,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                     return canEdit[columnIndex];
                 }
             });
+        tblRankings.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
         tblRankings.getTableHeader().setReorderingAllowed(false);
         jScrollPane9.setViewportView(tblRankings);
         if (tblRankings.getColumnModel().getColumnCount() > 0) {
@@ -1149,21 +1154,10 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 0.3;
+        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         jPanel21.add(jScrollPane9, gridBagConstraints);
-
-        jPanel22.setOpaque(false);
-        jPanel22.setLayout(new java.awt.BorderLayout());
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 0.7;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
-        jPanel21.add(jPanel22, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -2567,6 +2561,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
 
         final CritFunc func = (CritFunc)cboCritFuncOwa.getSelectedItem();
         crit.clear();
+        wsIndCrit.clear();
         for (final CidsBean c : getCidsBeans()) {
             final List<CidsBean> icclist1 = c.getBeanCollectionProperty("iccdata");
             CidsBean iccbean1 = null;
@@ -2577,13 +2572,16 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                 }
             }
 
-            final ICCData data1 = calcCritData(m.readValue(
-                        (String)iccbean1.getProperty("actualaccessinfo"),
-                        ICCData.class),
-                    func);
+            final ICCData indData = m.readValue((String)iccbean1.getProperty("actualaccessinfo"),
+                    ICCData.class);
+            final ICCData critData = calcCritData(indData, func);
+            final IndCrit ic = new IndCrit();
+            ic.indicators = indData;
+            ic.criteria = critData;
+            wsIndCrit.put((String)c.getProperty("name"), ic);
             final double[] vector = new double[10];
             int i1 = 0;
-            for (final ValueIterable vi : data1) {
+            for (final ValueIterable vi : critData) {
                 for (final Value v : vi) {
                     vector[i1++] = Double.parseDouble(v.getValue()) / 100d;
                 }
@@ -2591,6 +2589,13 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
             crit.put(c, vector);
         }
         calcOWARanks();
+        jPanel21.addComponentListener(new ComponentAdapter() {
+
+                @Override
+                public void componentResized(final ComponentEvent e) {
+                    updateOWATable();
+                }
+            });
     }
 
     /**
@@ -2651,16 +2656,6 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         }
 
         updateOWATable();
-        jPanel22.removeAll();
-        jPanel22.add(createRankingPlot());
-        EventQueue.invokeLater(new Runnable() {
-
-                @Override
-                public void run() {
-                    jPanel22.invalidate();
-                    jPanel22.revalidate();
-                }
-            });
     }
 
     /**
@@ -2668,17 +2663,151 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
      */
     private void updateOWATable() {
         final DefaultTableModel dtm = new DefaultTableModel();
-        dtm.setColumnIdentifiers(new Object[] { "Worldstate", "Level of Satisfaction", "Rank" });
+        dtm.setColumnIdentifiers(
+            new Object[] {
+                "Worldstate",
+                "Level of Satisfaction",
+                "Rank",
+                "Criteria Overview",
+                "Number of Dead",
+                "Number of Injured",
+                "Number of Homeless",
+                "Lost Buildings",
+                "Unsafe Buildings",
+                "Damaged Road Segments",
+                "Direct Damage Cost",
+                "Indirect Damage Cost",
+                "Direct Restoration Cost",
+                "Total Evacuation Cost"
+            });
         if (!ranks.isEmpty()) {
             int i = 1;
+            final NumberFormat nfn = NumberFormat.getNumberInstance();
             for (final Rank score : ranks) {
-                dtm.addRow(new Object[] { score.b.getProperty("name"), score.rank, i++ });
+                final String wsName = (String)score.b.getProperty("name");
+                final IndCrit ic = wsIndCrit.get(wsName);
+                dtm.addRow(
+                    new Object[] {
+                        wsName,
+                        score.rank,
+                        i++,
+                        ic.criteria,
+                        nfn.format(Double.parseDouble(ic.indicators.getCasualties().getNoOfDead().getValue()))
+                                + " "
+                                + ic.indicators.getCasualties().getNoOfDead().getUnit()
+                                + " / "
+                                + ic.criteria.getCasualties().getNoOfDead().getValue()
+                                + " %",
+                        nfn.format(Double.parseDouble(ic.indicators.getCasualties().getNoOfInjured().getValue()))
+                                + " "
+                                + ic.indicators.getCasualties().getNoOfInjured().getUnit()
+                                + " / "
+                                + ic.criteria.getCasualties().getNoOfInjured().getValue()
+                                + " %",
+                        nfn.format(Double.parseDouble(ic.indicators.getCasualties().getNoOfHomeless().getValue()))
+                                + " "
+                                + ic.indicators.getCasualties().getNoOfHomeless().getUnit()
+                                + " / "
+                                + ic.criteria.getCasualties().getNoOfHomeless().getValue()
+                                + " %",
+                        nfn.format(
+                            Double.parseDouble(ic.indicators.getDamagedBuildings().getLostBuildings().getValue()))
+                                + " "
+                                + ic.indicators.getDamagedBuildings().getLostBuildings().getUnit()
+                                + " / "
+                                + ic.criteria.getDamagedBuildings().getLostBuildings().getValue()
+                                + " %",
+                        nfn.format(
+                            Double.parseDouble(ic.indicators.getDamagedBuildings().getUnsafeBuildings().getValue()))
+                                + " "
+                                + ic.indicators.getDamagedBuildings().getUnsafeBuildings().getUnit()
+                                + " / "
+                                + ic.criteria.getDamagedBuildings().getUnsafeBuildings().getValue()
+                                + " %",
+                        nfn.format(
+                            Double.parseDouble(
+                                ic.indicators.getDamagedInfrastructure().getDamagedRoadSegments().getValue()))
+                                + " "
+                                + ic.indicators.getDamagedInfrastructure().getDamagedRoadSegments().getUnit()
+                                + " / "
+                                + ic.criteria.getDamagedInfrastructure().getDamagedRoadSegments().getValue()
+                                + " %",
+                        nfn.format(Double.parseDouble(ic.indicators.getCost().getDirectDamageCost().getValue()))
+                                + " "
+                                + ic.indicators.getCost().getDirectDamageCost().getUnit()
+                                + " / "
+                                + ic.criteria.getCost().getDirectDamageCost().getValue()
+                                + " %",
+                        nfn.format(Double.parseDouble(ic.indicators.getCost().getIndirectDamageCost().getValue()))
+                                + " "
+                                + ic.indicators.getCost().getIndirectDamageCost().getUnit()
+                                + " / "
+                                + ic.criteria.getCost().getIndirectDamageCost().getValue()
+                                + " %",
+                        nfn.format(Double.parseDouble(ic.indicators.getCost().getRestorationCost().getValue()))
+                                + " "
+                                + ic.indicators.getCost().getRestorationCost().getUnit()
+                                + " / "
+                                + ic.criteria.getCost().getRestorationCost().getValue()
+                                + " %",
+                        nfn.format(
+                            Double.parseDouble(ic.indicators.getEvacuationCost().getTotalEvacuationCost().getValue()))
+                                + " "
+                                + ic.indicators.getEvacuationCost().getTotalEvacuationCost().getUnit()
+                                + " / "
+                                + ic.criteria.getEvacuationCost().getTotalEvacuationCost().getValue()
+                                + " %"
+                    });
             }
         }
         tblRankings.setModel(dtm);
+        tblRankings.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+
+                @Override
+                public Component getTableCellRendererComponent(final JTable table,
+                        final Object value,
+                        final boolean isSelected,
+                        final boolean hasFocus,
+                        final int row,
+                        final int column) {
+                    final JLabel l = (JLabel)super.getTableCellRendererComponent(
+                            table,
+                            value,
+                            isSelected,
+                            hasFocus,
+                            row,
+                            column); // To change body of generated methods, choose Tools | Templates.
+                    l.setHorizontalAlignment(JLabel.RIGHT);
+                    l.setHorizontalTextPosition(JLabel.RIGHT);
+
+                    return l;
+                }
+            });
         tblRankings.getColumn("Worldstate").setPreferredWidth(150);
         tblRankings.getColumn("Level of Satisfaction").setPreferredWidth(80);
         tblRankings.getColumn("Rank").setPreferredWidth(30);
+        tblRankings.getColumn("Worldstate").setCellRenderer(new DefaultTableCellRenderer() {
+
+                @Override
+                public Component getTableCellRendererComponent(final JTable table,
+                        final Object value,
+                        final boolean isSelected,
+                        final boolean hasFocus,
+                        final int row,
+                        final int column) {
+                    final JLabel l = (JLabel)super.getTableCellRendererComponent(
+                            table,
+                            value,
+                            isSelected,
+                            hasFocus,
+                            row,
+                            column); // To change body of generated methods, choose Tools | Templates.
+                    l.setHorizontalAlignment(JLabel.LEFT);
+                    l.setHorizontalTextPosition(JLabel.LEFT);
+
+                    return l;
+                }
+            });
         tblRankings.getColumn("Rank").setCellRenderer(new DefaultTableCellRenderer() {
 
                 @Override
@@ -2722,6 +2851,45 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                     return l;
                 }
             });
+        tblRankings.getColumn("Criteria Overview").setCellRenderer(new DefaultTableCellRenderer() {
+
+                @Override
+                public Component getTableCellRendererComponent(final JTable table,
+                        final Object value,
+                        final boolean isSelected,
+                        final boolean hasFocus,
+                        final int row,
+                        final int column) {
+                    final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+                    final ICCData icc = (ICCData)value;
+
+                    int i = 1;
+                    for (final ValueIterable vi : icc) {
+                        for (final Value v : vi) {
+                            dataset.addValue((int)Double.parseDouble(v.getValue()),
+                                "ws",
+                                String.valueOf(i++));
+                        }
+                    }
+
+                    final SpiderWebPlot plot = new SpiderWebPlot(dataset);
+
+                    final JFreeChart chart = new JFreeChart(null,
+                            TextTitle.DEFAULT_FONT,
+                            plot,
+                            false);
+                    final ChartPanel chartPanel = new ChartPanel(chart, true, false, false, true, true);
+
+                    return chartPanel;
+                }
+            });
+        ((JXTable)tblRankings).packAll();
+        final int rows = tblRankings.getRowCount();
+        if (rows != 0) {
+            final int rowHeight = tblRankings.getHeight() / rows;
+            tblRankings.setRowHeight(rowHeight);
+            tblRankings.getColumn("Criteria Overview").setPreferredWidth(2 * rowHeight);
+        }
     }
 
     /**
@@ -3579,6 +3747,19 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     }
 
     //~ Inner Classes ----------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    private static final class IndCrit {
+
+        //~ Instance fields ----------------------------------------------------
+
+        ICCData indicators;
+        ICCData criteria;
+    }
 
     /**
      * DOCUMENT ME!
