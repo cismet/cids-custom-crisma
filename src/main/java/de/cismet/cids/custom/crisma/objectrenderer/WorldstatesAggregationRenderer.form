@@ -1103,7 +1103,7 @@
                             </Property>
                           </Properties>
                           <AuxValues>
-                            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new JXTable()"/>
+                            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new JXTable() {&#xa;    public JToolTip createToolTip() {&#xa;        final JToolTip tt = new JToolTip() {&#xa;            public void setTipText(final String text) {&#xa;                &#xa;                final SpiderWebPlot plot = new SpiderWebPlot(charts.get(Integer.parseInt(text)));&#xa;                plot.setMaxValue(100.0);&#xa;&#xa;                final JFreeChart chart = new JFreeChart(null,&#xa;                        TextTitle.DEFAULT_FONT,&#xa;                        plot,&#xa;                        false);&#xa;                final ChartPanel chartPanel = new ChartPanel(chart, true, false, false, true, true);&#xa;                add(chartPanel, BorderLayout.CENTER);&#xa;            }&#xa;        };&#xa;        tt.setLayout(new BorderLayout());&#xa;        final Dimension d = new Dimension(400, 300);&#xa;        tt.setMinimumSize(d);&#xa;        tt.setPreferredSize(d);&#xa;        tt.setMaximumSize(d);&#xa;        return tt;&#xa;    }&#xa;}"/>
                           </AuxValues>
                         </Component>
                       </SubComponents>
