@@ -156,6 +156,7 @@ import de.cismet.tools.gui.jbands.JBand;
 import de.cismet.tools.gui.jbands.SimpleBandModel;
 import de.cismet.tools.gui.jbands.interfaces.BandModelListener;
 import de.cismet.tools.gui.log4jquickconfig.Log4JQuickConfig;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 /**
  * DOCUMENT ME!
@@ -1273,23 +1274,23 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnDelActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_btnDelActionPerformed
-    {                                                                        //GEN-HEADEREND:event_btnDelActionPerformed
+    private void btnDelActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnDelActionPerformed
+    {//GEN-HEADEREND:event_btnDelActionPerformed
         singleColumnModel.removeRow(tblStrategies.getSelectedRow());
         if (singleColumnModel.getRowCount() == 0) {
             btnEditSave.setEnabled(false);
             btnDel.setEnabled(false);
         }
         calcOWARanks();
-    }                                                                        //GEN-LAST:event_btnDelActionPerformed
+    }//GEN-LAST:event_btnDelActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnNewActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_btnNewActionPerformed
-    {                                                                        //GEN-HEADEREND:event_btnNewActionPerformed
+    private void btnNewActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnNewActionPerformed
+    {//GEN-HEADEREND:event_btnNewActionPerformed
         final Strategy s = new Strategy();
         s.name = "New Strategy";
         s.lse = 0;
@@ -1330,85 +1331,85 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         tblStrategies.setEditingRow(row);
         btnNew.setEnabled(false);
         btnDel.setEnabled(false);
-    } //GEN-LAST:event_btnNewActionPerformed
+    }//GEN-LAST:event_btnNewActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void rdbPlusActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_rdbPlusActionPerformed
-    {                                                                         //GEN-HEADEREND:event_rdbPlusActionPerformed
+    private void rdbPlusActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_rdbPlusActionPerformed
+    {//GEN-HEADEREND:event_rdbPlusActionPerformed
         singleColumnModel.strategies.get(singleColumnModel.getEditingRow()).lse = 1;
         calcOWARanks();
-    }                                                                         //GEN-LAST:event_rdbPlusActionPerformed
+    }//GEN-LAST:event_rdbPlusActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void rdbNeutralActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_rdbNeutralActionPerformed
-    {                                                                            //GEN-HEADEREND:event_rdbNeutralActionPerformed
+    private void rdbNeutralActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_rdbNeutralActionPerformed
+    {//GEN-HEADEREND:event_rdbNeutralActionPerformed
         singleColumnModel.strategies.get(singleColumnModel.getEditingRow()).lse = 0;
         calcOWARanks();
-    }                                                                            //GEN-LAST:event_rdbNeutralActionPerformed
+    }//GEN-LAST:event_rdbNeutralActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void rdbMinusActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_rdbMinusActionPerformed
-    {                                                                          //GEN-HEADEREND:event_rdbMinusActionPerformed
+    private void rdbMinusActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_rdbMinusActionPerformed
+    {//GEN-HEADEREND:event_rdbMinusActionPerformed
         singleColumnModel.strategies.get(singleColumnModel.getEditingRow()).lse = -1;
         calcOWARanks();
-    }                                                                          //GEN-LAST:event_rdbMinusActionPerformed
+    }//GEN-LAST:event_rdbMinusActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void rdbMinActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_rdbMinActionPerformed
-    {                                                                        //GEN-HEADEREND:event_rdbMinActionPerformed
+    private void rdbMinActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_rdbMinActionPerformed
+    {//GEN-HEADEREND:event_rdbMinActionPerformed
         singleColumnModel.strategies.get(singleColumnModel.getEditingRow()).lse = -2;
         calcOWARanks();
-    }                                                                        //GEN-LAST:event_rdbMinActionPerformed
+    }//GEN-LAST:event_rdbMinActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void rdbMaxActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_rdbMaxActionPerformed
-    {                                                                        //GEN-HEADEREND:event_rdbMaxActionPerformed
+    private void rdbMaxActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_rdbMaxActionPerformed
+    {//GEN-HEADEREND:event_rdbMaxActionPerformed
         singleColumnModel.strategies.get(singleColumnModel.getEditingRow()).lse = 2;
         calcOWARanks();
-    }                                                                        //GEN-LAST:event_rdbMaxActionPerformed
+    }//GEN-LAST:event_rdbMaxActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnRemCritFuncActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_btnRemCritFuncActionPerformed
-    {                                                                                //GEN-HEADEREND:event_btnRemCritFuncActionPerformed
+    private void btnRemCritFuncActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnRemCritFuncActionPerformed
+    {//GEN-HEADEREND:event_btnRemCritFuncActionPerformed
         singleColumnModelCritFunc.removeRow(tblCritFunc.getSelectedRow());
         if (singleColumnModelCritFunc.getRowCount() == 0) {
             btnEditSaveCritFunc.setEnabled(false);
             btnRemCritFunc.setEnabled(false);
         }
         // reinit bands?
-    }                                                                                //GEN-LAST:event_btnRemCritFuncActionPerformed
+    }//GEN-LAST:event_btnRemCritFuncActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddCritFuncActionPerformed(final java.awt.event.ActionEvent evt) //GEN-FIRST:event_btnAddCritFuncActionPerformed
-    {                                                                                //GEN-HEADEREND:event_btnAddCritFuncActionPerformed
+    private void btnAddCritFuncActionPerformed(final java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnAddCritFuncActionPerformed
+    {//GEN-HEADEREND:event_btnAddCritFuncActionPerformed
         try {
             final CritFunc s = new CritFunc();
             s.name = "New Criteria Function";
@@ -1447,7 +1448,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-    } //GEN-LAST:event_btnAddCritFuncActionPerformed
+    }//GEN-LAST:event_btnAddCritFuncActionPerformed
 
     @Override
     protected void init() {
@@ -2603,6 +2604,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
             }
             crit.put(c, vector);
         }
+        ((JXTable)tblRankings).addHighlighter(HighlighterFactory.createAlternateStriping());
         calcOWARanks();
         jPanel21.addComponentListener(new ComponentAdapter() {
 
