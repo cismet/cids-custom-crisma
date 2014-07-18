@@ -393,6 +393,9 @@
           <SubComponents>
             <Container class="javax.swing.JScrollPane" name="jScrollPane10">
               <Properties>
+                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                  <Dimension value="[454, 270]"/>
+                </Property>
                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                   <Dimension value="[454, 270]"/>
                 </Property>
@@ -427,6 +430,9 @@
             </Container>
             <Container class="javax.swing.JPanel" name="jPanel24">
               <Properties>
+                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                  <Dimension value="[250, 52]"/>
+                </Property>
                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                   <Dimension value="[250, 433]"/>
                 </Property>

@@ -99,9 +99,9 @@ public final class IndicatorBandPostfix extends javax.swing.JPanel implements Ba
         setLayout(new GridBagLayout());
 
         pnlUBound.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        pnlUBound.setMinimumSize(new Dimension(80, 32));
+        pnlUBound.setMinimumSize(new Dimension(80, 24));
         pnlUBound.setOpaque(false);
-        pnlUBound.setPreferredSize(new Dimension(80, 32));
+        pnlUBound.setPreferredSize(new Dimension(80, 24));
         pnlUBound.setLayout(new GridBagLayout());
 
         lblLos.setFont(new Font("Lucida Grande", 0, 9));                                                     // NOI18N
@@ -109,7 +109,7 @@ public final class IndicatorBandPostfix extends javax.swing.JPanel implements Ba
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new Insets(2, 4, 1, 0);
+        gridBagConstraints.insets = new Insets(1, 4, 0, 0);
         pnlUBound.add(lblLos, gridBagConstraints);
 
         lblIndValue.setFont(new Font("Lucida Grande", 0, 9));                                                          // NOI18N
@@ -117,7 +117,7 @@ public final class IndicatorBandPostfix extends javax.swing.JPanel implements Ba
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new Insets(1, 4, 2, 0);
+        gridBagConstraints.insets = new Insets(0, 4, 1, 0);
         pnlUBound.add(lblIndValue, gridBagConstraints);
 
         gridBagConstraints = new GridBagConstraints();
@@ -169,18 +169,18 @@ public final class IndicatorBandPostfix extends javax.swing.JPanel implements Ba
             final Graphics2D g2 = (Graphics2D)g.create();
 
             final int w = getWidth() - 1;
-            final int h = 29;
+            final int h = 23;
 
             final Path2D.Float path = new Path2D.Float();
             path.moveTo(w, 0);
             path.lineTo(0, 0);
             path.lineTo(0, h);
             path.lineTo(w, h);
-            path.lineTo(w - 4, 24);
-            path.lineTo(w, 19);
-            path.lineTo(w - 4, 14);
-            path.lineTo(w, 9);
-            path.lineTo(w - 4, 4);
+            path.lineTo(w - 3, 29);
+            path.lineTo(w, 15);
+            path.lineTo(w - 3, 11);
+            path.lineTo(w, 7);
+            path.lineTo(w - 3, 3);
             path.lineTo(w, 0);
             path.closePath();
 
@@ -196,27 +196,27 @@ public final class IndicatorBandPostfix extends javax.swing.JPanel implements Ba
 
         @Override
         public void setSize(final Dimension d) {
-            super.setSize(new Dimension((d.width < 30) ? 30 : d.width, 30));
+            super.setSize(new Dimension((d.width < 24) ? 24 : d.width, 24));
         }
 
         @Override
         public void setSize(final int width, final int height) {
-            super.setSize((width < 30) ? 30 : width, 30);
+            super.setSize((width < 24) ? 24 : width, 24);
         }
 
         @Override
         public void setMinimumSize(final Dimension d) {
-            super.setMinimumSize(new Dimension((d.width < 30) ? 30 : d.width, 30));
+            super.setMinimumSize(new Dimension((d.width < 24) ? 24 : d.width, 24));
         }
 
         @Override
         public void setMaximumSize(final Dimension d) {
-            super.setMaximumSize(new Dimension((d.width < 30) ? 30 : d.width, 30));
+            super.setMaximumSize(new Dimension((d.width < 24) ? 24 : d.width, 24));
         }
 
         @Override
         public void setPreferredSize(final Dimension d) {
-            super.setPreferredSize(new Dimension((d.width < 30) ? 30 : d.width, 30));
+            super.setPreferredSize(new Dimension((d.width < 24) ? 24 : d.width, 24));
         }
 
         @Override

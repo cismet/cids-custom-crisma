@@ -11,6 +11,7 @@ import org.openide.util.NbBundle;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -97,6 +98,8 @@ public final class IndicatorBandMember extends javax.swing.JPanel implements Sec
         setBackground(new Color(153, 204, 0));
         setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0)));
         setCursor(new Cursor(Cursor.HAND_CURSOR));
+        setMinimumSize(new Dimension(37, 24));
+        setPreferredSize(new Dimension(37, 24));
         setLayout(new GridBagLayout());
 
         lblValueRange.setFont(new Font("Lucida Grande", 0, 9));                                                          // NOI18N
@@ -104,7 +107,7 @@ public final class IndicatorBandMember extends javax.swing.JPanel implements Sec
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new Insets(1, 5, 2, 5);
+        gridBagConstraints.insets = new Insets(0, 5, 1, 5);
         add(lblValueRange, gridBagConstraints);
 
         lblLos.setFont(new Font("Lucida Grande", 0, 9));                                                   // NOI18N
@@ -112,7 +115,7 @@ public final class IndicatorBandMember extends javax.swing.JPanel implements Sec
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new Insets(2, 0, 1, 0);
+        gridBagConstraints.insets = new Insets(1, 0, 0, 0);
         add(lblLos, gridBagConstraints);
     }                                                                                                      // </editor-fold>//GEN-END:initComponents
 

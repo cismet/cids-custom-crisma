@@ -332,7 +332,7 @@ public final class IndicatorBand implements Band, BandPrefixProvider, BandPostfi
 
     @Override
     public int getAbsoluteHeight() {
-        return 30;
+        return 24;
     }
 
     //~ Inner Classes ----------------------------------------------------------

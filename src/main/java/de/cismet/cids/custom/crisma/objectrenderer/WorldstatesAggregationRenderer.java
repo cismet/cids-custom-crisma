@@ -752,6 +752,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
 
         jPanel23.setLayout(new java.awt.GridBagLayout());
 
+        jScrollPane10.setMinimumSize(new java.awt.Dimension(454, 270));
         jScrollPane10.setPreferredSize(new java.awt.Dimension(454, 270));
 
         tblIC.setModel(new javax.swing.table.DefaultTableModel(
@@ -774,6 +775,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
         jPanel23.add(jScrollPane10, gridBagConstraints);
 
+        jPanel24.setMinimumSize(new java.awt.Dimension(250, 52));
         jPanel24.setPreferredSize(new java.awt.Dimension(250, 433));
         jPanel24.setLayout(new java.awt.BorderLayout(5, 5));
 
@@ -3877,7 +3879,11 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         public void stateChanged(final ChangeEvent e) {
             try {
                 final int selTab = jTabbedPane2.getSelectedIndex();
-                if (selTab == 2) {
+                if (selTab == 1) {
+                    if ((tblCritFunc.getSelectedRow() == -1) && (tblCritFunc.getRowCount() > 0)) {
+                        tblCritFunc.getSelectionModel().setSelectionInterval(0, 0);
+                    }
+                } else if (selTab == 2) {
                     final DefaultComboBoxModel<CritFunc> model = new DefaultComboBoxModel<CritFunc>();
                     for (final CritFunc func : singleColumnModelCritFunc.funcs) {
                         model.addElement(func);
