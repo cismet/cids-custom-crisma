@@ -428,7 +428,7 @@ public final class IndicatorBand implements Band, BandPrefixProvider, BandPostfi
 
                     @Override
                     public void mouseClicked(final MouseEvent e) {
-                        if (e.isPopupTrigger()) {
+                        if (e.isPopupTrigger() && WorldstatesAggregationRenderer._critEditing) {
                             popupMenu.show(c, e.getX(), e.getY());
                         }
                     }
