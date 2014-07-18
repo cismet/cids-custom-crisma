@@ -1688,7 +1688,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                                 false));
                     } else if (value instanceof Value) {
                         final Value v = (Value)value;
-                        l.setText(nf.format(Double.parseDouble(v.getValue())) + " " + v.getUnit());
+                        l.setText(nf.format(Double.parseDouble(v.getValue())) + " " + v.getUnit() + "  ");
                         l.setHorizontalTextPosition(SwingConstants.RIGHT);
                         l.setHorizontalAlignment(SwingConstants.RIGHT);
                     }
@@ -2848,6 +2848,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                             column); // To change body of generated methods, choose Tools | Templates.
                     l.setHorizontalAlignment(JLabel.RIGHT);
                     l.setHorizontalTextPosition(JLabel.RIGHT);
+                    l.setText(l.getText() + "  ");
 
                     return l;
                 }
@@ -2914,7 +2915,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                             hasFocus,
                             row,
                             column); // To change body of generated methods, choose Tools | Templates.
-                    l.setText(l.getText() + " %");
+                    l.setText(l.getText() + " %  ");
                     l.setHorizontalAlignment(JLabel.RIGHT);
                     l.setHorizontalTextPosition(JLabel.RIGHT);
                     return l;
@@ -3531,7 +3532,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                             l.setText(nf.format(Double.parseDouble(ic.getValue())) + " " + ic.getUnit() + " / "
                                         + calcCriteria(
                                             ic,
-                                            func) + " %");
+                                            func) + " %  ");
                             l.setHorizontalTextPosition(SwingConstants.RIGHT);
                             l.setHorizontalAlignment(SwingConstants.RIGHT);
                         }
