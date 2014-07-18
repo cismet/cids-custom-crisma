@@ -45,16 +45,16 @@ public final class IndicatorBand implements Band, BandPrefixProvider, BandPostfi
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final Color A_FIERY = new Color(255, 101, 67);
+    public static final Color A_FIERY = new Color(255, 101, 67);
 //    private static final Color B_WATERMILLION = new Color(245, 105, 145);
-    private static final Color C_FEELING_ORANGE = new Color(255, 159, 128);
-    private static final Color D_AFFINITY = new Color(255, 186, 107);
-    private static final Color E_ORANGE_SHERBERT = new Color(255, 196, 140);
-    private static final Color F_PEACE_BABY_YELLOW = new Color(255, 220, 138);
-    private static final Color G_JAYANTHI = new Color(255, 241, 158);
-    private static final Color H_HONEY_DO = new Color(239, 250, 180);
-    private static final Color I_SPLASH_OF_LIME = new Color(209, 242, 165);
-    private static final Color J_CHARMING_FROGUETTE = new Color(181, 244, 188);
+    public static final Color C_FEELING_ORANGE = new Color(255, 159, 128);
+    public static final Color D_AFFINITY = new Color(255, 186, 107);
+    public static final Color E_ORANGE_SHERBERT = new Color(255, 196, 140);
+    public static final Color F_PEACE_BABY_YELLOW = new Color(255, 220, 138);
+    public static final Color G_JAYANTHI = new Color(255, 241, 158);
+    public static final Color H_HONEY_DO = new Color(239, 250, 180);
+    public static final Color I_SPLASH_OF_LIME = new Color(209, 242, 165);
+    public static final Color J_CHARMING_FROGUETTE = new Color(181, 244, 188);
 
     //~ Instance fields --------------------------------------------------------
 

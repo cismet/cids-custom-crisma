@@ -54,6 +54,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
@@ -175,6 +176,13 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     private static final transient Logger LOG = LoggerFactory.getLogger(WorldstatesAggregationRenderer.class);
 
     static boolean _critEditing = false;
+
+    public static final Color EBONICS_444 = new Color(240, 240, 240);
+    public static final Color TITLE = new Color(216, 216, 216);
+
+    public static final Color POWDER_BLUE = new Color(109, 162, 235);
+    public static final Color O = new Color(79, 177, 187);
+    public static final Color DUTCH_TEAL = new Color(22, 147, 165);
 
     //~ Instance fields --------------------------------------------------------
 
@@ -476,6 +484,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                             public void setTipText(final String text) {
                                 final SpiderWebPlot plot = new SpiderWebPlot(charts.get(Integer.parseInt(text)));
                                 plot.setMaxValue(100.0);
+                                plot.setSeriesPaint(DUTCH_TEAL);
 
                                 final JFreeChart chart = new JFreeChart(null,
                                         TextTitle.DEFAULT_FONT,
@@ -2034,9 +2043,10 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                                         .createTransformedShape(DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE[i]);
                         }
 
+                        ((XYPlot)chart.getPlot()).setBackgroundPaint(TITLE);
                         ((XYPlot)chart.getPlot()).setDrawingSupplier(
                             new DefaultDrawingSupplier(
-                                DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE,
+                                new Paint[] { getColor(), getColor(), getColor(), getColor(), getColor() },
                                 DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
                                 DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
                                 DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
@@ -2195,6 +2205,8 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                                     add(refB, dataset);
                                     final SpiderWebPlot plot = new SpiderWebPlot(dataset);
                                     plot.setMaxValue(100.0);
+                                    plot.setSeriesPaint(0, DUTCH_TEAL);
+                                    plot.setSeriesPaint(1, IndicatorBand.D_AFFINITY);
 
                                     final JFreeChart chart = new JFreeChart(null,
                                             TextTitle.DEFAULT_FONT,
@@ -2930,6 +2942,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                     }
 
                     final SpiderWebPlot plot = new SpiderWebPlot(dataset);
+                    plot.setSeriesPaint(DUTCH_TEAL);
                     plot.setMaxValue(100.0);
 
                     final JFreeChart chart = new JFreeChart(null,
@@ -2951,7 +2964,7 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         if (rows != 0) {
             final int rowHeight = jScrollPane9.getViewport().getHeight() / rows;
             tblRankings.setRowHeight(rowHeight);
-            tblRankings.getColumn("Criteria Overview").setPreferredWidth(2 * rowHeight);
+            tblRankings.getColumn("Criteria Overview").setPreferredWidth((int)(1.6666 * rowHeight));
         }
     }
 
@@ -3780,24 +3793,19 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
     private Color getColor() {
         switch (next++ % 5) {
             case 0: {
-                // pastel red
-                return new Color(Integer.decode("0xFFA0B3"));
+                return IndicatorBand.C_FEELING_ORANGE;
             }
             case 1: {
-                // pastel blue
-                return new Color(Integer.decode("0x9DC7FF"));
+                return POWDER_BLUE;
             }
             case 2: {
-                // pastel light green
-                return new Color(Integer.decode("0x92FF92"));
+                return IndicatorBand.J_CHARMING_FROGUETTE;
             }
             case 3: {
-                // pastel orange
-                return new Color(Integer.decode("0xFFBF00"));
+                return IndicatorBand.E_ORANGE_SHERBERT;
             }
             case 4: {
-                // pastel khaki
-                return new Color(Integer.decode("0xB0AD62"));
+                return O;
             }
         }
 
