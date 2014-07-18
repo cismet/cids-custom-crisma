@@ -180,6 +180,11 @@ public final class IndicatorBandMember extends javax.swing.JPanel implements Sec
     @Override
     public void bandModelChanged(final BandModelEvent e) {
         final int index = band.indexOf(this);
+        if (index == -1) {
+            band.getModel().removeBandModelListener(this);
+            return;
+        }
+
         setBackground(IndicatorBand.getBandColor(band.getNumberOfMembers() + 2, index + 1));
 
         final NumberFormat nf = NumberFormat.getNumberInstance();
