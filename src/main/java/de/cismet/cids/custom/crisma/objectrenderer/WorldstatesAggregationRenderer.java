@@ -2352,6 +2352,12 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
                 i++;
             }
         }
+        GridBagConstraints gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = i++;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
+        gridBagConstraints.weighty = 1;
+        pnlSpin.add(new Filler(new Dimension(0, 0), new Dimension(0, 0), new Dimension(0, 32767)), gridBagConstraints);
 
         dem.addEqualizerModelListener(new EqualizerModelListener() {
 
@@ -2488,66 +2494,54 @@ public class WorldstatesAggregationRenderer extends AbstractCidsBeanAggregationR
         pnlEq.removeAll();
         pnlEq.add(eqPanel);
         jPanel11.removeAll();
-//        jPanel11.remove(jPanel18);
-//        jPanel11.remove(jPanel17);
-//        jPanel11.remove(jPanel16);
-//        jPanel11.remove(jPanel20);
-        GridBagConstraints gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 0;
-        gridBagConstraints.insets = new Insets(5, 5, 5, 5);
-        gridBagConstraints.gridwidth = 2;
-        BorderPanel p = new BorderPanel();
-        p.setTitle("Decision Strategy");
-        p.setContentPane(jPanel18);
-        jPanel11.add(p, gridBagConstraints);
-        p = new BorderPanel();
-        p.setTitle("Criteria Emphasis");
-        p.setContentPane(jPanel16);
-        gridBagConstraints = (GridBagConstraints)gridBagConstraints.clone();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridwidth = 2;
-        jPanel11.add(p, gridBagConstraints);
-        p = new BorderPanel();
-        p.setTitle("Level of Satisfaction Emphasis");
-        p.setContentPane(jPanel17);
-        gridBagConstraints = (GridBagConstraints)gbc.clone();
-        gridBagConstraints.gridy = i++;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.weighty = 1;
-        pnlSpin.add(new Filler(null, null, null), gridBagConstraints);
-        gridBagConstraints = (GridBagConstraints)gbc.clone();
-        gridBagConstraints.gridy = i;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.weighty = 0;
-        pnlSpin.add(p, gridBagConstraints);
 
-        p = new BorderPanel();
+        BorderPanel p = new BorderPanel();
         p.setTitle("Rankings");
         p.setContentPane(jPanel20);
-        gridBagConstraints = (GridBagConstraints)gridBagConstraints.clone();
+        gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weighty = 1;
         gridBagConstraints.weightx = 1;
         jPanel11.add(p, gridBagConstraints);
-        gridBagConstraints = (GridBagConstraints)gridBagConstraints.clone();
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 1;
-        gridBagConstraints.insets = new Insets(0, 10, 0, 5);
-        gridBagConstraints.weightx = 0;
-        gridBagConstraints.weighty = 0;
-        gridBagConstraints = (GridBagConstraints)gridBagConstraints.clone();
+
+        p = new BorderPanel();
+        p.setTitle("Decision Strategy");
+        p.setContentPane(jPanel18);
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 0.3;
+        gridBagConstraints.insets = new Insets(5, 5, 5, 5);
+        jPanel11.add(p, gridBagConstraints);
+
+        p = new BorderPanel();
+        p.setTitle("Level of Satisfaction Emphasis");
+        p.setContentPane(jPanel17);
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new Insets(5, 5, 5, 5);
+        jPanel11.add(p, gridBagConstraints);
+
+        p = new BorderPanel();
+        p.setTitle("Criteria Emphasis");
+        p.setContentPane(jPanel16);
+        gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridwidth = 1;
-        gridBagConstraints.insets = new Insets(0, 0, 0, 0);
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 0;
         gridBagConstraints.weighty = 0;
-        gridBagConstraints.anchor = GridBagConstraints.WEST;
+        gridBagConstraints.insets = new Insets(5, 5, 5, 5);
+        jPanel11.add(p, gridBagConstraints);
+
         final DefaultComboBoxModel<CritFunc> model = new DefaultComboBoxModel<CritFunc>();
         for (final CritFunc func : singleColumnModelCritFunc.funcs) {
             model.addElement(func);
